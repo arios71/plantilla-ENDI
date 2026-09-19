@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Plantilla Endi - Deportes (Continuo Fijo)</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 11pt;
+            line-height: 1.35;
+            margin: 0;
+            padding: 0;
+            background-color: #2c3e50; /* Fondo general oscuro elegante */
+            color: #111;
+        }
+        
+        /* Encabezado fijo y flotante en la parte superior */
+        .sticky-header-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            border-bottom: 3px solid #c0392b;
+        }
+
+        .header-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 12px 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+            font-size: 15pt;
+            font-weight: 800;
+            color: #c0392b;
+            margin: 0;
+            line-height: 1.1;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .publication-title {
+            font-family: "Georgia", Times, serif;
+            font-size: 9pt;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 2px 0 2px 0;
+            letter-spacing: 0.3px;
+        }
+
+        .byline-container {
+            font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+            font-size: 8.5pt;
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+
+        .byline-name {
+            color: #2980b9;
+            font-weight: bold;
+        }
+
+        /* Bloque de estadísticas y acciones fijo en el encabezado */
+        .header-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .counter-and-alerts {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .word-counter {
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            color: #2c3e50;
+            background: #f1f2f6;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid #dcdde1;
+        }
+
+        .word-alert {
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 7.5pt;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: none; /* Oculto por defecto */
+        }
+
+        /* Botones de exportación en el encabezado */
+        .export-buttons {
+            display: flex;
+            gap: 3px;
+        }
+
+        .btn-export {
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 7.5pt;
+            font-weight: bold;
+            padding: 4px 6px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            transition: background 0.2s;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-word { background-color: #2980b9; }
+        .btn-word:hover { background-color: #1f618d; }
+
+        .btn-pdf { background-color: #c0392b; }
+        .btn-pdf:hover { background-color: #922b21; }
+
+        .btn-txt { background-color: #7f8c8d; }
+        .btn-txt:hover { background-color: #616a6b; }
+
+        .btn-drive { background-color: #f39c12; }
+        .btn-drive:hover { background-color: #d68910; }
+
+        .btn-wa { background-color: #27ae60; }
+        .btn-wa:hover { background-color: #1e8449; }
+
+        /* Colores dinámicos según el nivel de alerta */
+        .alert-yellow {
+            color: #d68910;
+            background: #fef9e7;
+            border: 1px solid #f9e79f;
+        }
+
+        .alert-orange {
+            color: #d35400;
+            background: #fbeee6;
+            border: 1px solid #f5cba7;
+        }
+
+        .alert-red {
+            color: #c0392b;
+            background: #fadbd8;
+            border: 1px solid #f5b7b1;
+        }
+
+        /* Contenedor centralizado para la columna de texto de 2.3 pulgadas */
+        .page-container {
+            width: 2.3in; /* Ancho exacto de columna periodística */
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 0.4in;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            box-sizing: content-box;
+            border-radius: 2px;
+        }
+
+        /* Área de escritura continua */
+        #editor {
+            width: 100%;
+            min-height: 800px;
+            outline: none;
+            text-align: justify !important;
+            box-sizing: border-box;
+        }
+
+        p {
+            margin: 0 0 10px 0 !important;
+            text-align: justify !important;
+            text-indent: 1.5em;
+        }
+        p:first-child {
+            text-indent: 0;
+        }
+
+        /* Reglas de impresión y PDF impecables */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .sticky-header-wrapper {
+                position: static !important;
+                box-shadow: none !important;
+                border-bottom: 2px solid #c0392b !important;
+                margin-bottom: 20px;
+            }
+            .export-buttons, .word-counter, .word-alert {
+                display: none !important;
+            }
+            .page-container {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ENCABEZADO FIJO SUPERIOR (Siempre visible al hacer scroll) -->
+    <div class="sticky-header-wrapper">
+        <div class="header-container">
+            <div class="header-titles">
+                <h1 class="section-title">DEPORTES</h1>
+                <h2 class="publication-title">El Nuevo Día</h2>
+                <div class="byline-container">
+                    Por: <span class="byline-name">Antolín Maldonado Ríos</span>
+                </div>
+            </div>
+            
+            <div class="header-stats">
+                <div class="counter-and-alerts">
+                    <span id="word-count" class="word-counter">Palabras: 0</span>
+                    <span id="alert-msg" class="word-alert"></span>
+                </div>
+                <div class="export-buttons">
+                    <button class="btn-export btn-word" onclick="exportarWord()" title="Guardar como documento Word">Word</button>
+                    <button class="btn-export btn-pdf" onclick="exportarPDF()" title="Guardar como PDF formateado">PDF</button>
+                    <button class="btn-export btn-txt" onclick="exportarTXT()" title="Respaldo seguro en texto plano">TXT</button>
+                    <button class="btn-export btn-drive" onclick="subirGoogleDrive()" title="Descargar documento y abrir Google Drive">Drive</button>
+                    <button class="btn-export btn-wa" onclick="compartirWhatsApp()" title="Enviar resumen por WhatsApp">WhatsApp</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOJA O COLUMNA CENTRALIZADA DE TEXTO -->
+    <div class="page-container">
+        <div id="editor" contenteditable="true">
+            <p>Escribe o pega aquí tu artículo... Al hacer scroll hacia abajo, el encabezado y el contador de palabras se quedarán fijos arriba en tu pantalla en todo momento.</p>
+        </div>
+    </div>
+
+    <!-- Script de Autoguardado, Contador, Alertas y Funciones de Exportación -->
+    <script>
+        const editor = document.getElementById('editor');
+        const wordCountDisplay = document.getElementById('word-count');
+        const alertMsg = document.getElementById('alert-msg');
+        
+        function actualizarContador() {
+            const texto = editor.innerText.trim();
+            const palabras = texto === "" ? 0 : texto.split(/\s+/).length;
+            
+            wordCountDisplay.textContent = `Palabras: ${palabras}`;
+
+            // Limpiar clases de alertas previas
+            alertMsg.className = "word-alert";
+
+            // Gestión de los 3 umbrales actualizados
+            if (palabras >= 1200) {
+                alertMsg.textContent = "¡Tope crítico (1,200 palabras)!";
+                alertMsg.classList.add("alert-red");
+                alertMsg.style.display = "inline-block";
+            } else if (palabras >= 1100) {
+                alertMsg.textContent = "¡Límite segunda página (1,100 palabras)!";
+                alertMsg.classList.add("alert-orange");
+                alertMsg.style.display = "inline-block";
+            } else if (palabras >= 650) {
+                alertMsg.textContent = "650 palabras (primera página)";
+                alertMsg.classList.add("alert-yellow");
+                alertMsg.style.display = "inline-block";
+            } else {
+                alertMsg.style.display = "none";
+            }
+        }
+
+        // Recuperar borrador guardado al cargar
+        if (localStorage.getItem('articulo_fijo_borrador')) {
+            editor.innerHTML = localStorage.getItem('articulo_fijo_borrador');
+            actualizarContador();
+        }
+
+        // Evento de escritura en tiempo real
+        editor.addEventListener('input', function() {
+            actualizarContador();
+            localStorage.setItem('articulo_fijo_borrador', editor.innerHTML);
+        });
+
+        // 1. Guardar como Word (.doc)
+        function exportarWord() {
+            const tituloSeccion = "DEPORTES - El Nuevo Día";
+            const autor = "Antolín Maldonado Ríos";
+            const contenidoTexto = editor.innerHTML;
+
+            const contenidoCompleto = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Artículo Deportes</title></head>
+                <body style="font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.35;">
+                    <h1 style="color: #c0392b; font-family: Arial, sans-serif;">${tituloSeccion}</h1>
+                    <p style="font-family: Arial, sans-serif; font-size: 10pt; color: #555;"><b>Autor:</b> ${autor}</p>
+                    <hr style="border: none; border-top: 1px solid #ccc; margin: 15px 0;"/>
+                    ${contenidoTexto}
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob(['\ufeff' + contenidoCompleto], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const downloadLink = document.createElement("a");
+            downloadLink.href = url;
+            downloadLink.download = "Articulo_Deportes_ENDI.doc";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // 2. Guardar como PDF
+        function exportarPDF() {
+            window.print();
+        }
+
+        // 3. Respaldo en Texto Plano (.txt)
+        function exportarTXT() {
+            const textoPlano = "DEPORTES - El Nuevo Día\nAutor: Antolín Maldonado Ríos\n----------------------------------------\n\n" + editor.innerText;
+            const blob = new Blob([textoPlano], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const downloadLink = document.createElement("a");
+            downloadLink.href = url;
+            downloadLink.download = "Articulo_Deportes_Respaldo.txt";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // 4. Descargar y abrir Google Drive
+        function subirGoogleDrive() {
+            exportarWord();
+            setTimeout(() => {
+                window.open('https://drive.google.com/drive/my-drive', '_blank');
+            }, 600);
+        }
+
+        // 5. Compartir por WhatsApp
+        function compartirWhatsApp() {
+            const mensaje = `*DEPORTES - El Nuevo Día*\nPor: Antolín Maldonado Ríos\n\n` + editor.innerText;
+            const urlWhatsApp = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
+            window.open(urlWhatsApp, '_blank');
+        }
+    </script>
+</body>
+</html>
