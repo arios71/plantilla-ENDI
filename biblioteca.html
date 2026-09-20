@@ -85,6 +85,11 @@
         .btn-action:hover {
             opacity: 0.9;
         }
+        .loading {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+        }
     </style>
 </head>
 <body>
@@ -98,17 +103,73 @@
             <p class="article-meta" style="margin-bottom: 1.5rem;">Aquí encontrarás todas tus historias archivadas listas para consultar, leer con formato o copiar.</p>
             
             <ul class="article-list" id="lista-articulos">
-                <li class="article-item">
-                    <div class="article-info">
-                        <h2><a href="articulos/jonielmiranda-promesas.html" target="_blank">Joniel Miranda - Promesas</a></h2>
-                        <div class="article-meta">Guardado en la carpeta de artículos</div>
-                    </div>
-                    <div>
-                        <a href="articulos/jonielmiranda-promesas.html" target="_blank" class="btn-action">Leer / Copiar</a>
-                    </div>
-                </li>
+                <div class="loading">Cargando biblioteca automáticamente...</div>
             </ul>
         </main>
     </div>
+
+    <script>
+        // Configura aquí los datos de tu repositorio de GitHub
+        const repoConfig = {
+            usuario: "tu-usuario-de-github",  // Reemplaza con tu usuario exacto
+            repositorio: "nombre-del-repo",     // Reemplaza con el nombre exacto de tu repositorio
+            carpeta: "articulos"
+        };
+
+        async function cargarBiblioteca() {
+            const listaContenedor = document.getElementById('lista-articulos');
+            const urlApi = `https://api.github.com/repos/${repoConfig.usuario}/${repoConfig.repositorio}/contents/${repoConfig.carpeta}`;
+
+            try {
+                const respuesta = await fetch(urlApi);
+                if (!respuesta.ok) throw new Error("No se pudo conectar con el repositorio.");
+                
+                const archivos = await respuesta.json();
+                
+                // Filtramos solo los archivos que terminen en .html
+                const htmlArchivos = archivos.filter(item => item.type === 'file' && item.name.endsWith('.html'));
+
+                if (htmlArchivos.length === 0) {
+                    listaContenedor.innerHTML = '<li class="article-item"><div class="article-info">No hay artículos guardados todavía.</div></li>';
+                    return;
+                }
+
+                // Limpiamos el mensaje de carga
+                listaContenedor.innerHTML = '';
+
+                htmlArchivos.forEach(archivo => {
+                    // Limpiamos el nombre del archivo para que se vea bonito como título 
+                    // (ej: "jonielmiranda-promesas.html" -> "Jonielmiranda Promesas")
+                    let nombreLimpio = archivo.name
+                        .replace('.html', '')
+                        .replace(/-/g, ' ');
+                    
+                    // Capitalizar primera letra de cada palabra de forma sencilla
+                    nombreLimpio = nombreLimpio.charAt(0).toUpperCase() + nombreLimpio.slice(1);
+
+                    const rutaRelativa = `articulos/${archivo.name}`;
+
+                    const li = document.createElement('li');
+                    li.className = 'article-item';
+                    li.innerHTML = `
+                        <div class="article-info">
+                            <h2><a href="${rutaRelativa}" target="_blank">${nombreLimpio}</a></h2>
+                            <div class="article-meta">Archivo: ${archivo.name}</div>
+                        </div>
+                        <div>
+                            <a href="${rutaRelativa}" target="_blank" class="btn-action">Leer / Copiar</a>
+                        </div>
+                    `;
+                    listaContenedor.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error(error);
+                listaContenedor.innerHTML = '<li class="article-item"><div class="article-info" style="color: red;">Error al cargar los artículos automáticamente. Verifica los datos de tu repositorio en el script.</div></li>';
+            }
+        }
+
+        cargarBiblioteca();
+    </script>
 </body>
 </html>
