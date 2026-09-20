@@ -106,6 +106,28 @@
             display: none; /* Oculto por defecto */
         }
 
+        /* Contenedor para el campo de nombre de archivo (Guardar como) */
+        .filename-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 4px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 8pt;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .filename-toolbar input {
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 8pt;
+            padding: 3px 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 150px;
+            background: #fafafa;
+        }
+
         /* Botones de exportación en el encabezado */
         .export-buttons {
             display: flex;
@@ -231,7 +253,7 @@
                 border-bottom: 2px solid #c0392b !important;
                 margin-bottom: 20px;
             }
-            .export-buttons, .word-counter, .word-alert {
+            .export-buttons, .word-counter, .word-alert, .filename-toolbar {
                 display: none !important;
             }
             .page-container {
@@ -261,15 +283,22 @@
                     <span id="word-count" class="word-counter">Palabras: 0</span>
                     <span id="alert-msg" class="word-alert"></span>
                 </div>
+                
+                <!-- Barra para asignar nombre al archivo desde el inicio (Guardar como) -->
+                <div class="filename-toolbar">
+                    <label for="globalFilename">Archivo:</label>
+                    <input type="text" id="globalFilename" placeholder="articulo.html" value="articulo-deportes.html" title="Asigna el nombre de tu archivo">
+                </div>
+
                 <div class="export-buttons">
-    <button class="btn-export btn-word" onclick="exportarWord()" title="Guardar como documento Word">Word</button>
-    <button class="btn-export btn-pdf" onclick="exportarPDF()" title="Guardar como PDF formateado">PDF</button>
-    <button class="btn-export btn-txt" onclick="exportarTXT()" title="Respaldo seguro en texto plano">TXT</button>
-    <button class="btn-export btn-drive" onclick="subirGoogleDrive()" title="Descargar documento y abrir Google Drive">Drive</button>
-    <button class="btn-export btn-wa" onclick="compartirWhatsApp()" title="Enviar resumen por WhatsApp">WhatsApp</button>
-    <a href="biblioteca.html" target="_blank" class="btn-export" style="background-color: #2c3e50; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;" title="Ver estantería de artículos guardados">Biblioteca</a>
-    <button class="btn-export btn-github" onclick="abrirModalGitHub()" title="Publicar directamente en GitHub Pages">Publicar</button>
-</div>
+                    <button class="btn-export btn-word" onclick="exportarWord()" title="Guardar como documento Word">Word</button>
+                    <button class="btn-export btn-pdf" onclick="exportarPDF()" title="Guardar como PDF formateado">PDF</button>
+                    <button class="btn-export btn-txt" onclick="exportarTXT()" title="Respaldo seguro en texto plano">TXT</button>
+                    <button class="btn-export btn-drive" onclick="subirGoogleDrive()" title="Descargar documento y abrir Google Drive">Drive</button>
+                    <button class="btn-export btn-wa" onclick="compartirWhatsApp()" title="Enviar resumen por WhatsApp">WhatsApp</button>
+                    <a href="biblioteca.html" target="_blank" class="btn-export" style="background-color: #2c3e50; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;" title="Ver estantería de artículos guardados">Biblioteca</a>
+                    <button class="btn-export btn-github" onclick="abrirModalGitHub()" title="Publicar directamente en GitHub Pages">Publicar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -286,7 +315,7 @@
         <div class="modal-card">
             <h3>Publicar en Repositorio</h3>
             <label for="ghFilename">Nombre del archivo (ej. articulo-nuevo.html):</label>
-            <input type="text" id="ghFilename" placeholder="articulo.html" value="articulo-deportes.html">
+            <input type="text" id="ghFilename" placeholder="articulo.html">
             
             <label for="ghToken">GitHub Personal Access Token (PAT):</label>
             <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
@@ -304,6 +333,7 @@
         const editor = document.getElementById('editor');
         const wordCountDisplay = document.getElementById('word-count');
         const alertMsg = document.getElementById('alert-msg');
+        const globalFilenameInput = document.getElementById('globalFilename');
         
         function actualizarContador() {
             const texto = editor.innerText.trim();
@@ -332,16 +362,23 @@
             }
         }
 
-        // Recuperar borrador guardado al cargar
+        // Recuperar borrador y nombre de archivo guardados al cargar
         if (localStorage.getItem('articulo_fijo_borrador')) {
             editor.innerHTML = localStorage.getItem('articulo_fijo_borrador');
             actualizarContador();
         }
+        if (localStorage.getItem('articulo_fijo_nombre')) {
+            globalFilenameInput.value = localStorage.getItem('articulo_fijo_nombre');
+        }
 
-        // Evento de escritura en tiempo real
+        // Eventos de autoguardado en tiempo real
         editor.addEventListener('input', function() {
             actualizarContador();
             localStorage.setItem('articulo_fijo_borrador', editor.innerHTML);
+        });
+
+        globalFilenameInput.addEventListener('input', function() {
+            localStorage.setItem('articulo_fijo_nombre', globalFilenameInput.value);
         });
 
         // 1. Guardar como Word (.doc)
@@ -366,7 +403,7 @@
             const url = URL.createObjectURL(blob);
             const downloadLink = document.createElement("a");
             downloadLink.href = url;
-            downloadLink.download = "Articulo_Deportes_ENDI.doc";
+            downloadLink.download = (globalFilenameInput.value.trim() || "Articulo_Deportes") + ".doc";
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
@@ -384,7 +421,7 @@
             const url = URL.createObjectURL(blob);
             const downloadLink = document.createElement("a");
             downloadLink.href = url;
-            downloadLink.download = "Articulo_Deportes_Respaldo.txt";
+            downloadLink.download = (globalFilenameInput.value.trim() || "Articulo_Deportes") + ".txt";
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
@@ -407,7 +444,11 @@
 
         // 6. Funciones para publicar en GitHub mediante API
         function abrirModalGitHub() {
+            // Sincronizar el nombre del archivo de la barra superior al modal automáticamente
+            document.getElementById('ghFilename').value = globalFilenameInput.value.trim() || "articulo-deportes.html";
+            
             document.getElementById('githubModal').style.display = 'flex';
+            
             // Cargar token guardado en la sesión previa si existe
             const tokenGuardado = sessionStorage.getItem('github_pat');
             if (tokenGuardado) {
