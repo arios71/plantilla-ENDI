@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto-Linker Periodístico - El Nuevo Día</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              600: '#0056b3',
+              700: '#004088',
+              800: '#002f67',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .preview-content a {
+      color: #0056b3;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+    .preview-content a:hover {
+      color: #002f67;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-amber-500 text-slate-900 font-black px-2.5 py-1 rounded text-xs tracking-wider uppercase">
+          END
+        </div>
+        <div>
+          <h1 class="text-lg font-bold leading-none flex items-center gap-2">
+            Auto-Linker & Formateador SEO
+          </h1>
+          <p class="text-xs text-slate-400 mt-0.5">Optimizado para la redacción de El Nuevo Día</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button id="btnOpenDictionary" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2">
+          <i class="fa-solid fa-book text-amber-400"></i>
+          <span>Diccionario (<span id="dictCountBadge">0</span>)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN: Input & Settings -->
+    <section class="lg:col-span-5 flex flex-col gap-5">
+      
+      <!-- Input Card -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+          <label for="inputText" class="font-semibold text-sm text-slate-700 flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-brand-600"></i>
+            1. Borrador Original (AP)
+          </label>
+          <button id="btnClearInput" class="text-xs text-slate-500 hover:text-red-600 transition flex items-center gap-1">
+            <i class="fa-solid fa-trash-can"></i> Limpiar
+          </button>
+        </div>
+        <div class="p-3">
+          <textarea id="inputText" rows="12" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent resize-y text-sm leading-relaxed font-sans placeholder-slate-400" placeholder="Pega aquí el texto de AP (ej: 'NUEVA YORK (AP) — Los Cachorros de Chicago vencieron a los Rojos de Cincinnati...')..."></textarea>
+        </div>
+      </div>
+
+      <!-- Settings Panel -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
+        <h2 class="font-semibold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <i class="fa-solid fa-sliders"></i> Reglas de Formato
+        </h2>
+
+        <div class="space-y-3">
+          <!-- Dateline AP to END Toggle -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Procedencia END (NUEVA YORK —)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleDateline" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
+
+          <!-- MLB Teams Translation Toggle -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Nombres MLB en Inglés (Cachorros &rarr; Cubs)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleMLBTeams" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
+
+          <!-- Frequency Setting -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Frecuencia de enlaces</span>
+            <div class="inline-flex rounded-lg bg-slate-100 p-1 border border-slate-200">
+              <label class="cursor-pointer">
+                <input type="radio" name="replaceMode" value="first" checked class="peer sr-only">
+                <span class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 peer-checked:bg-white peer-checked:text-brand-600 peer-checked:shadow-sm block transition">
+                  Solo 1ª aparición (SEO)
+                </span>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="replaceMode" value="all" class="peer sr-only">
+                <span class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 peer-checked:bg-white peer-checked:text-brand-600 peer-checked:shadow-sm block transition">
+                  Todas
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Bold Toggle -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Enlace en Negrita (&lt;strong&gt;)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleBold" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
+
+          <!-- Target Blank Toggle -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Abrir pestaña nueva (_blank)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleTargetBlank" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN: Output & Preview -->
+    <section class="lg:col-span-7 flex flex-col gap-5">
+      
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col flex-1 overflow-hidden">
+        
+        <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center space-x-2">
+            <div class="flex space-x-1 bg-slate-200/70 p-1 rounded-lg">
+              <button id="tabPreview" class="px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition">
+                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+              </button>
+              <button id="tabCode" class="px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition">
+                <i class="fa-solid fa-code mr-1"></i> HTML
+              </button>
+            </div>
+
+            <button id="btnRegenerate" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1 shadow-sm active:scale-95">
+              <i class="fa-solid fa-rotate text-brand-600"></i>
+              <span>Regenerar</span>
+            </button>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <button id="btnCopyRich" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-paste"></i>
+              <span>Copiar Texto Enriquecido</span>
+            </button>
+            <button id="btnCopyHtml" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-copy"></i>
+              <span>Copiar HTML</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="viewPreview" class="p-5 flex-1 min-h-[300px] overflow-y-auto">
+          <div id="previewOutput" class="preview-content text-slate-800 text-base leading-relaxed space-y-4">
+            <p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>
+          </div>
+        </div>
+
+        <div id="viewCode" class="hidden p-4 bg-slate-900 flex-1 min-h-[300px] overflow-y-auto">
+          <pre><code id="codeOutput" class="text-xs font-mono text-amber-300 whitespace-pre-wrap break-words"></code></pre>
+        </div>
+
+        <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between text-xs text-slate-500">
+          <span id="statsMatches">0 términos enlazados</span>
+          <span class="flex items-center gap-1"><i class="fa-solid fa-circle text-emerald-500 text-[8px]"></i> 30 Equipos MLB Configurados</span>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <div id="dictModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+      
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-book-bookmark text-amber-400 text-lg"></i>
+          <h2 class="font-bold text-base">Diccionario de Tópicos - El Nuevo Día</h2>
+        </div>
+        <button id="btnCloseModal" class="text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-4 bg-slate-50 border-b border-slate-200 space-y-3">
+        <p class="text-xs text-slate-600 font-medium">Añadir nuevo término o tópico:</p>
+        <form id="addKeywordForm" class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+          <input type="text" id="newKeyword" placeholder="Ej: Athletics" required class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+          <input type="url" id="newUrl" placeholder="URL opcional" class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+          <button type="submit" class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1">
+            <i class="fa-solid fa-plus"></i> Añadir
+          </button>
+        </form>
+      </div>
+
+      <div class="p-4 flex-1 overflow-y-auto max-h-[50vh] space-y-2" id="dictListContainer"></div>
+
+      <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs">
+        <button id="btnResetDefault" class="text-slate-500 hover:text-red-600 font-medium transition flex items-center gap-1">
+          <i class="fa-solid fa-rotate-left"></i> Restablecer diccionario por defecto
+        </button>
+        <button id="btnCloseModalBottom" class="bg-slate-800 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-slate-700 transition">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-medium transition transform translate-y-20 opacity-0 flex items-center gap-2 z-50">
+    <i id="toastIcon" class="fa-solid fa-check text-emerald-400"></i>
+    <span id="toastMsg">Notificación</span>
+  </div>
+
+  <script>
+    // Diccionario predeterminado con los 30 equipos exactos de MLB que proporcionaste
+    const DEFAULT_DICTIONARY = [
+      { keyword: "Cubs de Chicago", url: "https://www.elnuevodia.com/topicos/cubs-de-chicago/" },
+      { keyword: "Twins de Minnesota", url: "https://www.elnuevodia.com/topicos/twins-de-minnesota/" },
+      { keyword: "White Sox de Chicago", url: "https://www.elnuevodia.com/topicos/white-sox-de-chicago/" },
+      { keyword: "Rays de Tampa Bay", url: "https://www.elnuevodia.com/topicos/rays-de-tampa-bay/" },
+      { keyword: "Yankees de Nueva York", url: "https://www.elnuevodia.com/topicos/yankees-de-nueva-york/" },
+      { keyword: "Red Sox de Boston", url: "https://www.elnuevodia.com/topicos/red-sox-de-boston/" },
+      { keyword: "Orioles de Baltimore", url: "https://www.elnuevodia.com/topicos/orioles-de-baltimore/" },
+      { keyword: "Blue Jays de Toronto", url: "https://www.elnuevodia.com/topicos/blue-jays-de-toronto/" },
+      { keyword: "Guardians de Cleveland", url: "https://www.elnuevodia.com/topicos/guardians-de-cleveland/" },
+      { keyword: "Tigers de Detroit", url: "https://www.elnuevodia.com/topicos/tigers-de-detroit/" },
+      { keyword: "Royals de Kansas City", url: "https://www.elnuevodia.com/topicos/royals-de-kansas-city/" },
+      { keyword: "Astros de Houston", url: "https://www.elnuevodia.com/topicos/astros-de-houston/" },
+      { keyword: "Rangers de Texas", url: "https://www.elnuevodia.com/topicos/rangers-de-texas/" },
+      { keyword: "Mariners de Seattle", url: "https://www.elnuevodia.com/topicos/mariners-de-seattle/" },
+      { keyword: "Athletics", url: "https://www.elnuevodia.com/topicos/athletics-de-oakland/" },
+      { keyword: "Angels de Los Ángeles", url: "https://www.elnuevodia.com/topicos/angels-de-los-angeles/" },
+      { keyword: "Braves de Atlanta", url: "https://www.elnuevodia.com/topicos/braves-de-atlanta/" },
+      { keyword: "Phillies de Filadelfia", url: "https://www.elnuevodia.com/topicos/phillies-de-philadelphia/" },
+      { keyword: "Marlins de Miami", url: "https://www.elnuevodia.com/topicos/marlins-de-miami/" },
+      { keyword: "Nationals de Washington", url: "https://www.elnuevodia.com/topicos/nationals-de-washington/" },
+      { keyword: "Mets de Nueva York", url: "https://www.elnuevodia.com/topicos/mets-de-nueva-york/" },
+      { keyword: "Brewers de Milwaukee", url: "https://www.elnuevodia.com/topicos/brewers-de-milwaukee/" },
+      { keyword: "Pirates de Pittsburgh", url: "https://www.elnuevodia.com/topicos/pirates-de-pittsburgh/" },
+      { keyword: "Cardinals de San Luis", url: "https://www.elnuevodia.com/topicos/cardinals-de-san-luis/" },
+      { keyword: "Dodgers de Los Ángeles", url: "https://www.elnuevodia.com/topicos/dodgers-de-los-angeles/" },
+      { keyword: "Padres de San Diego", url: "https://www.elnuevodia.com/topicos/padres-de-san-diego/" },
+      { keyword: "Diamondbacks de Arizona", url: "https://www.elnuevodia.com/topicos/diamondbacks-de-arizona/" },
+      { keyword: "Giants de San Francisco", url: "https://www.elnuevodia.com/topicos/giants-de-san-francisco/" },
+      { keyword: "Rockies de Colorado", url: "https://www.elnuevodia.com/topicos/rockies-de-colorado/" },
+      { keyword: "Reds de Cincinnati", url: "https://www.elnuevodia.com/topicos/reds-de-cincinnati/" }
+    ];
+
+    // Reglas de traducción para cables de AP -> Estilo END en inglés
+    const MLB_TEAM_TRANSLATIONS = [
+      { ap: /Medias Rojas de Boston/gi, end: "Red Sox de Boston" },
+      { ap: /Medias Blancas de Chicago/gi, end: "White Sox de Chicago" },
+      { ap: /Guardianes de Cleveland/gi, end: "Guardians de Cleveland" },
+      { ap: /Tigres de Detroit/gi, end: "Tigers de Detroit" },
+      { ap: /Reales de Kansas City/gi, end: "Royals de Kansas City" },
+      { ap: /Mellizos de Minnesota/gi, end: "Twins de Minnesota" },
+      { ap: /Ángeles de Los Ángeles|Angelinos de Los Ángeles/gi, end: "Angels de Los Ángeles" },
+      { ap: /Atléticos de Oakland|Athletics de Oakland/gi, end: "Athletics" },
+      { ap: /Marineros de Seattle/gi, end: "Mariners de Seattle" },
+      { ap: /Vigilantes de Texas/gi, end: "Rangers de Texas" },
+      { ap: /Azulejos de Toronto/gi, end: "Blue Jays de Toronto" },
+      { ap: /Mantarrayas de Tampa Bay|Rayos de Tampa Bay/gi, end: "Rays de Tampa Bay" },
+      { ap: /Bravos de Atlanta/gi, end: "Braves de Atlanta" },
+      { ap: /Filis de Filadelfia|Filies de Filadelfia/gi, end: "Phillies de Filadelfia" },
+      { ap: /Nacionales de Washington/gi, end: "Nationals de Washington" },
+      { ap: /Cachorros de Chicago/gi, end: "Cubs de Chicago" },
+      { ap: /Rojos de Cincinnati/gi, end: "Reds de Cincinnati" },
+      { ap: /Cerveceros de Milwaukee/gi, end: "Brewers de Milwaukee" },
+      { ap: /Piratas de Pittsburgh/gi, end: "Pirates de Pittsburgh" },
+      { ap: /Cardenales de San Luis/gi, end: "Cardinals de San Luis" },
+      { ap: /Gigantes de San Francisco/gi, end: "Giants de San Francisco" },
+
+      { ap: /\bMedias Rojas\b/gi, end: "Red Sox" },
+      { ap: /\bMedias Blancas\b/gi, end: "White Sox" },
+      { ap: /\bGuardianes\b/gi, end: "Guardians" },
+      { ap: /\bTigres\b/gi, end: "Tigers" },
+      { ap: /\bReales\b/gi, end: "Royals" },
+      { ap: /\bMellizos\b/gi, end: "Twins" },
+      { ap: /\bAngelinos\b/gi, end: "Angels" },
+      { ap: /\bAtléticos\b/gi, end: "Athletics" },
+      { ap: /\bMarineros\b/gi, end: "Mariners" },
+      { ap: /\bVigilantes\b/gi, end: "Rangers" },
+      { ap: /\bAzulejos\b/gi, end: "Blue Jays" },
+      { ap: /\bBravos\b/gi, end: "Braves" },
+      { ap: /\bFilis\b|\bFilies\b/gi, end: "Phillies" },
+      { ap: /\bNacionales\b/gi, end: "Nationals" },
+      { ap: /\bCachorros\b/gi, end: "Cubs" },
+      { ap: /\bRojos\b/gi, end: "Reds" },
+      { ap: /\bCerveceros\b/gi, end: "Brewers" },
+      { ap: /\bPiratas\b/gi, end: "Pirates" },
+      { ap: /\bCardenales\b/gi, end: "Cardinals" },
+      { ap: /\bGigantes\b/gi, end: "Giants" }
+    ];
+
+    let dictionary = [];
+    let processedHtml = "";
+
+    const inputText = document.getElementById('inputText');
+    const previewOutput = document.getElementById('previewOutput');
+    const codeOutput = document.getElementById('codeOutput');
+    const statsMatches = document.getElementById('statsMatches');
+    const toggleBold = document.getElementById('toggleBold');
+    const toggleTargetBlank = document.getElementById('toggleTargetBlank');
+    const toggleDateline = document.getElementById('toggleDateline');
+    const toggleMLBTeams = document.getElementById('toggleMLBTeams');
+    const dictCountBadge = document.getElementById('dictCountBadge');
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      loadDictionary();
+      setupEventListeners();
+      processText();
+    });
+
+    function generateEndTopicUrl(term) {
+      const slug = term.toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9 -]/g, "")
+        .trim()
+        .replace(/\s+/g, "-");
+      return `https://www.elnuevodia.com/topicos/${slug}/`;
+    }
+
+    function transformDatelineEND(text) {
+      return text.replace(/^([A-ZÁÉÍÓÚÑ\s]{2,})\s*(\([A-Z\s]+\))?\s*[\-–—]{1,2}\s*/, (match, city) => {
+        let cleanCity = city.trim();
+        let formattedCity = cleanCity.toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+        return `${formattedCity} — `;
+      });
+    }
+
+    function translateTeamNamesEND(text) {
+      let cleanedText = text;
+      MLB_TEAM_TRANSLATIONS.forEach(item => {
+        cleanedText = cleanedText.replace(item.ap, item.end);
+      });
+      return cleanedText;
+    }
+
+    function loadDictionary() {
+      const saved = localStorage.getItem('end_sports_dictionary');
+      if (saved) {
+        try {
+          let parsed = JSON.parse(saved);
+          // Verificar si las URLs guardadas carecen de la 's' o si la lista guardada está desactualizada
+          if (parsed.length === 0 || parsed.some(item => item.url && item.url.includes('/topico/'))) {
+            dictionary = [...DEFAULT_DICTIONARY];
+          } else {
+            dictionary = parsed;
+          }
+        } catch (e) {
+          dictionary = [...DEFAULT_DICTIONARY];
+        }
+      } else {
+        dictionary = [...DEFAULT_DICTIONARY];
+      }
+      dictionary.sort((a, b) => b.keyword.length - a.keyword.length);
+      saveDictionary();
+      updateDictBadge();
+    }
+
+    function saveDictionary() {
+      localStorage.setItem('end_sports_dictionary', JSON.stringify(dictionary));
+      updateDictBadge();
+    }
+
+    function updateDictBadge() {
+      dictCountBadge.textContent = dictionary.length;
+    }
+
+    function processText() {
+      const rawText = inputText.value;
+      if (!rawText.trim()) {
+        previewOutput.innerHTML = `<p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>`;
+        codeOutput.textContent = "";
+        statsMatches.textContent = "0 términos enlazados";
+        processedHtml = "";
+        return;
+      }
+
+      let paragraphs = rawText.split(/\n+/).filter(p => p.trim().length > 0);
+      const isBold = toggleBold.checked;
+      const isBlank = toggleTargetBlank.checked;
+      const isDatelineFormatted = toggleDateline ? toggleDateline.checked : true;
+      const isMLBTranslated = toggleMLBTeams ? toggleMLBTeams.checked : true;
+      const replaceMode = document.querySelector('input[name="replaceMode"]:checked').value;
+
+      if (isDatelineFormatted && paragraphs.length > 0) {
+        paragraphs[0] = transformDatelineEND(paragraphs[0]);
+      }
+
+      let totalMatches = 0;
+      const matchedKeywordsSet = new Set();
+
+      const processedParagraphs = paragraphs.map(p => {
+        let textP = p;
+
+        if (isMLBTranslated) {
+          textP = translateTeamNamesEND(textP);
+        }
+
+        dictionary.forEach(item => {
+          if (!item.keyword || !item.keyword.trim()) return;
+
+          if (replaceMode === 'first' && matchedKeywordsSet.has(item.keyword.toLowerCase())) {
+            return;
+          }
+
+          const escapedKw = item.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const boundaryEnd = /\.$/.test(item.keyword) ? '' : '\\b';
+          const regex = new RegExp(`\\b(${escapedKw})${boundaryEnd}`, replaceMode === 'all' ? 'gi' : 'i');
+
+          let hasMatchedInThisP = false;
+
+          textP = textP.replace(regex, (match) => {
+            if (replaceMode === 'first' && (matchedKeywordsSet.has(item.keyword.toLowerCase()) || hasMatchedInThisP)) {
+              return match;
+            }
+
+            matchedKeywordsSet.add(item.keyword.toLowerCase());
+            hasMatchedInThisP = true;
+            totalMatches++;
+
+            const targetAttr = isBlank ? ' target="_blank" rel="noopener"' : '';
+            const linkHtml = `<a href="${item.url}"${targetAttr}>${match}</a>`;
+
+            return isBold ? `<strong>${linkHtml}</strong>` : linkHtml;
+          });
+        });
+
+        return `<p>${textP}</p>`;
+      });
+
+      processedHtml = processedParagraphs.join('\n\n');
+
+      previewOutput.innerHTML = processedHtml;
+      codeOutput.textContent = processedHtml;
+      statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
+    }
+
+    function setupEventListeners() {
+      inputText.addEventListener('input', processText);
+      toggleBold.addEventListener('change', processText);
+      toggleTargetBlank.addEventListener('change', processText);
+      if (toggleDateline) toggleDateline.addEventListener('change', processText);
+      if (toggleMLBTeams) toggleMLBTeams.addEventListener('change', processText);
+      
+      document.querySelectorAll('input[name="replaceMode"]').forEach(radio => {
+        radio.addEventListener('change', processText);
+      });
+
+      document.getElementById('btnClearInput').addEventListener('click', () => {
+        inputText.value = "";
+        processText();
+      });
+
+      document.getElementById('btnRegenerate').addEventListener('click', () => {
+        processText();
+        showToast("Texto regenerado correctamente.");
+      });
+
+      const tabPreview = document.getElementById('tabPreview');
+      const tabCode = document.getElementById('tabCode');
+      const viewPreview = document.getElementById('viewPreview');
+      const viewCode = document.getElementById('viewCode');
+
+      tabPreview.addEventListener('click', () => {
+        tabPreview.className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
+        tabCode.className = "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
+        viewPreview.classList.remove('hidden');
+        viewCode.classList.add('hidden');
+      });
+
+      tabCode.addEventListener('click', () => {
+        tabCode.className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
+        tabPreview.className = "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
+        viewCode.classList.remove('hidden');
+        viewPreview.classList.add('hidden');
+      });
+
+      document.getElementById('btnCopyHtml').addEventListener('click', () => {
+        if (!processedHtml) {
+          showToast("No hay contenido para copiar", "error");
+          return;
+        }
+        copyToClipboard(processedHtml);
+        showToast("¡Código HTML copiado!");
+      });
+
+      document.getElementById('btnCopyRich').addEventListener('click', () => {
+        if (!processedHtml) {
+          showToast("No hay contenido para copiar", "error");
+          return;
+        }
+        
+        try {
+          const blobHtml = new Blob([processedHtml], { type: 'text/html' });
+          const blobText = new Blob([previewOutput.innerText], { type: 'text/plain' });
+          const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })];
+          
+          navigator.clipboard.write(data).then(() => {
+            showToast("¡Texto Enriquecido copiado!");
+          }).catch(() => {
+            copyToClipboard(processedHtml);
+            showToast("Copiado como HTML");
+          });
+        } catch (err) {
+          copyToClipboard(processedHtml);
+          showToast("Copiado al portapapeles");
+        }
+      });
+
+      const dictModal = document.getElementById('dictModal');
+      document.getElementById('btnOpenDictionary').addEventListener('click', () => {
+        renderDictionaryList();
+        dictModal.classList.remove('hidden');
+      });
+
+      const closeModal = () => dictModal.classList.add('hidden');
+      document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+      document.getElementById('btnCloseModalBottom').addEventListener('click', closeModal);
+
+      document.getElementById('addKeywordForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const kwInput = document.getElementById('newKeyword');
+        const urlInput = document.getElementById('newUrl');
+
+        const keyword = kwInput.value.trim();
+        let url = urlInput.value.trim();
+
+        if (!url) {
+          url = generateEndTopicUrl(keyword);
+        }
+
+        if (keyword) {
+          dictionary.push({ keyword, url });
+          dictionary.sort((a, b) => b.keyword.length - a.keyword.length);
+          saveDictionary();
+          renderDictionaryList();
+          processText();
+          kwInput.value = "";
+          urlInput.value = "";
+          showToast(`Tópico "${keyword}" añadido.`);
+        }
+      });
+
+      document.getElementById('btnResetDefault').addEventListener('click', () => {
+        if (confirm("¿Seguro que deseas reiniciar el diccionario al estado predeterminado?")) {
+          dictionary = [...DEFAULT_DICTIONARY];
+          dictionary.sort((a, b) => b.keyword.length - a.keyword.length);
+          saveDictionary();
+          renderDictionaryList();
+          processText();
+          showToast("Diccionario restablecido.");
+        }
+      });
+    }
+
+    function renderDictionaryList() {
+      const container = document.getElementById('dictListContainer');
+      if (dictionary.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">No hay palabras clave registradas.</p>`;
+        return;
+      }
+
+      container.innerHTML = dictionary.map((item, index) => `
+        <div class="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition text-xs">
+          <div class="flex-1 min-w-0 pr-2">
+            <span class="font-bold text-slate-800 block truncate">${item.keyword}</span>
+            <a href="${item.url}" target="_blank" class="text-brand-600 hover:underline truncate block text-[11px]">${item.url}</a>
+          </div>
+          <button onclick="removeKeyword(${index})" class="text-slate-400 hover:text-red-600 p-1.5 transition" title="Eliminar término">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    window.removeKeyword = function(index) {
+      const removed = dictionary.splice(index, 1);
+      saveDictionary();
+      renderDictionaryList();
+      processText();
+      showToast(`Tópico "${removed[0].keyword}" eliminado.`);
+    };
+
+    function copyToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.textContent = msg;
+      if (type === 'error') {
+        toastIcon.className = "fa-solid fa-circle-exclamation text-red-400";
+      } else {
+        toastIcon.className = "fa-solid fa-check text-emerald-400";
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
