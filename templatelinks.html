@@ -4,22 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Auto-Linker Periodístico - El Nuevo Día</title>
-
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  >
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  >
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       theme: {
@@ -40,843 +29,274 @@
       }
     }
   </script>
-
   <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-    }
-
-    body {
-      overflow: hidden;
-    }
-
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
-
     ::-webkit-scrollbar-track {
       background: #f1f5f9;
     }
-
     ::-webkit-scrollbar-thumb {
       background: #cbd5e1;
       border-radius: 4px;
     }
-
     ::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
     }
-
     .preview-content a {
       color: #0056b3;
       text-decoration: underline;
       font-weight: 600;
     }
-
     .preview-content a:hover {
       color: #002f67;
     }
-
-    .format-btn {
-      width: 30px;
-      height: 30px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 6px;
-      color: #475569;
-      background: transparent;
-      transition: background .15s, color .15s;
-    }
-
-    .format-btn:hover {
-      background: #e2e8f0;
-      color: #0f172a;
-    }
-
-    .format-btn.active {
-      background: #dbeafe;
-      color: #0056b3;
-    }
-
-    #inputText:empty:before {
-      content: attr(data-placeholder);
-      color: #94a3b8;
-      pointer-events: none;
-    }
-
-    /*
-      ============================================================
-      PANELES DE TEXTO
-      ============================================================
-    */
-
-    .text-pane-scroll {
-      overflow-y: auto;
-      overflow-x: hidden;
-      scrollbar-gutter: stable;
-      min-height: 0;
-    }
-
-    #inputText.text-pane-scroll {
-      height: 100%;
-      min-height: 0;
-    }
-
-    #viewPreview.text-pane-scroll,
-    #viewCode.text-pane-scroll {
-      height: 100%;
-      min-height: 0;
-    }
-
-    /*
-      ============================================================
-      ESTRUCTURA PRINCIPAL
-      ============================================================
-
-      Los dos paneles permanecen lado a lado desde 900px.
-      El panel izquierdo mantiene aproximadamente 5/12 del ancho
-      y el derecho 7/12.
-    */
-
-    .workspace-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: 24px;
-      min-height: 0;
-      height: 100%;
-    }
-
-    .workspace-column {
-      min-width: 0;
-      min-height: 0;
-    }
-
-    /*
-      En pantallas realmente pequeñas sí se permite una disposición
-      vertical para evitar que ambas columnas queden demasiado estrechas.
-    */
-
-    @media (max-width: 899px) {
-      body {
-        overflow: auto;
-      }
-
-      .workspace-grid {
-        grid-template-columns: 1fr;
-        height: auto;
-      }
-
-      .workspace-column {
-        min-height: auto;
-      }
-
-      #inputText.text-pane-scroll,
-      #viewPreview.text-pane-scroll,
-      #viewCode.text-pane-scroll {
-        height: min(520px, 55vh);
-        min-height: 280px;
-      }
-    }
   </style>
 </head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
 
-
-<body class="bg-slate-100 text-slate-800 font-sans antialiased flex flex-col">
-
-
-  <!-- ============================================================
-       HEADER
-  ============================================================ -->
-
-  <header
-    class="bg-slate-900 text-white border-b border-slate-800 shadow-md flex-shrink-0"
-  >
-
-    <div
-      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
-    >
-
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-
-        <div
-          class="bg-amber-500 text-slate-900 font-black px-2.5 py-1 rounded text-xs tracking-wider uppercase"
-        >
+        <div class="bg-amber-500 text-slate-900 font-black px-2.5 py-1 rounded text-xs tracking-wider uppercase">
           END
         </div>
-
         <div>
-
-          <h1
-            class="text-lg font-bold leading-none flex items-center gap-2"
-          >
+          <h1 class="text-lg font-bold leading-none flex items-center gap-2">
             Auto-Linker & Formateador SEO
           </h1>
-
-          <p class="text-xs text-slate-400 mt-0.5">
-            Optimizado para la redacción de El Nuevo Día
-          </p>
-
+          <p class="text-xs text-slate-400 mt-0.5">Optimizado para la redacción de El Nuevo Día</p>
         </div>
-
       </div>
-
-
       <div class="flex items-center space-x-2">
-
-        <button
-          id="btnOpenDictionary"
-          class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2"
-        >
+        <button id="btnOpenDictionary" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2">
           <i class="fa-solid fa-book text-amber-400"></i>
-
-          <span>
-            Diccionario
-            (<span id="dictCountBadge">0</span>)
-          </span>
-
+          <span>Diccionario (<span id="dictCountBadge">0</span>)</span>
         </button>
-
       </div>
-
     </div>
-
   </header>
 
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-  <!-- ============================================================
-       MAIN WORKSPACE
-  ============================================================ -->
+    <!-- LEFT COLUMN: Input & Settings -->
+    <section class="lg:col-span-5 flex flex-col gap-5">
+      
+      <!-- Input Card -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+          <label for="inputText" class="font-semibold text-sm text-slate-700 flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-brand-600"></i>
+            1. Borrador Original (AP)
+          </label>
+          <button id="btnClearInput" class="text-xs text-slate-500 hover:text-red-600 transition flex items-center gap-1">
+            <i class="fa-solid fa-trash-can"></i> Limpiar
+          </button>
+        </div>
+        <div class="p-3">
+          <textarea id="inputText" rows="12" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent resize-y text-sm leading-relaxed font-sans placeholder-slate-400" placeholder="Pega aquí el texto de AP (ej: 'NUEVA YORK (AP) — Los Cachorros de Chicago vencieron a los Rojos de Cincinnati...')..."></textarea>
+        </div>
+      </div>
 
-  <main
-    class="flex-1 min-h-0 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8"
-  >
+      <!-- Settings Panel -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
+        <h2 class="font-semibold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <i class="fa-solid fa-sliders"></i> Reglas de Formato
+        </h2>
 
-    <div class="workspace-grid">
-
-
-      <!-- ========================================================
-           LEFT COLUMN — ORIGINAL AP
-      ======================================================== -->
-
-      <section
-        class="workspace-column flex flex-col gap-5"
-      >
-
-        <!-- INPUT -->
-
-        <div
-          class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden flex-1 min-h-0"
-        >
-
-          <div
-            class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between flex-shrink-0"
-          >
-
-            <label
-              for="inputText"
-              class="font-semibold text-sm text-slate-700 flex items-center gap-2"
-            >
-
-              <i class="fa-solid fa-pen-to-square text-brand-600"></i>
-
-              1. Borrador Original (AP)
-
+        <div class="space-y-3">
+          <!-- Dateline AP to END Toggle -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Procedencia END (NUEVA YORK —)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleDateline" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
             </label>
+          </div>
 
+          <!-- MLB Teams Translation Toggle -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Nombres MLB en Inglés (Cachorros &rarr; Cubs)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleMLBTeams" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
 
-            <button
-              id="btnClearInput"
-              class="text-xs text-slate-500 hover:text-red-600 transition flex items-center gap-1"
-            >
+          <!-- Frequency Setting -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Frecuencia de enlaces</span>
+            <div class="inline-flex rounded-lg bg-slate-100 p-1 border border-slate-200">
+              <label class="cursor-pointer">
+                <input type="radio" name="replaceMode" value="first" checked class="peer sr-only">
+                <span class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 peer-checked:bg-white peer-checked:text-brand-600 peer-checked:shadow-sm block transition">
+                  Solo 1ª aparición (SEO)
+                </span>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="replaceMode" value="all" class="peer sr-only">
+                <span class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 peer-checked:bg-white peer-checked:text-brand-600 peer-checked:shadow-sm block transition">
+                  Todas
+                </span>
+              </label>
+            </div>
+          </div>
 
-              <i class="fa-solid fa-trash-can"></i>
+          <!-- Bold Toggle -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Enlace en Negrita (&lt;strong&gt;)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleBold" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
 
-              Limpiar
+          <!-- Target Blank Toggle -->
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Abrir pestaña nueva (_blank)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleTargetBlank" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
 
+    </section>
+
+    <!-- RIGHT COLUMN: Output & Preview -->
+    <section class="lg:col-span-7 flex flex-col gap-5">
+      
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col flex-1 overflow-hidden">
+        
+        <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center space-x-2">
+            <div class="flex space-x-1 bg-slate-200/70 p-1 rounded-lg">
+              <button id="tabPreview" class="px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition">
+                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+              </button>
+              <button id="tabCode" class="px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition">
+                <i class="fa-solid fa-code mr-1"></i> HTML
+              </button>
+            </div>
+
+            <button id="btnRegenerate" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1 shadow-sm active:scale-95">
+              <i class="fa-solid fa-rotate text-brand-600"></i>
+              <span>Regenerar</span>
             </button>
-
           </div>
 
-
-          <div class="p-3 flex-1 min-h-0 flex flex-col">
-
-            <div
-              class="border border-slate-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-brand-600 focus-within:border-transparent flex-1 min-h-0 flex flex-col"
-            >
-
-              <!-- FORMATTING TOOLBAR -->
-
-              <div
-                id="formatToolbar"
-                class="flex flex-wrap items-center gap-1 p-2 bg-slate-50 border-b border-slate-200 flex-shrink-0"
-                aria-label="Herramientas de formato"
-              >
-
-                <button
-                  type="button"
-                  class="format-btn"
-                  data-command="bold"
-                  title="Negrita"
-                >
-                  <i class="fa-solid fa-bold"></i>
-                </button>
-
-                <button
-                  type="button"
-                  class="format-btn"
-                  data-command="italic"
-                  title="Cursiva"
-                >
-                  <i class="fa-solid fa-italic"></i>
-                </button>
-
-                <button
-                  type="button"
-                  class="format-btn"
-                  data-command="underline"
-                  title="Subrayado"
-                >
-                  <i class="fa-solid fa-underline"></i>
-                </button>
-
-
-                <span class="w-px h-5 bg-slate-300 mx-1"></span>
-
-
-                <!-- HYPERLINK -->
-
-                <button
-                  type="button"
-                  id="btnAddLink"
-                  class="format-btn"
-                  title="Añadir hyperlink"
-                >
-                  <i class="fa-solid fa-link"></i>
-                </button>
-
-
-                <!-- REMOVE FORMAT -->
-
-                <button
-                  type="button"
-                  id="btnClearFormat"
-                  class="format-btn"
-                  title="Quitar formato"
-                >
-                  <i class="fa-solid fa-eraser"></i>
-                </button>
-
-              </div>
-
-
-              <!-- ORIGINAL TEXT -->
-
-              <div
-                id="inputText"
-                contenteditable="true"
-                role="textbox"
-                aria-multiline="true"
-                class="w-full text-pane-scroll flex-1 p-3 text-sm leading-relaxed font-sans outline-none"
-                data-placeholder="Pega aquí el texto de AP (ej: 'NUEVA YORK (AP) — Los Cachorros de Chicago vencieron a los Rojos de Cincinnati...')..."
-              ></div>
-
-            </div>
-
+          <div class="flex items-center space-x-2">
+            <button id="btnCopyRich" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-paste"></i>
+              <span>Copiar Texto Enriquecido</span>
+            </button>
+            <button id="btnCopyHtml" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-copy"></i>
+              <span>Copiar HTML</span>
+            </button>
           </div>
-
         </div>
 
-
-        <!-- ======================================================
-             SETTINGS
-        ====================================================== -->
-
-        <div
-          class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4 flex-shrink-0"
-        >
-
-          <h2
-            class="font-semibold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"
-          >
-
-            <i class="fa-solid fa-sliders"></i>
-
-            Reglas de Formato
-
-          </h2>
-
-
-          <div class="space-y-3">
-
-
-            <!-- DATELINE -->
-
-            <div class="flex items-center justify-between">
-
-              <span class="text-xs font-medium text-slate-700">
-                Procedencia END (NUEVA YORK —)
-              </span>
-
-              <label
-                class="relative inline-flex items-center cursor-pointer"
-              >
-
-                <input
-                  type="checkbox"
-                  id="toggleDateline"
-                  checked
-                  class="sr-only peer"
-                >
-
-                <div
-                  class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"
-                ></div>
-
-              </label>
-
-            </div>
-
-
-            <!-- MLB TRANSLATION -->
-
-            <div class="flex items-center justify-between">
-
-              <span class="text-xs font-medium text-slate-700">
-                Nombres MLB en Inglés (Cachorros → Cubs)
-              </span>
-
-              <label
-                class="relative inline-flex items-center cursor-pointer"
-              >
-
-                <input
-                  type="checkbox"
-                  id="toggleMLBTeams"
-                  checked
-                  class="sr-only peer"
-                >
-
-                <div
-                  class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"
-                ></div>
-
-              </label>
-
-            </div>
-
-
-            <!-- LINK FREQUENCY -->
-
-            <div class="flex items-center justify-between">
-
-              <span class="text-xs font-medium text-slate-700">
-                Frecuencia de enlaces
-              </span>
-
-              <div
-                class="inline-flex rounded-lg bg-slate-100 p-1 border border-slate-200"
-              >
-
-                <label class="cursor-pointer">
-
-                  <input
-                    type="radio"
-                    name="replaceMode"
-                    value="first"
-                    checked
-                    class="peer sr-only"
-                  >
-
-                  <span
-                    class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 peer-checked:bg-white peer-checked:text-brand-600 peer-checked:shadow-sm block transition"
-                  >
-                    Solo 1ª aparición (SEO)
-                  </span>
-
-                </label>
-
-
-                <label class="cursor-pointer">
-
-                  <input
-                    type="radio"
-                    name="replaceMode"
-                    value="all"
-                    class="peer sr-only"
-                  >
-
-                  <span
-                    class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 peer-checked:bg-white peer-checked:text-brand-600 peer-checked:shadow-sm block transition"
-                  >
-                    Todas
-                  </span>
-
-                </label>
-
-              </div>
-
-            </div>
-
-
-            <!-- BOLD LINKS -->
-
-            <div class="flex items-center justify-between">
-
-              <span class="text-xs font-medium text-slate-700">
-                Enlace en Negrita (&lt;strong&gt;)
-              </span>
-
-              <label
-                class="relative inline-flex items-center cursor-pointer"
-              >
-
-                <input
-                  type="checkbox"
-                  id="toggleBold"
-                  checked
-                  class="sr-only peer"
-                >
-
-                <div
-                  class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"
-                ></div>
-
-              </label>
-
-            </div>
-
-
-            <!-- TARGET BLANK -->
-
-            <div class="flex items-center justify-between">
-
-              <span class="text-xs font-medium text-slate-700">
-                Abrir pestaña nueva (_blank)
-              </span>
-
-              <label
-                class="relative inline-flex items-center cursor-pointer"
-              >
-
-                <input
-                  type="checkbox"
-                  id="toggleTargetBlank"
-                  checked
-                  class="sr-only peer"
-                >
-
-                <div
-                  class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"
-                ></div>
-
-              </label>
-
-            </div>
-
+        <div id="viewPreview" class="p-5 flex-1 min-h-[300px] overflow-y-auto">
+          <div id="previewOutput" class="preview-content text-slate-800 text-base leading-relaxed space-y-4">
+            <p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>
           </div>
-
         </div>
 
-      </section>
-
-
-      <!-- ========================================================
-           RIGHT COLUMN — RESULTADO
-      ======================================================== -->
-
-      <section
-        class="workspace-column flex flex-col"
-      >
-
-        <div
-          class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col flex-1 min-h-0 overflow-hidden"
-        >
-
-          <!-- RESULT HEADER -->
-
-          <div
-            class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 flex-shrink-0"
-          >
-
-            <div class="flex items-center space-x-2">
-
-              <div
-                class="flex space-x-1 bg-slate-200/70 p-1 rounded-lg"
-              >
-
-                <button
-                  id="tabPreview"
-                  class="px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition"
-                >
-                  <i class="fa-solid fa-eye mr-1"></i>
-                  Vista Previa
-                </button>
-
-                <button
-                  id="tabCode"
-                  class="px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition"
-                >
-                  <i class="fa-solid fa-code mr-1"></i>
-                  HTML
-                </button>
-
-              </div>
-
-
-              <button
-                id="btnRegenerate"
-                class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1 shadow-sm active:scale-95"
-              >
-                <i class="fa-solid fa-rotate text-brand-600"></i>
-                <span>Regenerar</span>
-              </button>
-
-            </div>
-
-
-            <div class="flex items-center space-x-2">
-
-              <button
-                id="btnCopyRich"
-                class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95"
-              >
-                <i class="fa-solid fa-paste"></i>
-                <span>Copiar Texto Enriquecido</span>
-              </button>
-
-
-              <button
-                id="btnCopyHtml"
-                class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95"
-              >
-                <i class="fa-solid fa-copy"></i>
-                <span>Copiar HTML</span>
-              </button>
-
-            </div>
-
-          </div>
-
-
-          <!-- PREVIEW -->
-
-          <div
-            id="viewPreview"
-            class="p-5 text-pane-scroll flex-1 min-h-0"
-          >
-
-            <div
-              id="previewOutput"
-              class="preview-content text-slate-800 text-base leading-relaxed space-y-4"
-            >
-
-              <p class="text-slate-400 italic text-sm">
-                El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <!-- CODE -->
-
-          <div
-            id="viewCode"
-            class="hidden p-4 bg-slate-900 text-pane-scroll flex-1 min-h-0"
-          >
-
-            <pre>
-              <code
-                id="codeOutput"
-                class="text-xs font-mono text-amber-300 whitespace-pre-wrap break-words"
-              ></code>
-            </pre>
-
-          </div>
-
-
-          <!-- FOOTER -->
-
-          <div
-            class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between text-xs text-slate-500 flex-shrink-0"
-          >
-
-            <span id="statsMatches">
-              0 términos enlazados
-            </span>
-
-            <span class="flex items-center gap-1">
-
-              <i
-                class="fa-solid fa-circle text-emerald-500 text-[8px]"
-              ></i>
-
-              30 Equipos MLB Configurados
-
-            </span>
-
-          </div>
-
+        <div id="viewCode" class="hidden p-4 bg-slate-900 flex-1 min-h-[300px] overflow-y-auto">
+          <pre><code id="codeOutput" class="text-xs font-mono text-amber-300 whitespace-pre-wrap break-words"></code></pre>
         </div>
 
-      </section>
+        <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between text-xs text-slate-500">
+          <span id="statsMatches">0 términos enlazados</span>
+          <span id="dictionaryConnectionStatus" class="flex items-center gap-1"><i class="fa-solid fa-circle text-amber-400 text-[8px]"></i> Conectando diccionario central...</span>
+        </div>
 
-    </div>
+      </div>
+
+    </section>
 
   </main>
 
-
-  <!-- ============================================================
-       DICTIONARY MODAL
-  ============================================================ -->
-
-  <div
-    id="dictModal"
-    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4"
-  >
-
-    <div
-      class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200"
-    >
-
-      <div
-        class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between"
-      >
-
+  <div id="dictModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+      
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
         <div class="flex items-center space-x-2">
-
-          <i
-            class="fa-solid fa-book-bookmark text-amber-400 text-lg"
-          ></i>
-
-          <h2 class="font-bold text-base">
-            Diccionario de Tópicos - El Nuevo Día
-          </h2>
-
+          <i class="fa-solid fa-book-bookmark text-amber-400 text-lg"></i>
+          <h2 class="font-bold text-base">Diccionario de Tópicos - El Nuevo Día</h2>
         </div>
-
-
-        <button
-          id="btnCloseModal"
-          class="text-slate-400 hover:text-white transition"
-        >
+        <button id="btnCloseModal" class="text-slate-400 hover:text-white transition">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
-
       </div>
 
+      <div class="p-4 bg-slate-50 border-b border-slate-200 space-y-3">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-xs text-slate-600 font-medium">Diccionario central de El Nuevo Día</p>
+          <span id="adminStatus" class="text-[11px] text-slate-500">Solo lectura</span>
+        </div>
 
-      <div
-        class="p-4 bg-slate-50 border-b border-slate-200 space-y-3"
-      >
+        <div id="adminLoginPanel" class="space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-[11px] text-slate-500">Solo el administrador autorizado puede modificar términos.</p>
+            <button type="button" id="btnShowLogin" class="shrink-0 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition">
+              Administrar
+            </button>
+          </div>
+          <form id="adminLoginForm" class="hidden grid grid-cols-1 sm:grid-cols-12 gap-2">
+            <input type="email" id="adminEmail" placeholder="Correo del administrador" autocomplete="username" required class="sm:col-span-4 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+            <input type="password" id="adminPassword" placeholder="Contraseña" autocomplete="current-password" required class="sm:col-span-4 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+            <button type="submit" class="sm:col-span-4 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition">
+              Iniciar sesión
+            </button>
+          </form>
+        </div>
 
-        <p class="text-xs text-slate-600 font-medium">
-          Añadir nuevo término o tópico:
-        </p>
+        <div id="adminEditPanel" class="hidden space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-xs text-slate-600 font-medium">Añadir nuevo término o tópico:</p>
+            <button type="button" id="btnLogout" class="text-[11px] text-slate-500 hover:text-red-600 font-medium">Cerrar sesión</button>
+          </div>
+          <form id="addKeywordForm" class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+            <input type="text" id="newKeyword" placeholder="Ej: Athletics" required class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+            <input type="url" id="newUrl" placeholder="URL opcional" class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+            <button type="submit" class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-plus"></i> Añadir
+            </button>
+          </form>
+        </div>
 
-
-        <form
-          id="addKeywordForm"
-          class="grid grid-cols-1 sm:grid-cols-12 gap-2"
-        >
-
-          <input
-            type="text"
-            id="newKeyword"
-            placeholder="Ej: Athletics"
-            required
-            class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none"
-          >
-
-          <input
-            type="url"
-            id="newUrl"
-            placeholder="URL opcional"
-            class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none"
-          >
-
-          <button
-            type="submit"
-            class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1"
-          >
-            <i class="fa-solid fa-plus"></i>
-            Añadir
-          </button>
-
-        </form>
-
+        <div>
+          <input type="search" id="dictSearch" placeholder="Buscar término en el diccionario..." autocomplete="off" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none bg-white">
+        </div>
       </div>
 
+      <div class="p-4 flex-1 overflow-y-auto max-h-[50vh] space-y-2" id="dictListContainer"></div>
 
-      <div
-        class="p-4 flex-1 overflow-y-auto max-h-[50vh] space-y-2"
-        id="dictListContainer"
-      ></div>
-
-
-      <div
-        class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs"
-      >
-
-        <button
-          id="btnResetDefault"
-          class="text-slate-500 hover:text-red-600 font-medium transition flex items-center gap-1"
-        >
-          <i class="fa-solid fa-rotate-left"></i>
-          Restablecer diccionario por defecto
+      <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs">
+        <button id="btnResetDefault" class="text-slate-500 hover:text-red-600 font-medium transition flex items-center gap-1">
+          <i class="fa-solid fa-rotate-left"></i> Restablecer diccionario por defecto
         </button>
-
-
-        <button
-          id="btnCloseModalBottom"
-          class="bg-slate-800 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-slate-700 transition"
-        >
+        <button id="btnCloseModalBottom" class="bg-slate-800 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-slate-700 transition">
           Cerrar
         </button>
-
       </div>
 
     </div>
-
   </div>
 
-
-  <!-- ============================================================
-       TOAST
-  ============================================================ -->
-
-  <div
-    id="toast"
-    class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-medium transition transform translate-y-20 opacity-0 flex items-center gap-2 z-50"
-  >
-
-    <i
-      id="toastIcon"
-      class="fa-solid fa-check text-emerald-400"
-    ></i>
-
-    <span id="toastMsg">
-      Notificación
-    </span>
-
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-medium transition transform translate-y-20 opacity-0 flex items-center gap-2 z-50">
+    <i id="toastIcon" class="fa-solid fa-check text-emerald-400"></i>
+    <span id="toastMsg">Notificación</span>
   </div>
 
-
-  <!-- ============================================================
-       JAVASCRIPT
-  ============================================================ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-
-    // ============================================================
-    // DICCIONARIO
-    // ============================================================
-
+    // Diccionario predeterminado con los 30 equipos exactos de MLB que proporcionaste
     const DEFAULT_DICTIONARY = [
       { keyword: "Cubs de Chicago", url: "https://www.elnuevodia.com/topicos/cubs-de-chicago/" },
       { keyword: "Twins de Minnesota", url: "https://www.elnuevodia.com/topicos/twins-de-minnesota/" },
@@ -910,11 +330,14 @@
       { keyword: "Reds de Cincinnati", url: "https://www.elnuevodia.com/topicos/reds-de-cincinnati/" }
     ];
 
-
-    // ============================================================
-    // TRADUCCIONES MLB
-    // ============================================================
-
+    // Reglas de traducción para cables de AP -> Estilo END en inglés
+    //
+    // IMPORTANTE:
+    // Los nombres completos ("Nacionales de Washington", "Gigantes de San
+    // Francisco", etc.) se traducen siempre. Los apodos solos NO se traducen
+    // automáticamente: requieren contexto de béisbol/equipo para evitar falsos
+    // positivos como "leyes nacionales", "corporaciones nacionales" o
+    // "gigantes de la industria".
     const MLB_TEAM_TRANSLATIONS = [
       { ap: /Medias Rojas de Boston/g, end: "Red Sox de Boston" },
       { ap: /Medias Blancas de Chicago/g, end: "White Sox de Chicago" },
@@ -938,6 +361,7 @@
       { ap: /Cardenales de San Luis/g, end: "Cardinals de San Luis" },
       { ap: /Gigantes de San Francisco/g, end: "Giants de San Francisco" },
 
+      // Apodos solos: se procesan únicamente dentro de contexto de MLB.
       { ap: /\bMedias Rojas\b/g, end: "Red Sox", standalone: true },
       { ap: /\bMedias Blancas\b/g, end: "White Sox", standalone: true },
       { ap: /\bGuardianes\b/g, end: "Guardians", standalone: true },
@@ -960,2307 +384,731 @@
       { ap: /\bGigantes\b/g, end: "Giants", standalone: true }
     ];
 
-
-    const BASEBALL_CONTEXT =
-      /\b(?:béisbol|beisbol|MLB|Grandes Ligas|Liga Nacional|Liga Americana|Serie Mundial|jonr[oó]n(?:es)?|cuadrangular(?:es)?|home run(?:s)?|bate(?:ó|aron|ar)?|bateador(?:es)?|batea(?:n|ron)|lanzador(?:es)?|lanz[oó]|pitcher(?:s)?|relevista(?:s)?|abridor(?:es)?|receptor(?:es)?|catcher(?:s)?|inning(?:s)?|entrada(?:s)?|carrera(?:s)?|bases?|bullpen|diamante|out(?:s)?|hit(?:s)?|doble(?:s)?|triple(?:s)?|roleta(?:s)?|sencillo(?:s)?|serie(?:s)?|par(?:tido|tidos)|temporada|playoffs|postemporada|clasificaci[oó]n|wild card|wild-card)\b/i;
-
+    // Palabras y expresiones que identifican razonablemente un texto de béisbol.
+    // No basta con que exista alguna de estas palabras: para un apodo aislado
+    // también se exige una construcción que parezca referirse al equipo.
+    const BASEBALL_CONTEXT = /\b(?:béisbol|beisbol|MLB|Grandes Ligas|Liga Nacional|Liga Americana|Serie Mundial|jonr[oó]n(?:es)?|cuadrangular(?:es)?|home run(?:s)?|bate(?:ó|aron|aron)|bateador(?:es)?|batea(?:n|ron)|lanzador(?:es)?|lanz[oó]|pitcher(?:s)?|relevista(?:s)?|abridor(?:es)?|receptor(?:es)?|catcher(?:s)?|inning(?:s)?|entrada(?:s)?|carrera(?:s)?|bases?|bullpen|diamante|out(?:s)?|hit(?:s)?|doble(?:s)?|triple(?:s)?|roleta(?:s)?|sencillo(?:s)?|serie(?:s)?|par(?:tido|tidos)|temporada|playoffs|postemporada|clasificaci[oó]n|wild card|wild-card)\b/i;
 
     function hasBaseballTeamContext(text) {
-
+      // Si aparece el nombre completo de cualquiera de los equipos que esta
+      // plantilla traduce, el resto de apariciones de su apodo se consideran
+      // referencias al equipo.
       return MLB_TEAM_TRANSLATIONS.some(item => {
-
         if (item.standalone) return false;
-
         item.ap.lastIndex = 0;
-
         const found = item.ap.test(text);
-
         item.ap.lastIndex = 0;
-
         return found;
-
       }) || BASEBALL_CONTEXT.test(text);
     }
 
-
-    function shouldTranslateStandaloneNickname(
-      fullText,
-      offset,
-      match,
-      baseballContext
-    ) {
-
+    function shouldTranslateStandaloneNickname(fullText, offset, match, baseballContext) {
       if (!baseballContext) return false;
 
-      if (
-        !match ||
-        match[0] !== match[0].toUpperCase()
-      ) {
-        return false;
-      }
+      // Los nombres propios de los equipos vienen capitalizados en los cables.
+      // Esta comprobación evita transformar usos comunes en minúscula:
+      // "leyes nacionales", "gigantes de la industria", etc.
+      if (!match || match[0] !== match[0].toUpperCase()) return false;
 
-      const before = fullText.slice(
-        Math.max(0, offset - 20),
-        offset
-      );
+      const before = fullText.slice(Math.max(0, offset - 20), offset);
+      const after = fullText.slice(offset + match.length, offset + match.length + 35);
 
-      const after = fullText.slice(
-        offset + match.length,
-        offset + match.length + 35
-      );
-
-      const precededByArticle =
-        /(?:^|\s)(?:el|la|los|las)\s+$/i.test(before);
+      // En el uso normal de un equipo, el apodo aparece como sustantivo:
+      // "los Nacionales", "los Gigantes", "los Tigres", etc.
+      // Esto evita casos como "leyes nacionales" o "gigantes de la industria".
+      const precededByArticle = /(?:^|\s)(?:el|la|los|las)\s+$/i.test(before);
 
       if (!precededByArticle) return false;
 
+      // "los nacionales de Puerto Rico", "los gigantes de la industria", etc.
+      // no deben convertirse. Los nombres completos de los equipos ya fueron
+      // procesados antes de llegar a esta regla.
       if (/^\s+de\s+/i.test(after)) return false;
 
       return true;
     }
 
-
     // ============================================================
-    // ESTADO
+    // SUPABASE — Diccionario central
+    // La Publishable key puede estar en el frontend. La seguridad real
+    // de escritura está en RLS, configurado en Supabase.
     // ============================================================
-
-    let dictionary = [];
-    let processedHtml = "";
-
-    /*
-      Guarda la última selección válida dentro del editor.
-      Esto evita que la barra de herramientas destruya la selección
-      antes de aplicar negrita, cursiva, subrayado, enlace, etc.
-    */
-
-    let savedSelection = null;
-
-
-    const inputText =
-      document.getElementById('inputText');
-
-    const previewOutput =
-      document.getElementById('previewOutput');
-
-    const codeOutput =
-      document.getElementById('codeOutput');
-
-    const statsMatches =
-      document.getElementById('statsMatches');
-
-    const toggleBold =
-      document.getElementById('toggleBold');
-
-    const toggleTargetBlank =
-      document.getElementById('toggleTargetBlank');
-
-    const toggleDateline =
-      document.getElementById('toggleDateline');
-
-    const toggleMLBTeams =
-      document.getElementById('toggleMLBTeams');
-
-    const dictCountBadge =
-      document.getElementById('dictCountBadge');
-
-
-    window.addEventListener(
-      'DOMContentLoaded',
-      () => {
-
-        loadDictionary();
-
-        setupEventListeners();
-
-        processText();
-
+    const SUPABASE_URL = "https://ngkygzwqtwxcggukqznj.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_D3k7urSeKP8aR0ypEdrOXw_6-sxarN-";
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: false
+        }
       }
     );
 
+    let dictionary = [];
+    let processedHtml = "";
+    let dictionaryFromSupabase = false;
+    let currentUser = null;
+    let migrationInProgress = false;
 
-    // ============================================================
-    // UTILIDADES
-    // ============================================================
+    const inputText = document.getElementById('inputText');
+    const previewOutput = document.getElementById('previewOutput');
+    const codeOutput = document.getElementById('codeOutput');
+    const statsMatches = document.getElementById('statsMatches');
+    const toggleBold = document.getElementById('toggleBold');
+    const toggleTargetBlank = document.getElementById('toggleTargetBlank');
+    const toggleDateline = document.getElementById('toggleDateline');
+    const toggleMLBTeams = document.getElementById('toggleMLBTeams');
+    const dictCountBadge = document.getElementById('dictCountBadge');
+    
+    window.addEventListener('DOMContentLoaded', async () => {
+      setupEventListeners();
+      await loadDictionary();
+      await updateAuthUI();
+      processText();
+    });
 
     function generateEndTopicUrl(term) {
-
-      const slug = term
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
+      const slug = term.toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         .replace(/[^a-z0-9 -]/g, "")
         .trim()
         .replace(/\s+/g, "-");
-
       return `https://www.elnuevodia.com/topicos/${slug}/`;
     }
 
-
-    // ============================================================
-    // NÚMEROS AP → ESTILO EL NUEVO DÍA
-    // ============================================================
-
-    /*
-      AP utiliza:
-
-        47.084 aficionados
-        1.000 carreras
-        1.234.567 personas
-
-      En El Nuevo Día:
-
-        47,084 aficionados
-        1,000 carreras
-        1,234,567 personas
-
-
-      AP también utiliza coma decimal:
-
-        2,6 por ciento
-        2,60 por ciento
-
-      En El Nuevo Día:
-
-        2.6 por ciento
-        2.60 por ciento
-
-
-      IMPORTANTE:
-
-      Los años de cuatro dígitos no se alteran:
-
-        1985
-        2025
-        2027
-
-
-      También se preservan los números que ya utilizan coma
-      como separador de miles:
-
-        47,084
-        1,000
-        1,234,567
-    */
-
-    function normalizeAPNumberFormatting(text) {
-
-      /*
-        ------------------------------------------------------------
-        1. SEPARADORES DE MILES
-        ------------------------------------------------------------
-
-        Detecta:
-
-          1.000
-          47.084
-          123.456
-          1.234.567
-
-        y cambia únicamente los puntos que funcionan como
-        separadores de miles.
-
-        Un año como 2025 no coincide porque no contiene punto.
-      */
-
-      text =
-        text.replace(
-          /\b\d{1,3}(?:\.\d{3})+\b/g,
-          match => match.replace(/\./g, ',')
-        );
-
-
-      /*
-        ------------------------------------------------------------
-        2. COMA DECIMAL DE AP → PUNTO DECIMAL DE END
-        ------------------------------------------------------------
-
-        Detecta decimales con uno o dos dígitos después de la coma:
-
-          2,6  → 2.6
-          2,60 → 2.60
-          10,5 → 10.5
-
-        No toca:
-
-          47,084
-          1,000
-          1,234,567
-
-        porque esos números tienen tres dígitos después de la coma.
-      */
-
-      text =
-        text.replace(
-          /\b(\d+),(\d{1,2})\b/g,
-          '$1.$2'
-        );
-
-
-      return text;
-    }
-
-
-    // ============================================================
-    // FRACCIONES DE ENTRADAS
-    // ============================================================
-
-    /*
-      Convierte:
-
-      2 1/3 entradas -> 2.1 entradas
-      2 2/3 entradas -> 2.2 entradas
-      1 1/3 entrada  -> 1.1 entrada
-
-      Solamente cuando la fracción está seguida por
-      "entrada" o "entradas".
-    */
-
-    function normalizeBaseballInnings(text) {
-
-      return text.replace(
-        /\b(\d+)\s+([12])\s*\/\s*3(?=\s+entradas?\b)/gi,
-        '$1.$2'
-      );
-    }
-
-
-    // ============================================================
-    // FRACCIONES DE PARTIDOS / JUEGOS
-    // ============================================================
-
-    /*
-      Convierte únicamente fracciones de 1/2 cuando se refieren
-      explícitamente a partidos o juegos.
-
-      Ejemplos:
-
-      1 1/2 partidos -> 1.5 partidos
-      2 1/2 partidos -> 2.5 partidos
-      1 1/2 juego    -> 1.5 juego
-      2 1/2 juegos   -> 2.5 juegos
-
-      NO convierte:
-
-      10 1/2 pies
-      75 1/2 yardas
-      10 1/2 segundos
-      5 1/2 pulgadas
-    */
-
-    function normalizeGameFractions(text) {
-
-      return text.replace(
-        /\b(\d+)\s+1\s*\/\s*2(?=\s+(?:partidos?|juegos?)\b)/gi,
-        '$1.5'
-      );
-    }
-
-
-    // ============================================================
-    // JUEGO 1, JUEGO 2, ETC.
-    // ============================================================
-
-    function normalizeGameMentions(text) {
-
-      const ordinals = {
-        '1': 'primer',
-        '2': 'segundo',
-        '3': 'tercer',
-        '4': 'cuarto',
-        '5': 'quinto',
-        '6': 'sexto',
-        '7': 'séptimo',
-        '8': 'octavo',
-        '9': 'noveno',
-        '10': 'décimo',
-        '11': 'undécimo',
-        '12': 'duodécimo',
-        '13': 'decimotercer',
-        '14': 'decimocuarto',
-        '15': 'decimoquinto',
-        '16': 'decimosexto'
-      };
-
-      return text.replace(
-        /\bJuego\s+(\d{1,2})\b/g,
-        (m, n) =>
-          ordinals[n]
-            ? `${ordinals[n]} juego`
-            : m
-      );
-    }
-
-
-    // ============================================================
-    // DATELINE
-    // ============================================================
-
     function transformDatelineEND(text) {
-
-      return text.replace(
-        /^([A-ZÁÉÍÓÚÑ\s]{2,})\s*(\([A-Z\s]+\))?\s*[\-–—]{1,2}\s*/,
-        (match, city) => {
-
-          let cleanCity = city.trim();
-
-          let formattedCity =
-            cleanCity
-              .toLowerCase()
-              .replace(
-                /(?:^|\s)\S/g,
-                a => a.toUpperCase()
-              );
-
-          return `${formattedCity} — `;
-        }
-      );
+      return text.replace(/^([A-ZÁÉÍÓÚÑ\s]{2,})\s*(\([A-Z\s]+\))?\s*[\-–—]{1,2}\s*/, (match, city) => {
+        let cleanCity = city.trim();
+        let formattedCity = cleanCity.toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+        return `${formattedCity} — `;
+      });
     }
-
-
-    /*
-      Esta función modifica solamente los nodos de texto de la
-      procedencia, preservando <strong>, <em>, <u> y <a>.
-    */
-
-    function transformDatelinePreservingFormatting(root) {
-
-      const firstBlock =
-        root.firstElementChild;
-
-      if (!firstBlock) return;
-
-      const text =
-        firstBlock.textContent || '';
-
-      const changed =
-        transformDatelineEND(text);
-
-      if (changed === text) return;
-
-      const match =
-        text.match(
-          /^([A-ZÁÉÍÓÚÑ\s]{2,})\s*(\([A-Z\s]+\))?\s*[\-–—]{1,2}\s*/
-        );
-
-      if (!match) return;
-
-      const oldLength =
-        match[0].length;
-
-      const walker =
-        document.createTreeWalker(
-          firstBlock,
-          NodeFilter.SHOW_TEXT
-        );
-
-      let remaining =
-        oldLength;
-
-      let node;
-
-      while (
-        (node = walker.nextNode()) &&
-        remaining > 0
-      ) {
-
-        const length =
-          node.nodeValue.length;
-
-        if (length <= remaining) {
-
-          node.nodeValue = '';
-
-          remaining -= length;
-
-        } else {
-
-          node.nodeValue =
-            node.nodeValue.slice(remaining);
-
-          remaining = 0;
-        }
-      }
-
-      const replacement =
-        changed.slice(
-          0,
-          changed.length -
-          (text.length - oldLength)
-        );
-
-      firstBlock.insertBefore(
-        document.createTextNode(
-          replacement
-        ),
-        firstBlock.firstChild
-      );
-    }
-
-
-    // ============================================================
-    // EQUIPOS MLB
-    // ============================================================
 
     function translateTeamNamesEND(text) {
-
       let cleanedText = text;
+      const baseballContext = hasBaseballTeamContext(text);
 
-      const baseballContext =
-        hasBaseballTeamContext(text);
-
-
+      // PASO 1: nombres completos. Estos siempre se convierten porque no son
+      // ambiguos: "Nacionales de Washington" -> "Nationals de Washington".
       MLB_TEAM_TRANSLATIONS
         .filter(item => !item.standalone)
         .forEach(item => {
-
           item.ap.lastIndex = 0;
-
-          cleanedText =
-            cleanedText.replace(
-              item.ap,
-              item.end
-            );
-
+          cleanedText = cleanedText.replace(item.ap, item.end);
           item.ap.lastIndex = 0;
-
         });
 
-
+      // PASO 2: apodos solos. Solo se convierten cuando el contexto y la
+      // gramática indican que se trata del equipo.
       if (baseballContext) {
-
         MLB_TEAM_TRANSLATIONS
           .filter(item => item.standalone)
           .forEach(item => {
-
             item.ap.lastIndex = 0;
-
-            cleanedText =
-              cleanedText.replace(
-                item.ap,
-                (match, ...args) => {
-
-                  const offset =
-                    args[args.length - 2];
-
-                  return shouldTranslateStandaloneNickname(
-                    cleanedText,
-                    offset,
-                    match,
-                    baseballContext
-                  )
-                    ? item.end
-                    : match;
-
-                }
-              );
-
+            cleanedText = cleanedText.replace(item.ap, (match, ...args) => {
+              const offset = args[args.length - 2];
+              return shouldTranslateStandaloneNickname(
+                cleanedText,
+                offset,
+                match,
+                baseballContext
+              ) ? item.end : match;
+            });
             item.ap.lastIndex = 0;
-
           });
       }
 
       return cleanedText;
     }
 
+    async function loadDictionary() {
+      setDictionaryConnectionStatus('loading');
 
-    // ============================================================
-    // DICCIONARIO
-    // ============================================================
+      const { data, error } = await supabaseClient
+        .from('dictionary_terms')
+        .select('id, keyword, url')
+        .order('keyword', { ascending: true });
 
-    function loadDictionary() {
-
-      const saved =
-        localStorage.getItem(
-          'end_sports_dictionary'
-        );
-
-
-      if (saved) {
-
-        try {
-
-          let parsed =
-            JSON.parse(saved);
-
-          if (
-            parsed.length === 0 ||
-            parsed.some(
-              item =>
-                item.url &&
-                item.url.includes('/topico/')
-            )
-          ) {
-
-            dictionary =
-              [...DEFAULT_DICTIONARY];
-
-          } else {
-
-            dictionary =
-              parsed;
-          }
-
-        } catch (e) {
-
-          dictionary =
-            [...DEFAULT_DICTIONARY];
-        }
-
-      } else {
-
-        dictionary =
-          [...DEFAULT_DICTIONARY];
+      if (error) {
+        console.error('Error cargando diccionario central:', error);
+        dictionary = [...DEFAULT_DICTIONARY];
+        dictionaryFromSupabase = false;
+        setDictionaryConnectionStatus('error');
+        updateDictBadge();
+        return;
       }
 
+      if (Array.isArray(data) && data.length > 0) {
+        dictionary = data
+          .filter(item => item.keyword && item.url)
+          .map(item => ({ id: item.id, keyword: item.keyword, url: item.url }));
+        dictionaryFromSupabase = true;
+        setDictionaryConnectionStatus('connected');
+      } else {
+        // La tabla está vacía: usamos los valores predeterminados solo como
+        // respaldo temporal. El administrador podrá cargarlos al iniciar sesión.
+        dictionary = [...DEFAULT_DICTIONARY];
+        dictionaryFromSupabase = false;
+        setDictionaryConnectionStatus('empty');
+      }
 
-      dictionary.sort(
-        (a, b) =>
-          b.keyword.length -
-          a.keyword.length
-      );
-
-      saveDictionary();
-
+      sortDictionaryForProcessing();
       updateDictBadge();
     }
 
-
-    function saveDictionary() {
-
-      localStorage.setItem(
-        'end_sports_dictionary',
-        JSON.stringify(dictionary)
-      );
-
-      updateDictBadge();
+    function sortDictionaryForProcessing() {
+      dictionary.sort((a, b) => b.keyword.length - a.keyword.length);
     }
 
+    function sortDictionaryForDisplay(items) {
+      return [...items].sort((a, b) =>
+        a.keyword.localeCompare(b.keyword, 'es', { sensitivity: 'base' })
+      );
+    }
 
     function updateDictBadge() {
-
-      dictCountBadge.textContent =
-        dictionary.length;
+      dictCountBadge.textContent = dictionary.length;
     }
 
-
-    // ============================================================
-    // NODOS DE TEXTO
-    // ============================================================
-
-    function forEachTextNode(root, callback) {
-
-      const walker =
-        document.createTreeWalker(
-          root,
-          NodeFilter.SHOW_TEXT
-        );
-
-      const nodes = [];
-
-      let node;
-
-      while (
-        (node = walker.nextNode())
-      ) {
-
-        if (
-          node.parentElement &&
-          !node.parentElement.closest(
-            'a, script, style'
-          )
-        ) {
-
-          nodes.push(node);
-        }
-      }
-
-
-      nodes.forEach(callback);
-    }
-
-
-    // ============================================================
-    // REGLAS AUTOMÁTICAS
-    // ============================================================
-
-    function applyAutomaticTextRules(
-      root,
-      isMLBTranslated
-    ) {
-
-      forEachTextNode(
-        root,
-        node => {
-
-          let value =
-            node.nodeValue;
-
-
-          if (isMLBTranslated) {
-
-            value =
-              translateTeamNamesEND(
-                value
-              );
-          }
-
-
-          /*
-            Estilo numérico AP → END.
-
-            Se ejecuta sobre cada nodo de texto, por lo que
-            también respeta <strong>, <em>, <u> y otros formatos
-            existentes en el HTML original.
-          */
-
-          value =
-            normalizeAPNumberFormatting(
-              value
-            );
-
-
-          value =
-            normalizeBaseballInnings(
-              value
-            );
-
-
-          value =
-            normalizeGameFractions(
-              value
-            );
-
-
-          value =
-            normalizeGameMentions(
-              value
-            );
-
-
-          if (
-            value !== node.nodeValue
-          ) {
-
-            node.nodeValue =
-              value;
-          }
-
-        }
-      );
-    }
-
-
-    // ============================================================
-    // ITÁLICAS AUTOMÁTICAS
-    // ============================================================
-
-    function autoItalicizeEnglishSportsTerms(root) {
-
-      const regex =
-        /\b(?:playoff|playoffs|wild\s+card|wild\s+cards|draft|innings?|slider|cutter|fastball|passed\s+ball|strikes?)\b/gi;
-
-
-      forEachTextNode(
-        root,
-        node => {
-
-          regex.lastIndex = 0;
-
-          if (
-            !regex.test(
-              node.nodeValue
-            )
-          ) {
-
-            return;
-          }
-
-
-          regex.lastIndex = 0;
-
-
-          const fragment =
-            document.createDocumentFragment();
-
-          let last = 0;
-          let match;
-
-
-          while (
-            (match = regex.exec(node.nodeValue))
-          ) {
-
-            if (
-              match.index > last
-            ) {
-
-              fragment.appendChild(
-                document.createTextNode(
-                  node.nodeValue.slice(
-                    last,
-                    match.index
-                  )
-                )
-              );
-            }
-
-
-            const em =
-              document.createElement('em');
-
-            em.textContent =
-              match[0];
-
-            fragment.appendChild(em);
-
-
-            last =
-              match.index +
-              match[0].length;
-          }
-
-
-          if (
-            last <
-            node.nodeValue.length
-          ) {
-
-            fragment.appendChild(
-              document.createTextNode(
-                node.nodeValue.slice(last)
-              )
-            );
-          }
-
-
-          node.parentNode.replaceChild(
-            fragment,
-            node
-          );
-
-        }
-      );
-    }
-
-
-    // ============================================================
-    // ENLACES AUTOMÁTICOS
-    // ============================================================
-
-    function linkDictionaryTerms(
-      root,
-      replaceMode,
-      isBold,
-      isBlank
-    ) {
-
-      let total = 0;
-
-      const matchedTopicsSet =
-        new Set();
-
-
-      dictionary.forEach(item => {
-
-        if (
-          !item.keyword ||
-          !item.keyword.trim()
-        ) {
-
-          return;
-        }
-
-
-        const topicKey =
-          (
-            item.url ||
-            item.keyword
-          )
-            .toLowerCase()
-            .replace(/\/$/, '');
-
-
-        if (
-          replaceMode === 'first' &&
-          matchedTopicsSet.has(topicKey)
-        ) {
-
-          return;
-        }
-
-
-        const escapedKw =
-          item.keyword.replace(
-            /[.*+?^${}()|[\]\\]/g,
-            '\\$&'
-          );
-
-
-        const boundaryEnd =
-          /\.$/.test(item.keyword)
-            ? ''
-            : '\\b';
-
-
-        const regex =
-          new RegExp(
-            `\\b(${escapedKw})${boundaryEnd}`,
-            replaceMode === 'all'
-              ? 'gi'
-              : 'i'
-          );
-
-
-        let linked = false;
-
-
-        forEachTextNode(
-          root,
-          node => {
-
-            if (
-              replaceMode === 'first' &&
-              matchedTopicsSet.has(topicKey)
-            ) {
-
-              return;
-            }
-
-
-            regex.lastIndex = 0;
-
-
-            if (
-              !regex.test(
-                node.nodeValue
-              )
-            ) {
-
-              return;
-            }
-
-
-            regex.lastIndex = 0;
-
-
-            const value =
-              node.nodeValue;
-
-
-            const fragment =
-              document.createDocumentFragment();
-
-
-            let last = 0;
-            let match;
-
-
-            while (
-              (match = regex.exec(value))
-            ) {
-
-              if (
-                replaceMode === 'first' &&
-                linked
-              ) {
-
-                break;
-              }
-
-
-              if (
-                match.index > last
-              ) {
-
-                fragment.appendChild(
-                  document.createTextNode(
-                    value.slice(
-                      last,
-                      match.index
-                    )
-                  )
-                );
-              }
-
-
-              const a =
-                document.createElement('a');
-
-              a.href =
-                item.url;
-
-              a.textContent =
-                match[0];
-
-
-              if (isBlank) {
-
-                a.target =
-                  '_blank';
-
-                a.rel =
-                  'noopener';
-              }
-
-
-              if (isBold) {
-
-                const strong =
-                  document.createElement(
-                    'strong'
-                  );
-
-                strong.appendChild(a);
-
-                fragment.appendChild(
-                  strong
-                );
-
-              } else {
-
-                fragment.appendChild(a);
-              }
-
-
-              last =
-                match.index +
-                match[0].length;
-
-
-              linked = true;
-
-              matchedTopicsSet.add(
-                topicKey
-              );
-
-              total++;
-
-
-              if (
-                replaceMode === 'first'
-              ) {
-
-                break;
-              }
-
-            }
-
-
-            if (linked) {
-
-              if (
-                last <
-                value.length
-              ) {
-
-                fragment.appendChild(
-                  document.createTextNode(
-                    value.slice(last)
-                  )
-                );
-              }
-
-
-              node.parentNode.replaceChild(
-                fragment,
-                node
-              );
-            }
-
-          }
-        );
-
-      });
-
-
-      return total;
-    }
-
-
-    // ============================================================
-    // PROCESAMIENTO PRINCIPAL
-    // ============================================================
-
-    function processText() {
-
-      /*
-        IMPORTANTE:
-
-        Usamos innerHTML del panel izquierdo.
-
-        Esto conserva el formato que el usuario haya aplicado
-        manualmente:
-
-        <strong>
-        <em>
-        <u>
-        <a>
-      */
-
-      const rawText =
-        inputText.innerText || '';
-
-
-      if (
-        !rawText.trim()
-      ) {
-
-        previewOutput.innerHTML =
-          `<p class="text-slate-400 italic text-sm">
-            El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.
-          </p>`;
-
-
-        codeOutput.textContent =
-          '';
-
-
-        statsMatches.textContent =
-          '0 términos enlazados';
-
-
-        processedHtml =
-          '';
-
-        return;
-      }
-
-
-      const isBold =
-        toggleBold.checked;
-
-
-      const isBlank =
-        toggleTargetBlank.checked;
-
-
-      const isDatelineFormatted =
-        toggleDateline
-          ? toggleDateline.checked
-          : true;
-
-
-      const isMLBTranslated =
-        toggleMLBTeams
-          ? toggleMLBTeams.checked
-          : true;
-
-
-      const replaceMode =
-        document.querySelector(
-          'input[name="replaceMode"]:checked'
-        ).value;
-
-
-      /*
-        CLONAMOS EL HTML ORIGINAL.
-
-        Esto permite que el formato manual aplicado
-        en la ventana izquierda aparezca también en la derecha.
-      */
-
-      const root =
-        document.createElement('div');
-
-
-      root.innerHTML =
-        inputText.innerHTML;
-
-
-      // ----------------------------------------------------------
-      // PROCEDENCIA
-      // ----------------------------------------------------------
-
-      if (
-        isDatelineFormatted
-      ) {
-
-        transformDatelinePreservingFormatting(
-          root
-        );
-      }
-
-
-      // ----------------------------------------------------------
-      // REGLAS AUTOMÁTICAS
-      // ----------------------------------------------------------
-
-      applyAutomaticTextRules(
-        root,
-        isMLBTranslated
-      );
-
-
-      // ----------------------------------------------------------
-      // ENLACES
-      // ----------------------------------------------------------
-
-      const totalMatches =
-        linkDictionaryTerms(
-          root,
-          replaceMode,
-          isBold,
-          isBlank
-        );
-
-
-      // ----------------------------------------------------------
-      // ITÁLICAS
-      // ----------------------------------------------------------
-
-      autoItalicizeEnglishSportsTerms(
-        root
-      );
-
-
-      // ----------------------------------------------------------
-      // ASEGURAR PÁRRAFOS
-      // ----------------------------------------------------------
-
-      if (
-        !root.querySelector(':scope > p') &&
-        root.children.length === 0
-      ) {
-
-        const p =
-          document.createElement('p');
-
-
-        while (
-          root.firstChild
-        ) {
-
-          p.appendChild(
-            root.firstChild
-          );
-        }
-
-
-        root.appendChild(p);
-      }
-
-
-      // ----------------------------------------------------------
-      // HTML FINAL
-      // ----------------------------------------------------------
-
-      processedHtml =
-        Array.from(
-          root.childNodes
-        )
-          .map(
-            node =>
-              node.outerHTML ||
-              node.textContent ||
-              ''
-          )
-          .join('\n\n');
-
-
-      previewOutput.innerHTML =
-        processedHtml;
-
-
-      codeOutput.textContent =
-        processedHtml;
-
-
-      statsMatches.textContent =
-        `${totalMatches} término(s) formateado(s) y enlazado(s)`;
-    }
-
-
-    // ============================================================
-    // SELECCIÓN DEL EDITOR
-    // ============================================================
-
-    /*
-      Guarda la selección actual del usuario mientras trabaja
-      dentro del editor.
-
-      Esto es especialmente importante porque al pulsar un botón
-      de la barra de herramientas el foco puede cambiar de
-      contenteditable al botón.
-    */
-
-    function saveInputSelection() {
-
-      const selection =
-        window.getSelection();
-
-      if (
-        !selection ||
-        selection.rangeCount === 0
-      ) {
-        return;
-      }
-
-      const range =
-        selection.getRangeAt(0);
-
-      if (
-        inputText.contains(
-          range.commonAncestorContainer
-        )
-      ) {
-
-        savedSelection =
-          range.cloneRange();
-      }
-    }
-
-
-    function restoreInputSelection() {
-
-      if (!savedSelection) {
-        return false;
-      }
-
-      const selection =
-        window.getSelection();
-
-      try {
-
-        selection.removeAllRanges();
-
-        selection.addRange(
-          savedSelection
-        );
-
-        return true;
-
-      } catch (e) {
-
-        savedSelection = null;
-
-        return false;
-      }
-    }
-
-
-    function selectionIsInsideInput() {
-
-      const selection =
-        window.getSelection();
-
-      if (
-        !selection ||
-        selection.rangeCount === 0
-      ) {
-        return false;
-      }
-
-      return inputText.contains(
-        selection.getRangeAt(0).commonAncestorContainer
-      );
-    }
-
-
-    // ============================================================
-    // EVENTOS
-    // ============================================================
-
-    function setupEventListeners() {
-
-      inputText.addEventListener(
-        'input',
-        () => {
-
-          saveInputSelection();
-
-          processText();
-
-        }
-      );
-
-
-      inputText.addEventListener(
-        'keyup',
-        () => {
-
-          saveInputSelection();
-
-          updateFormatButtons();
-
-        }
-      );
-
-
-      inputText.addEventListener(
-        'mouseup',
-        () => {
-
-          saveInputSelection();
-
-          updateFormatButtons();
-
-        }
-      );
-
-
-      inputText.addEventListener(
-        'focus',
-        () => {
-
-          saveInputSelection();
-
-        }
-      );
-
-
-      document.addEventListener(
-        'selectionchange',
-        () => {
-
-          if (
-            selectionIsInsideInput()
-          ) {
-
-            saveInputSelection();
-
-          }
-
-        }
-      );
-
-
-      toggleBold.addEventListener(
-        'change',
-        processText
-      );
-
-
-      // ----------------------------------------------------------
-      // BOLD / ITALIC / UNDERLINE
-      // ----------------------------------------------------------
-
-      document
-        .querySelectorAll(
-          '.format-btn[data-command]'
-        )
-        .forEach(btn => {
-
-          /*
-            Ejecutamos el comando en mousedown.
-
-            Esto ocurre antes de que el navegador pueda cambiar
-            el foco desde el texto hacia el botón.
-
-            Además restauramos la selección guardada como
-            protección adicional.
-          */
-
-          btn.addEventListener(
-            'mousedown',
-            e => {
-
-              e.preventDefault();
-
-              restoreInputSelection();
-
-              inputText.focus();
-
-              restoreInputSelection();
-
-
-              document.execCommand(
-                btn.dataset.command,
-                false,
-                null
-              );
-
-
-              saveInputSelection();
-
-              updateFormatButtons();
-
-              processText();
-
-            }
-          );
-
-        });
-
-
-      // ----------------------------------------------------------
-      // HYPERLINK
-      // ----------------------------------------------------------
-
-      const btnAddLink =
-        document.getElementById(
-          'btnAddLink'
-        );
-
-
-      btnAddLink.addEventListener(
-        'mousedown',
-        e => {
-
-          e.preventDefault();
-
-          saveInputSelection();
-
-        }
-      );
-
-
-      btnAddLink.addEventListener(
-        'click',
-        () => {
-
-          if (
-            !restoreInputSelection()
-          ) {
-
-            showToast(
-              'Selecciona primero el texto que quieres enlazar.',
-              'error'
-            );
-
-            return;
-          }
-
-
-          const selection =
-            window.getSelection();
-
-
-          if (
-            !selection ||
-            selection.rangeCount === 0 ||
-            selection.isCollapsed
-          ) {
-
-            showToast(
-              'Selecciona primero el texto que quieres enlazar.',
-              'error'
-            );
-
-            return;
-          }
-
-
-          let url =
-            prompt(
-              'Introduce la URL del hyperlink:'
-            );
-
-
-          if (!url) {
-
-            restoreInputSelection();
-
-            return;
-          }
-
-
-          url =
-            url.trim();
-
-
-          if (
-            !/^https?:\/\//i.test(url)
-          ) {
-
-            url =
-              'https://' + url;
-          }
-
-
-          /*
-            El prompt puede quitar el foco y la selección.
-            Por eso restauramos nuevamente antes de ejecutar
-            createLink.
-          */
-
-          restoreInputSelection();
-
-          inputText.focus();
-
-          restoreInputSelection();
-
-
-          document.execCommand(
-            'createLink',
-            false,
-            url
-          );
-
-
-          saveInputSelection();
-
-          processText();
-        }
-      );
-
-
-      // ----------------------------------------------------------
-      // GOMA DE BORRAR
-      // ----------------------------------------------------------
-
-      const btnClearFormat =
-        document.getElementById(
-          'btnClearFormat'
-        );
-
-
-      btnClearFormat.addEventListener(
-        'mousedown',
-        e => {
-
-          e.preventDefault();
-
-          saveInputSelection();
-
-        }
-      );
-
-
-      btnClearFormat.addEventListener(
-        'click',
-        () => {
-
-          if (
-            !restoreInputSelection()
-          ) {
-
-            showToast(
-              'Selecciona primero el texto al que quieres quitarle el formato.',
-              'error'
-            );
-
-            return;
-          }
-
-
-          inputText.focus();
-
-          restoreInputSelection();
-
-
-          document.execCommand(
-            'removeFormat',
-            false,
-            null
-          );
-
-
-          document.execCommand(
-            'unlink',
-            false,
-            null
-          );
-
-
-          saveInputSelection();
-
-          processText();
-
-
-          showToast(
-            'Formato eliminado.'
-          );
-        }
-      );
-
-
-      // ----------------------------------------------------------
-      // ESTADO DE BOTONES
-      // ----------------------------------------------------------
-
-      const updateFormatButtons =
-        () => {
-
-          document
-            .querySelectorAll(
-              '.format-btn[data-command]'
-            )
-            .forEach(btn => {
-
-              try {
-
-                btn.classList.toggle(
-                  'active',
-                  document.queryCommandState(
-                    btn.dataset.command
-                  )
-                );
-
-              } catch (e) {}
-
-            });
-        };
-
-
-      // ----------------------------------------------------------
-      // TOGGLES
-      // ----------------------------------------------------------
-
-      toggleTargetBlank.addEventListener(
-        'change',
-        processText
-      );
-
-
-      if (toggleDateline) {
-
-        toggleDateline.addEventListener(
-          'change',
-          processText
-        );
-      }
-
-
-      if (toggleMLBTeams) {
-
-        toggleMLBTeams.addEventListener(
-          'change',
-          processText
-        );
-      }
-
-
-      // ----------------------------------------------------------
-      // FRECUENCIA DE ENLACES
-      // ----------------------------------------------------------
-
-      document
-        .querySelectorAll(
-          'input[name="replaceMode"]'
-        )
-        .forEach(radio => {
-
-          radio.addEventListener(
-            'change',
-            processText
-          );
-
-        });
-
-
-      // ----------------------------------------------------------
-      // LIMPIAR
-      // ----------------------------------------------------------
-
-      document
-        .getElementById('btnClearInput')
-        .addEventListener(
-          'click',
-          () => {
-
-            inputText.innerHTML =
-              '';
-
-            savedSelection =
-              null;
-
-            processText();
-          }
-        );
-
-
-      // ----------------------------------------------------------
-      // REGENERAR
-      // ----------------------------------------------------------
-
-      document
-        .getElementById('btnRegenerate')
-        .addEventListener(
-          'click',
-          () => {
-
-            processText();
-
-            showToast(
-              'Texto regenerado correctamente.'
-            );
-          }
-        );
-
-
-      // ----------------------------------------------------------
-      // TABS
-      // ----------------------------------------------------------
-
-      const tabPreview =
-        document.getElementById(
-          'tabPreview'
-        );
-
-
-      const tabCode =
-        document.getElementById(
-          'tabCode'
-        );
-
-
-      const viewPreview =
-        document.getElementById(
-          'viewPreview'
-        );
-
-
-      const viewCode =
-        document.getElementById(
-          'viewCode'
-        );
-
-
-      tabPreview.addEventListener(
-        'click',
-        () => {
-
-          tabPreview.className =
-            "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
-
-
-          tabCode.className =
-            "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
-
-
-          viewPreview.classList.remove(
-            'hidden'
-          );
-
-
-          viewCode.classList.add(
-            'hidden'
-          );
-
-        }
-      );
-
-
-      tabCode.addEventListener(
-        'click',
-        () => {
-
-          tabCode.className =
-            "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
-
-
-          tabPreview.className =
-            "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
-
-
-          viewCode.classList.remove(
-            'hidden'
-          );
-
-
-          viewPreview.classList.add(
-            'hidden'
-          );
-
-        }
-      );
-
-
-      // ----------------------------------------------------------
-      // COPIAR HTML
-      // ----------------------------------------------------------
-
-      document
-        .getElementById('btnCopyHtml')
-        .addEventListener(
-          'click',
-          () => {
-
-            if (!processedHtml) {
-
-              showToast(
-                'No hay contenido para copiar',
-                'error'
-              );
-
-              return;
-            }
-
-
-            copyToClipboard(
-              processedHtml
-            );
-
-
-            showToast(
-              '¡Código HTML copiado!'
-            );
-
-          }
-        );
-
-
-      // ----------------------------------------------------------
-      // COPIAR TEXTO ENRIQUECIDO
-      // ----------------------------------------------------------
-
-      document
-        .getElementById('btnCopyRich')
-        .addEventListener(
-          'click',
-          () => {
-
-            if (!processedHtml) {
-
-              showToast(
-                'No hay contenido para copiar',
-                'error'
-              );
-
-              return;
-            }
-
-
-            try {
-
-              const blobHtml =
-                new Blob(
-                  [processedHtml],
-                  {
-                    type: 'text/html'
-                  }
-                );
-
-
-              const blobText =
-                new Blob(
-                  [previewOutput.innerText],
-                  {
-                    type: 'text/plain'
-                  }
-                );
-
-
-              const data = [
-                new ClipboardItem({
-                  'text/html':
-                    blobHtml,
-
-                  'text/plain':
-                    blobText
-                })
-              ];
-
-
-              navigator.clipboard
-                .write(data)
-                .then(() => {
-
-                  showToast(
-                    '¡Texto Enriquecido copiado!'
-                  );
-
-                })
-                .catch(() => {
-
-                  copyToClipboard(
-                    processedHtml
-                  );
-
-                  showToast(
-                    'Copiado como HTML'
-                  );
-
-                });
-
-            } catch (err) {
-
-              copyToClipboard(
-                processedHtml
-              );
-
-              showToast(
-                'Copiado al portapapeles'
-              );
-            }
-
-          }
-        );
-
-
-      // ----------------------------------------------------------
-      // DICCIONARIO
-      // ----------------------------------------------------------
-
-      const dictModal =
-        document.getElementById(
-          'dictModal'
-        );
-
-
-      document
-        .getElementById(
-          'btnOpenDictionary'
-        )
-        .addEventListener(
-          'click',
-          () => {
-
-            renderDictionaryList();
-
-            dictModal.classList.remove(
-              'hidden'
-            );
-
-          }
-        );
-
-
-      const closeModal =
-        () =>
-          dictModal.classList.add(
-            'hidden'
-          );
-
-
-      document
-        .getElementById(
-          'btnCloseModal'
-        )
-        .addEventListener(
-          'click',
-          closeModal
-        );
-
-
-      document
-        .getElementById(
-          'btnCloseModalBottom'
-        )
-        .addEventListener(
-          'click',
-          closeModal
-        );
-
-
-      // ----------------------------------------------------------
-      // AÑADIR TÉRMINO
-      // ----------------------------------------------------------
-
-      document
-        .getElementById(
-          'addKeywordForm'
-        )
-        .addEventListener(
-          'submit',
-          e => {
-
-            e.preventDefault();
-
-
-            const kwInput =
-              document.getElementById(
-                'newKeyword'
-              );
-
-
-            const urlInput =
-              document.getElementById(
-                'newUrl'
-              );
-
-
-            const keyword =
-              kwInput.value.trim();
-
-
-            let url =
-              urlInput.value.trim();
-
-
-            if (!url) {
-
-              url =
-                generateEndTopicUrl(
-                  keyword
-                );
-            }
-
-
-            if (keyword) {
-
-              dictionary.push({
-                keyword,
-                url
-              });
-
-
-              dictionary.sort(
-                (a, b) =>
-                  b.keyword.length -
-                  a.keyword.length
-              );
-
-
-              saveDictionary();
-
-              renderDictionaryList();
-
-              processText();
-
-
-              kwInput.value =
-                "";
-
-              urlInput.value =
-                "";
-
-
-              showToast(
-                `Tópico "${keyword}" añadido.`
-              );
-            }
-
-          }
-        );
-
-
-      // ----------------------------------------------------------
-      // RESET DICCIONARIO
-      // ----------------------------------------------------------
-
-      document
-        .getElementById(
-          'btnResetDefault'
-        )
-        .addEventListener(
-          'click',
-          () => {
-
-            if (
-              confirm(
-                "¿Seguro que deseas reiniciar el diccionario al estado predeterminado?"
-              )
-            ) {
-
-              dictionary =
-                [
-                  ...DEFAULT_DICTIONARY
-                ];
-
-
-              dictionary.sort(
-                (a, b) =>
-                  b.keyword.length -
-                  a.keyword.length
-              );
-
-
-              saveDictionary();
-
-              renderDictionaryList();
-
-              processText();
-
-
-              showToast(
-                "Diccionario restablecido."
-              );
-            }
-
-          }
-        );
-
-    }
-
-
-    // ============================================================
-    // LISTA DEL DICCIONARIO
-    // ============================================================
-
-    function renderDictionaryList() {
-
-      const container =
-        document.getElementById(
-          'dictListContainer'
-        );
-
-
-      if (
-        dictionary.length === 0
-      ) {
-
-        container.innerHTML =
-          `<p class="text-xs text-slate-400 italic text-center py-4">
-            No hay palabras clave registradas.
-          </p>`;
-
-        return;
-      }
-
-
-      container.innerHTML =
-        dictionary
-          .map(
-            (item, index) => `
-              <div class="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition text-xs">
-
-                <div class="flex-1 min-w-0 pr-2">
-
-                  <span class="font-bold text-slate-800 block truncate">
-                    ${item.keyword}
-                  </span>
-
-                  <a
-                    href="${item.url}"
-                    target="_blank"
-                    class="text-brand-600 hover:underline truncate block text-[11px]"
-                  >
-                    ${item.url}
-                  </a>
-
-                </div>
-
-                <button
-                  onclick="removeKeyword(${index})"
-                  class="text-slate-400 hover:text-red-600 p-1.5 transition"
-                  title="Eliminar término"
-                >
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-
-              </div>
-            `
-          )
-          .join('');
-    }
-
-
-    window.removeKeyword =
-      function(index) {
-
-        const removed =
-          dictionary.splice(
-            index,
-            1
-          );
-
-
-        saveDictionary();
-
-        renderDictionaryList();
-
-        processText();
-
-
-        showToast(
-          `Tópico "${removed[0].keyword}" eliminado.`
-        );
+    function setDictionaryConnectionStatus(status) {
+      const el = document.getElementById('dictionaryConnectionStatus');
+      if (!el) return;
+
+      const states = {
+        loading: { icon: 'fa-circle text-amber-400', text: 'Conectando diccionario central...' },
+        connected: { icon: 'fa-circle text-emerald-500', text: 'Diccionario central sincronizado' },
+        empty: { icon: 'fa-circle text-amber-400', text: 'Diccionario central vacío — pendiente de carga' },
+        error: { icon: 'fa-circle text-red-500', text: 'Sin conexión — usando respaldo local' }
       };
 
-
-    // ============================================================
-    // CLIPBOARD
-    // ============================================================
-
-    function copyToClipboard(text) {
-
-      const textArea =
-        document.createElement(
-          "textarea"
-        );
-
-
-      textArea.value =
-        text;
-
-
-      document.body.appendChild(
-        textArea
-      );
-
-
-      textArea.select();
-
-
-      document.execCommand(
-        'copy'
-      );
-
-
-      document.body.removeChild(
-        textArea
-      );
+      const state = states[status] || states.loading;
+      el.innerHTML = `<i class="fa-solid ${state.icon} text-[8px]"></i> ${state.text}`;
     }
 
+    function getLocalDictionaryForMigration() {
+      const saved = localStorage.getItem('end_sports_dictionary');
+      if (!saved) return null;
 
-    // ============================================================
-    // TOAST
-    // ============================================================
+      try {
+        const parsed = JSON.parse(saved);
+        if (!Array.isArray(parsed)) return null;
 
-    function showToast(
-      msg,
-      type = 'success'
-    ) {
+        const valid = parsed
+          .filter(item => item && typeof item.keyword === 'string' && item.keyword.trim())
+          .map(item => ({
+            keyword: item.keyword.trim(),
+            url: (item.url || generateEndTopicUrl(item.keyword.trim())).trim()
+          }));
 
-      const toast =
-        document.getElementById(
-          'toast'
-        );
+        return valid.length ? valid : null;
+      } catch (error) {
+        console.warn('No se pudo leer el diccionario local para migración.', error);
+        return null;
+      }
+    }
 
+    async function migrateLocalDictionaryToSupabase() {
+      if (!currentUser || migrationInProgress) return;
+      migrationInProgress = true;
 
-      const toastMsg =
-        document.getElementById(
-          'toastMsg'
-        );
+      const localDictionary = getLocalDictionaryForMigration();
+      const { data: centralData, error: centralError } = await supabaseClient
+        .from('dictionary_terms')
+        .select('id, keyword, url');
 
-
-      const toastIcon =
-        document.getElementById(
-          'toastIcon'
-        );
-
-
-      toastMsg.textContent =
-        msg;
-
-
-      if (
-        type === 'error'
-      ) {
-
-        toastIcon.className =
-          "fa-solid fa-circle-exclamation text-red-400";
-
-      } else {
-
-        toastIcon.className =
-          "fa-solid fa-check text-emerald-400";
+      if (centralError) {
+        console.error('No se pudo comprobar el diccionario central:', centralError);
+        migrationInProgress = false;
+        return;
       }
 
-
-      toast.classList.remove(
-        'translate-y-20',
-        'opacity-0'
+      // Si no existe todavía un diccionario local, cargamos los valores
+      // predeterminados. Si sí existe, usamos ese diccionario completo para
+      // conservar también los términos NBA y cualquier otro añadido previo.
+      const source = localDictionary || [...DEFAULT_DICTIONARY];
+      const centralMap = new Map(
+        (centralData || []).map(item => [item.keyword.trim().toLocaleLowerCase('es'), item])
       );
 
+      let inserted = 0;
+      let updated = 0;
 
-      toast.classList.add(
-        'translate-y-0',
-        'opacity-100'
-      );
+      for (const item of source) {
+        const key = item.keyword.trim().toLocaleLowerCase('es');
+        const existing = centralMap.get(key);
 
+        if (existing) {
+          if (existing.url !== item.url) {
+            const { error } = await supabaseClient
+              .from('dictionary_terms')
+              .update({ url: item.url })
+              .eq('id', existing.id);
 
-      setTimeout(
-        () => {
+            if (!error) {
+              existing.url = item.url;
+              updated++;
+            } else {
+              console.error('Error actualizando término durante migración:', error);
+            }
+          }
+        } else {
+          const { data: insertedRows, error } = await supabaseClient
+            .from('dictionary_terms')
+            .insert({ keyword: item.keyword, url: item.url })
+            .select('id, keyword, url');
 
-          toast.classList.remove(
-            'translate-y-0',
-            'opacity-100'
-          );
+          if (!error && insertedRows && insertedRows[0]) {
+            centralMap.set(key, insertedRows[0]);
+            inserted++;
+          } else if (error) {
+            console.error('Error insertando término durante migración:', error);
+          }
+        }
+      }
 
+      await loadDictionary();
 
-          toast.classList.add(
-            'translate-y-20',
-            'opacity-0'
-          );
+      migrationInProgress = false;
 
-        },
-        3000
-      );
+      if (inserted || updated) {
+        const details = [];
+        if (inserted) details.push(`${inserted} añadido(s)`);
+        if (updated) details.push(`${updated} actualizado(s)`);
+        showToast(`Diccionario central: ${details.join(' y ')}.`);
+      }
     }
 
-  </script>
+    async function updateAuthUI() {
+      const { data } = await supabaseClient.auth.getSession();
+      currentUser = data?.session?.user || null;
 
+      const loginPanel = document.getElementById('adminLoginPanel');
+      const editPanel = document.getElementById('adminEditPanel');
+      const adminStatus = document.getElementById('adminStatus');
+
+      if (currentUser) {
+        loginPanel.classList.add('hidden');
+        editPanel.classList.remove('hidden');
+        adminStatus.textContent = `Sesión activa: ${currentUser.email || 'administrador'}`;
+        adminStatus.className = 'text-[11px] text-emerald-600 font-medium';
+
+        await migrateLocalDictionaryToSupabase();
+      } else {
+        loginPanel.classList.remove('hidden');
+        editPanel.classList.add('hidden');
+        adminStatus.textContent = 'Solo lectura';
+        adminStatus.className = 'text-[11px] text-slate-500';
+      }
+    }
+
+    async function signInAdmin(email, password) {
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        console.error('Error de autenticación:', error);
+        showToast(`No se pudo iniciar sesión: ${error.message}`, 'error');
+        return false;
+      }
+
+      await updateAuthUI();
+      renderDictionaryList();
+      processText();
+      showToast('Sesión de administrador iniciada.');
+      return true;
+    }
+
+    async function signOutAdmin() {
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) {
+        showToast('No se pudo cerrar la sesión.', 'error');
+        return;
+      }
+      currentUser = null;
+      await updateAuthUI();
+      renderDictionaryList();
+      showToast('Sesión cerrada.');
+    }
+
+    function processText() {
+      const rawText = inputText.value;
+      if (!rawText.trim()) {
+        previewOutput.innerHTML = `<p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>`;
+        codeOutput.textContent = "";
+        statsMatches.textContent = "0 términos enlazados";
+        processedHtml = "";
+        return;
+      }
+
+      let paragraphs = rawText.split(/\n+/).filter(p => p.trim().length > 0);
+      const isBold = toggleBold.checked;
+      const isBlank = toggleTargetBlank.checked;
+      const isDatelineFormatted = toggleDateline ? toggleDateline.checked : true;
+      const isMLBTranslated = toggleMLBTeams ? toggleMLBTeams.checked : true;
+      const replaceMode = document.querySelector('input[name="replaceMode"]:checked').value;
+
+      if (isDatelineFormatted && paragraphs.length > 0) {
+        paragraphs[0] = transformDatelineEND(paragraphs[0]);
+      }
+
+      let totalMatches = 0;
+      // En modo "Solo 1ª aparición", controlamos por URL/tópico y no por
+      // la frase exacta. Así, "Nationals de Washington" y "Nationals"
+      // cuentan como el mismo equipo y solo se enlaza la primera aparición.
+      const matchedTopicsSet = new Set();
+
+      const processedParagraphs = paragraphs.map(p => {
+        let textP = p;
+
+        if (isMLBTranslated) {
+          textP = translateTeamNamesEND(textP);
+        }
+
+        dictionary.forEach(item => {
+          if (!item.keyword || !item.keyword.trim()) return;
+
+          const topicKey = (item.url || item.keyword).toLowerCase().replace(/\/$/, '');
+
+          if (replaceMode === 'first' && matchedTopicsSet.has(topicKey)) {
+            return;
+          }
+
+          const escapedKw = item.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const boundaryEnd = /\.$/.test(item.keyword) ? '' : '\\b';
+          const regex = new RegExp(`\\b(${escapedKw})${boundaryEnd}`, replaceMode === 'all' ? 'gi' : 'i');
+
+          let hasMatchedInThisP = false;
+
+          textP = textP.replace(regex, (match) => {
+            if (replaceMode === 'first' && (matchedTopicsSet.has(topicKey) || hasMatchedInThisP)) {
+              return match;
+            }
+
+            matchedTopicsSet.add(topicKey);
+            hasMatchedInThisP = true;
+            totalMatches++;
+
+            const targetAttr = isBlank ? ' target="_blank" rel="noopener"' : '';
+            const linkHtml = `<a href="${item.url}"${targetAttr}>${match}</a>`;
+
+            return isBold ? `<strong>${linkHtml}</strong>` : linkHtml;
+          });
+        });
+
+        return `<p>${textP}</p>`;
+      });
+
+      processedHtml = processedParagraphs.join('\n\n');
+
+      previewOutput.innerHTML = processedHtml;
+      codeOutput.textContent = processedHtml;
+      statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
+    }
+
+    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+      currentUser = session?.user || null;
+      await updateAuthUI();
+      renderDictionaryList();
+    });
+
+    function setupEventListeners() {
+      inputText.addEventListener('input', processText);
+      toggleBold.addEventListener('change', processText);
+      toggleTargetBlank.addEventListener('change', processText);
+      if (toggleDateline) toggleDateline.addEventListener('change', processText);
+      if (toggleMLBTeams) toggleMLBTeams.addEventListener('change', processText);
+      
+      document.querySelectorAll('input[name="replaceMode"]').forEach(radio => {
+        radio.addEventListener('change', processText);
+      });
+
+      document.getElementById('btnClearInput').addEventListener('click', () => {
+        inputText.value = "";
+        processText();
+      });
+
+      document.getElementById('btnRegenerate').addEventListener('click', () => {
+        processText();
+        showToast("Texto regenerado correctamente.");
+      });
+
+      const tabPreview = document.getElementById('tabPreview');
+      const tabCode = document.getElementById('tabCode');
+      const viewPreview = document.getElementById('viewPreview');
+      const viewCode = document.getElementById('viewCode');
+
+      tabPreview.addEventListener('click', () => {
+        tabPreview.className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
+        tabCode.className = "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
+        viewPreview.classList.remove('hidden');
+        viewCode.classList.add('hidden');
+      });
+
+      tabCode.addEventListener('click', () => {
+        tabCode.className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
+        tabPreview.className = "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
+        viewCode.classList.remove('hidden');
+        viewPreview.classList.add('hidden');
+      });
+
+      document.getElementById('btnCopyHtml').addEventListener('click', () => {
+        if (!processedHtml) {
+          showToast("No hay contenido para copiar", "error");
+          return;
+        }
+        copyToClipboard(processedHtml);
+        showToast("¡Código HTML copiado!");
+      });
+
+      document.getElementById('btnCopyRich').addEventListener('click', () => {
+        if (!processedHtml) {
+          showToast("No hay contenido para copiar", "error");
+          return;
+        }
+        
+        try {
+          const blobHtml = new Blob([processedHtml], { type: 'text/html' });
+          const blobText = new Blob([previewOutput.innerText], { type: 'text/plain' });
+          const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })];
+          
+          navigator.clipboard.write(data).then(() => {
+            showToast("¡Texto Enriquecido copiado!");
+          }).catch(() => {
+            copyToClipboard(processedHtml);
+            showToast("Copiado como HTML");
+          });
+        } catch (err) {
+          copyToClipboard(processedHtml);
+          showToast("Copiado al portapapeles");
+        }
+      });
+
+      const dictModal = document.getElementById('dictModal');
+      document.getElementById('btnOpenDictionary').addEventListener('click', async () => {
+        dictModal.classList.remove('hidden');
+        await loadDictionary();
+        await updateAuthUI();
+        renderDictionaryList();
+      });
+
+      const closeModal = () => dictModal.classList.add('hidden');
+      document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+      document.getElementById('btnCloseModalBottom').addEventListener('click', closeModal);
+
+      document.getElementById('btnShowLogin').addEventListener('click', () => {
+        const form = document.getElementById('adminLoginForm');
+        form.classList.toggle('hidden');
+        if (!form.classList.contains('hidden')) {
+          document.getElementById('adminEmail').focus();
+        }
+      });
+
+      document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('adminEmail').value.trim();
+        const password = document.getElementById('adminPassword').value;
+        await signInAdmin(email, password);
+      });
+
+      document.getElementById('btnLogout').addEventListener('click', signOutAdmin);
+
+      document.getElementById('dictSearch').addEventListener('input', renderDictionaryList);
+
+      document.getElementById('addKeywordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!currentUser) {
+          showToast('Debes iniciar sesión como administrador.', 'error');
+          return;
+        }
+
+        const kwInput = document.getElementById('newKeyword');
+        const urlInput = document.getElementById('newUrl');
+        const keyword = kwInput.value.trim();
+        let url = urlInput.value.trim();
+
+        if (!url) url = generateEndTopicUrl(keyword);
+
+        if (!keyword) return;
+
+        const { error } = await supabaseClient
+          .from('dictionary_terms')
+          .insert({ keyword, url });
+
+        if (error) {
+          if (error.code === '23505') {
+            showToast('Ese término ya existe en el diccionario.', 'error');
+          } else {
+            console.error('Error añadiendo término:', error);
+            showToast('No se pudo añadir el término.', 'error');
+          }
+          return;
+        }
+
+        await loadDictionary();
+        renderDictionaryList();
+        processText();
+        kwInput.value = '';
+        urlInput.value = '';
+        showToast(`Tópico "${keyword}" añadido.`);
+      });
+
+      document.getElementById('btnResetDefault').addEventListener('click', async () => {
+        if (!currentUser) {
+          showToast('Debes iniciar sesión como administrador.', 'error');
+          return;
+        }
+
+        if (!confirm('¿Seguro que deseas reemplazar el diccionario central por los términos predeterminados? Esto eliminará también los términos personalizados, incluidos los de NBA.')) {
+          return;
+        }
+
+        const { error: deleteError } = await supabaseClient
+          .from('dictionary_terms')
+          .delete()
+          .not('id', 'is', null);
+
+        if (deleteError) {
+          console.error('Error restableciendo diccionario:', deleteError);
+          showToast('No se pudo restablecer el diccionario.', 'error');
+          return;
+        }
+
+        const { error: insertError } = await supabaseClient
+          .from('dictionary_terms')
+          .insert(DEFAULT_DICTIONARY.map(item => ({ keyword: item.keyword, url: item.url })));
+
+        if (insertError) {
+          console.error('Error cargando valores predeterminados:', insertError);
+          showToast('Se eliminaron los términos, pero no se pudieron cargar los predeterminados.', 'error');
+          await loadDictionary();
+          renderDictionaryList();
+          processText();
+          return;
+        }
+
+        await loadDictionary();
+        renderDictionaryList();
+        processText();
+        showToast('Diccionario central restablecido.');
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#039;',
+        '"': '&quot;'
+      })[char]);
+    }
+
+    function sanitizeUrl(url) {
+      try {
+        const parsed = new URL(url);
+        return /^https?:$/i.test(parsed.protocol) ? parsed.href : '#';
+      } catch {
+        return '#';
+      }
+    }
+
+    function renderDictionaryList() {
+      const container = document.getElementById('dictListContainer');
+      const search = (document.getElementById('dictSearch')?.value || '').trim().toLocaleLowerCase('es');
+
+      const filtered = dictionary.filter(item => {
+        if (!search) return true;
+        return item.keyword.toLocaleLowerCase('es').includes(search) ||
+               item.url.toLocaleLowerCase('es').includes(search);
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">No se encontraron términos para esa búsqueda.</p>`;
+        return;
+      }
+
+      const displayItems = sortDictionaryForDisplay(filtered);
+
+      container.innerHTML = displayItems.map(item => {
+        const dictionaryIndex = dictionary.indexOf(item);
+        const safeKeyword = escapeHtml(item.keyword);
+        const safeUrl = escapeHtml(item.url);
+        const href = escapeHtml(sanitizeUrl(item.url));
+        const deleteButton = currentUser
+          ? `<button onclick="removeKeywordById('${escapeHtml(item.id || '')}')" class="text-slate-400 hover:text-red-600 p-1.5 transition" title="Eliminar término"><i class="fa-solid fa-trash-can"></i></button>`
+          : '';
+
+        return `
+          <div class="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition text-xs">
+            <div class="flex-1 min-w-0 pr-2">
+              <span class="font-bold text-slate-800 block truncate">${safeKeyword}</span>
+              <a href="${href}" target="_blank" rel="noopener" class="text-brand-600 hover:underline truncate block text-[11px]">${safeUrl}</a>
+            </div>
+            ${deleteButton}
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.removeKeywordById = async function(id) {
+      if (!currentUser) {
+        showToast('Debes iniciar sesión como administrador.', 'error');
+        return;
+      }
+
+      const item = dictionary.find(entry => entry.id === id);
+      if (!item) return;
+
+      if (!confirm(`¿Eliminar el término "${item.keyword}" del diccionario central?`)) return;
+
+      const { error } = await supabaseClient
+        .from('dictionary_terms')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error eliminando término:', error);
+        showToast('No se pudo eliminar el término.', 'error');
+        return;
+      }
+
+      await loadDictionary();
+      renderDictionaryList();
+      processText();
+      showToast(`Tópico "${item.keyword}" eliminado.`);
+    };
+
+    function copyToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.textContent = msg;
+      if (type === 'error') {
+        toastIcon.className = "fa-solid fa-circle-exclamation text-red-400";
+      } else {
+        toastIcon.className = "fa-solid fa-check text-emerald-400";
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+  </script>
 </body>
 </html>
