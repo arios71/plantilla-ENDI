@@ -731,6 +731,95 @@
       showToast('Sesión cerrada.');
     }
 
+    function applyNumericFormatting(text) {
+  let formatted = text;
+
+  // AP: miles con punto -> coma (47.084 -> 47,084)
+  formatted = formatted.replace(/\b\d{1,3}(?:\.\d{3})+\b/g, match =>
+    match.replace(/\./g, ',')
+  );
+
+  // AP: decimal con coma -> punto solo con 1-2 dígitos decimales.
+  formatted = formatted.replace(/\b\d+,\d{1,2}\b/g, match =>
+    match.replace(',', '.')
+  );
+
+  // Béisbol: 2 1/3 o 2 2/3 se convierten a decimal cuando se trata de entradas,
+  // episodios o innings, en singular o plural.
+  const pitchingUnits = '(?:entrada|entradas|episodio|episodios|inning|innings)';
+  formatted = formatted.replace(
+    new RegExp('\\b(\\d+)\\s+1\\/3(?=\\s+' + pitchingUnits + '\\b)', 'gi'),
+    '$1.1'
+  );
+  formatted = formatted.replace(
+    new RegExp('\\b(\\d+)\\s+2\\/3(?=\\s+' + pitchingUnits + '\\b)', 'gi'),
+    '$1.2'
+  );
+
+  // Fracciones de medio juego/partido: la conversión no depende de una sola palabra.
+  // Acepta juegos, partidos, encuentros y desafíos, en singular o plural.
+  formatted = formatted.replace(
+    /\b(\d+)\s+1\/2(?=\s+(?:juego|juegos|partido|partidos|encuentro|encuentros|desafío|desafíos)(?=\s|[.,;:!?]|$))/gi,
+    '$1.5'
+  );
+
+  // Juego 1, Juego 2, etc. -> primer juego, segundo juego...
+  const gameNumbers = {
+    '1': 'primer',
+    '2': 'segundo',
+    '3': 'tercer',
+    '4': 'cuarto',
+    '5': 'quinto',
+    '6': 'sexto',
+    '7': 'séptimo'
+  };
+  formatted = formatted.replace(/\bJuego\s+([1-7])\b/gi, (match, number) =>
+    `${gameNumbers[number]} juego`
+  );
+
+  return formatted;
+}
+
+function forEachTextNode(root, callback) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      let node;
+      while ((node = walker.nextNode())) {
+        if (node.parentElement && !node.parentElement.closest('a, script, style, em')) {
+          nodes.push(node);
+        }
+      }
+      nodes.forEach(callback);
+    }
+
+    function autoItalicizeEnglishSportsTerms(root) {
+      // Términos deportivos en inglés que se dejan en inglés en las notas.
+      // Se excluyen enlaces y texto ya dentro de <em> para no alterar el HTML.
+      const regex = /\b(?:inning|innings|playoff|playoffs|wild\s+card|wild\s+cards|home\s+run|home\s+runs|pitcher|pitchers|catcher|catchers|bullpen|closer|closers|reliever|relievers|starter|starters|out|outs|hit|hits|strike|strikes|walk|walks|double|doubles|triple|triples|slider|sliders|changeup|changeups|curveball|curveballs|fastball|fastballs|sinker|sinkers|sweeper|sweepers|splitter|splitters|lineup|lineups|batting\s+order|designated\s+hitter|designated\s+hitters)\b/gi;
+
+      forEachTextNode(root, node => {
+        regex.lastIndex = 0;
+        if (!regex.test(node.nodeValue)) return;
+        regex.lastIndex = 0;
+        const frag = document.createDocumentFragment();
+        let last = 0;
+        let match;
+        while ((match = regex.exec(node.nodeValue))) {
+          if (match.index > last) {
+            frag.appendChild(document.createTextNode(node.nodeValue.slice(last, match.index)));
+          }
+          const em = document.createElement('em');
+          em.textContent = match[0];
+          frag.appendChild(em);
+          last = match.index + match[0].length;
+        }
+        if (last < node.nodeValue.length) {
+          frag.appendChild(document.createTextNode(node.nodeValue.slice(last)));
+        }
+        node.parentNode.replaceChild(frag, node);
+      });
+    }
+
     function processText() {
       const rawText = inputText.value;
       if (!rawText.trim()) {
@@ -764,6 +853,8 @@
         if (isMLBTranslated) {
           textP = translateTeamNamesEND(textP);
         }
+
+        textP = applyNumericFormatting(textP);
 
         dictionary.forEach(item => {
           if (!item.keyword || !item.keyword.trim()) return;
@@ -800,6 +891,14 @@
       });
 
       processedHtml = processedParagraphs.join('\n\n');
+
+      // Aplicar las itálicas automáticas sobre el HTML final, sin tocar enlaces.
+      const formattedRoot = document.createElement('div');
+      formattedRoot.innerHTML = processedHtml;
+      autoItalicizeEnglishSportsTerms(formattedRoot);
+      processedHtml = Array.from(formattedRoot.childNodes)
+        .map(node => node.outerHTML || node.textContent || '')
+        .join('\n\n');
 
       previewOutput.innerHTML = processedHtml;
       codeOutput.textContent = processedHtml;
