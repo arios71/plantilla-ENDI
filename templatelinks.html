@@ -1718,84 +1718,122 @@
 
     function normalizeEditorHtml() {
 
-      let html =
-        inputText.innerHTML || "";
+  let html =
+    inputText.innerHTML || "";
 
 
-      html = html
-        .replace(
-          /<br\s*\/?>/gi,
-          "\n"
-        )
-        .replace(
-          /<\/(?:div|p|li)>/gi,
-          "\n\n"
-        )
-        .replace(
-          /<(?:div|p|li)(?:\s[^>]*)?>/gi,
-          ""
-        );
+  /*
+    CONTENTEDITABLE:
+
+    Chrome normalmente representa un Enter
+    dentro del editor como un nuevo <div>.
+
+    Por eso el <div> de apertura representa
+    el comienzo de un nuevo párrafo.
+
+    Ejemplo:
+
+      Primer párrafo
+      <div>Segundo párrafo</div>
+
+    se convierte en:
+
+      Primer párrafo\n\nSegundo párrafo
+
+    Los <br> se mantienen como saltos de línea
+    normales. Esto permite que Shift+Enter siga
+    siendo un salto dentro del mismo párrafo.
+  */
+
+  html = html
+
+    .replace(
+      /<(?:div|p|li)(?:\s[^>]*)?>/gi,
+      "\n\n"
+    )
+
+    .replace(
+      /<\/(?:div|p|li)>/gi,
+      ""
+    )
+
+    .replace(
+      /<br\s*\/?>/gi,
+      "\n"
+    );
 
 
-      html = html
+  /*
+    Restauramos marcadores temporales para
+    conservar el formato manual.
+  */
 
-        .replace(
-          /<(?:b|strong)(?:\s[^>]*)?>/gi,
-          "\uE000B\uE001"
-        )
+  html = html
 
-        .replace(
-          /<\/(?:b|strong)>/gi,
-          "\uE000B\uE002"
-        )
+    .replace(
+      /<(?:b|strong)(?:\s[^>]*)?>/gi,
+      "\uE000B\uE001"
+    )
 
-        .replace(
-          /<(?:i|em)(?:\s[^>]*)?>/gi,
-          "\uE000I\uE001"
-        )
+    .replace(
+      /<\/(?:b|strong)>/gi,
+      "\uE000B\uE002"
+    )
 
-        .replace(
-          /<\/(?:i|em)>/gi,
-          "\uE000I\uE002"
-        )
+    .replace(
+      /<(?:i|em)(?:\s[^>]*)?>/gi,
+      "\uE000I\uE001"
+    )
 
-        .replace(
-          /<u(?:\s[^>]*)?>/gi,
-          "\uE000U\uE001"
-        )
+    .replace(
+      /<\/(?:i|em)>/gi,
+      "\uE000I\uE002"
+    )
 
-        .replace(
-          /<\/u>/gi,
-          "\uE000U\uE002"
-        )
+    .replace(
+      /<u(?:\s[^>]*)?>/gi,
+      "\uE000U\uE001"
+    )
 
-        .replace(
-          /<font\s+[^>]*color=["']?([^"'\s>]+)["']?[^>]*>/gi,
-          (_, color) =>
-            `\uE000C${color}\uE001`
-        )
+    .replace(
+      /<\/u>/gi,
+      "\uE000U\uE002"
+    )
 
-        .replace(
-          /<\/font>/gi,
-          "\uE000C\uE002"
-        );
+    .replace(
+      /<font\s+[^>]*color=["']?([^"'\s>]+)["']?[^>]*>/gi,
+      (_, color) =>
+        `\uE000C${color}\uE001`
+    )
 
-
-      html =
-        html.replace(
-          /<[^>]+>/g,
-          ""
-        );
+    .replace(
+      /<\/font>/gi,
+      "\uE000C\uE002"
+    );
 
 
-      const decoder =
-        document.createElement("textarea");
+  /*
+    Elimina cualquier etiqueta HTML restante.
+  */
 
-      decoder.innerHTML = html;
+  html =
+    html.replace(
+      /<[^>]+>/g,
+      ""
+    );
 
-      return decoder.value;
-    }
 
+  /*
+    Decodifica entidades HTML.
+  */
+
+  const decoder =
+    document.createElement("textarea");
+
+  decoder.innerHTML = html;
+
+  return decoder.value;
+}
 
     // ============================================================
     // RESTAURAR FORMATO MANUAL
