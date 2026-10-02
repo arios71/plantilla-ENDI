@@ -145,7 +145,7 @@
 
           <!-- MLB Teams Translation Toggle -->
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-700">Nombres MLB en Inglés (Cachorros &rarr; Cubs)</span>
+            <span class="text-xs font-medium text-slate-700">Nombres MLB, NBA y NFL en Inglés (Cachorros &rarr; Cubs)</span>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" id="toggleMLBTeams" checked class="sr-only peer">
               <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
@@ -423,6 +423,36 @@
     // positivos como "leyes nacionales", "corporaciones nacionales" o
     // "gigantes de la industria".
     const MLB_TEAM_TRANSLATIONS = [
+      { ap: /New York Yankees/g, end: "Yankees de Nueva York" },
+      { ap: /Los Angeles Dodgers/g, end: "Dodgers de Los Ángeles" },
+      { ap: /San Diego Padres/g, end: "Padres de San Diego" },
+      { ap: /Arizona Diamondbacks/g, end: "Diamondbacks de Arizona" },
+      { ap: /San Francisco Giants/g, end: "Giants de San Francisco" },
+      { ap: /New York Mets/g, end: "Mets de Nueva York" },
+      { ap: /St\. Louis Cardinals|St Louis Cardinals/g, end: "Cardinals de San Luis" },
+      { ap: /Pittsburgh Pirates/g, end: "Pirates de Pittsburgh" },
+      { ap: /Milwaukee Brewers/g, end: "Brewers de Milwaukee" },
+      { ap: /Cincinnati Reds/g, end: "Reds de Cincinnati" },
+      { ap: /Chicago Cubs/g, end: "Cubs de Chicago" },
+      { ap: /Washington Nationals/g, end: "Nationals de Washington" },
+      { ap: /Miami Marlins/g, end: "Marlins de Miami" },
+      { ap: /Philadelphia Phillies/g, end: "Phillies de Filadelfia" },
+      { ap: /Atlanta Braves/g, end: "Braves de Atlanta" },
+      { ap: /Oakland Athletics/g, end: "Athletics" },
+      { ap: /Tampa Bay Rays/g, end: "Rays de Tampa Bay" },
+      { ap: /Toronto Blue Jays/g, end: "Blue Jays de Toronto" },
+      { ap: /Kansas City Royals/g, end: "Royals de Kansas City" },
+      { ap: /Detroit Tigers/g, end: "Tigers de Detroit" },
+      { ap: /Cleveland Guardians/g, end: "Guardians de Cleveland" },
+      { ap: /Minnesota Twins/g, end: "Twins de Minnesota" },
+      { ap: /Chicago White Sox/g, end: "White Sox de Chicago" },
+      { ap: /Boston Red Sox/g, end: "Red Sox de Boston" },
+      { ap: /Baltimore Orioles/g, end: "Orioles de Baltimore" },
+      { ap: /Texas Rangers/g, end: "Rangers de Texas" },
+      { ap: /Seattle Mariners/g, end: "Mariners de Seattle" },
+      { ap: /Houston Astros/g, end: "Astros de Houston" },
+      { ap: /Los Angeles Angels|Anaheim Angels/g, end: "Angels de Los Ángeles" },
+      { ap: /Colorado Rockies/g, end: "Rockies de Colorado" },
       { ap: /Medias Rojas de Boston/g, end: "Red Sox de Boston" },
       { ap: /Medias Blancas de Chicago/g, end: "White Sox de Chicago" },
       { ap: /Guardianes de Cleveland/g, end: "Guardians de Cleveland" },
@@ -444,8 +474,6 @@
       { ap: /Piratas de Pittsburgh/g, end: "Pirates de Pittsburgh" },
       { ap: /Cardenales de San Luis/g, end: "Cardinals de San Luis" },
       { ap: /Gigantes de San Francisco/g, end: "Giants de San Francisco" },
-
-      // Apodos solos: se procesan únicamente dentro de contexto de MLB.
       { ap: /\bMedias Rojas\b/g, end: "Red Sox", standalone: true },
       { ap: /\bMedias Blancas\b/g, end: "White Sox", standalone: true },
       { ap: /\bGuardianes\b/g, end: "Guardians", standalone: true },
@@ -468,7 +496,51 @@
       { ap: /\bGigantes\b/g, end: "Giants", standalone: true }
     ];
 
-    // Palabras y expresiones que identifican razonablemente un texto de béisbol.
+    const NBA_TEAM_TRANSLATIONS = [
+      { ap: /Atlanta Hawks/g, end: "Hawks de Atlanta" }, { ap: /Boston Celtics/g, end: "Celtics de Boston" },
+      { ap: /Brooklyn Nets/g, end: "Nets de Brooklyn" }, { ap: /Charlotte Hornets/g, end: "Hornets de Charlotte" },
+      { ap: /Chicago Bulls/g, end: "Bulls de Chicago" }, { ap: /Cleveland Cavaliers/g, end: "Cavaliers de Cleveland" },
+      { ap: /Dallas Mavericks/g, end: "Mavericks de Dallas" }, { ap: /Denver Nuggets/g, end: "Nuggets de Denver" },
+      { ap: /Detroit Pistons/g, end: "Pistons de Detroit" }, { ap: /Golden State Warriors/g, end: "Warriors de Golden State" },
+      { ap: /Houston Rockets/g, end: "Rockets de Houston" }, { ap: /Indiana Pacers/g, end: "Pacers de Indiana" },
+      { ap: /Los Angeles Clippers/g, end: "Clippers de Los Ángeles" }, { ap: /Los Angeles Lakers/g, end: "Lakers de Los Ángeles" },
+      { ap: /Memphis Grizzlies/g, end: "Grizzlies de Memphis" }, { ap: /Miami Heat/g, end: "Heat de Miami" },
+      { ap: /Milwaukee Bucks/g, end: "Bucks de Milwaukee" }, { ap: /Minnesota Timberwolves/g, end: "Timberwolves de Minnesota" },
+      { ap: /New Orleans Pelicans/g, end: "Pelicans de Nueva Orleans" }, { ap: /New York Knicks/g, end: "Knicks de Nueva York" },
+      { ap: /Oklahoma City Thunder/g, end: "Thunder de Oklahoma City" }, { ap: /Orlando Magic/g, end: "Magic de Orlando" },
+      { ap: /Philadelphia 76ers/g, end: "76ers de Filadelfia" }, { ap: /Phoenix Suns/g, end: "Suns de Phoenix" },
+      { ap: /Portland Trail Blazers/g, end: "Trail Blazers de Portland" }, { ap: /Sacramento Kings/g, end: "Kings de Sacramento" },
+      { ap: /San Antonio Spurs/g, end: "Spurs de San Antonio" }, { ap: /Toronto Raptors/g, end: "Raptors de Toronto" },
+      { ap: /Utah Jazz/g, end: "Jazz de Utah" }, { ap: /Washington Wizards/g, end: "Wizards de Washington" }
+    ];
+
+    const NFL_TEAM_TRANSLATIONS = [
+      { ap: /Arizona Cardinals/g, end: "Cardinals de Arizona" }, { ap: /Atlanta Falcons/g, end: "Falcons de Atlanta" },
+      { ap: /Baltimore Ravens/g, end: "Ravens de Baltimore" }, { ap: /Buffalo Bills/g, end: "Bills de Buffalo" },
+      { ap: /Carolina Panthers/g, end: "Panthers de Carolina" }, { ap: /Chicago Bears/g, end: "Bears de Chicago" },
+      { ap: /Cincinnati Bengals/g, end: "Bengals de Cincinnati" }, { ap: /Cleveland Browns/g, end: "Browns de Cleveland" },
+      { ap: /Dallas Cowboys/g, end: "Cowboys de Dallas" }, { ap: /Denver Broncos/g, end: "Broncos de Denver" },
+      { ap: /Detroit Lions/g, end: "Lions de Detroit" }, { ap: /Green Bay Packers/g, end: "Packers de Green Bay" },
+      { ap: /Houston Texans/g, end: "Texans de Houston" }, { ap: /Indianapolis Colts/g, end: "Colts de Indianápolis" },
+      { ap: /Jacksonville Jaguars/g, end: "Jaguars de Jacksonville" }, { ap: /Kansas City Chiefs/g, end: "Chiefs de Kansas City" },
+      { ap: /Las Vegas Raiders/g, end: "Raiders de Las Vegas" }, { ap: /Los Angeles Chargers/g, end: "Chargers de Los Ángeles" },
+      { ap: /Los Angeles Rams/g, end: "Rams de Los Ángeles" }, { ap: /Miami Dolphins/g, end: "Dolphins de Miami" },
+      { ap: /Minnesota Vikings/g, end: "Vikings de Minnesota" }, { ap: /New England Patriots/g, end: "Patriots de Nueva Inglaterra" },
+      { ap: /New Orleans Saints/g, end: "Saints de Nueva Orleans" }, { ap: /New York Giants/g, end: "Giants de Nueva York" },
+      { ap: /New York Jets/g, end: "Jets de Nueva York" }, { ap: /Philadelphia Eagles/g, end: "Eagles de Filadelfia" },
+      { ap: /Pittsburgh Steelers/g, end: "Steelers de Pittsburgh" }, { ap: /San Francisco 49ers/g, end: "49ers de San Francisco" },
+      { ap: /Seattle Seahawks/g, end: "Seahawks de Seattle" }, { ap: /Tampa Bay Buccaneers/g, end: "Buccaneers de Tampa Bay" },
+      { ap: /Tennessee Titans/g, end: "Titans de Tennessee" }, { ap: /Washington Commanders/g, end: "Commanders de Washington" }
+    ];
+
+    const ALL_TEAM_TRANSLATIONS = [
+      ...MLB_TEAM_TRANSLATIONS.filter(item => !item.standalone),
+      ...NBA_TEAM_TRANSLATIONS,
+      ...NFL_TEAM_TRANSLATIONS
+    ];
+
+    
+// Palabras y expresiones que identifican razonablemente un texto de béisbol.
     // No basta con que exista alguna de estas palabras: para un apodo aislado
     // también se exige una construcción que parezca referirse al equipo.
     const BASEBALL_CONTEXT = /\b(?:béisbol|beisbol|MLB|Grandes Ligas|Liga Nacional|Liga Americana|Serie Mundial|jonr[oó]n(?:es)?|cuadrangular(?:es)?|home run(?:s)?|bate(?:ó|aron|aron)|bateador(?:es)?|batea(?:n|ron)|lanzador(?:es)?|lanz[oó]|pitcher(?:s)?|relevista(?:s)?|abridor(?:es)?|receptor(?:es)?|catcher(?:s)?|inning(?:s)?|entrada(?:s)?|carrera(?:s)?|bases?|bullpen|diamante|out(?:s)?|hit(?:s)?|doble(?:s)?|triple(?:s)?|roleta(?:s)?|sencillo(?:s)?|serie(?:s)?|par(?:tido|tidos)|temporada|playoffs|postemporada|clasificaci[oó]n|wild card|wild-card)\b/i;
@@ -581,22 +653,28 @@
       });
     }
 
+    function addSpanishTeamArticle(fullText, offset, endName) {
+      const before = fullText.slice(0, offset);
+      if (/(?:^|\s)(?:el|la|los|las)\s*$/i.test(before)) return endName;
+      const trimmed = before.trimEnd();
+      const atSentenceStart = !trimmed || /[.!?¡¿:;—]$/.test(trimmed);
+      const article = atSentenceStart ? 'Los' : 'los';
+      return `${article} ${endName}`;
+    }
+
     function translateTeamNamesEND(text) {
       let cleanedText = text;
       const baseballContext = hasBaseballTeamContext(text);
 
-      // PASO 1: nombres completos. Estos siempre se convierten porque no son
-      // ambiguos: "Nacionales de Washington" -> "Nationals de Washington".
-      MLB_TEAM_TRANSLATIONS
-        .filter(item => !item.standalone)
-        .forEach(item => {
-          item.ap.lastIndex = 0;
-          cleanedText = cleanedText.replace(item.ap, item.end);
-          item.ap.lastIndex = 0;
+      ALL_TEAM_TRANSLATIONS.forEach(item => {
+        item.ap.lastIndex = 0;
+        cleanedText = cleanedText.replace(item.ap, (match, ...args) => {
+          const offset = args[args.length - 2];
+          return addSpanishTeamArticle(cleanedText, offset, item.end);
         });
+        item.ap.lastIndex = 0;
+      });
 
-      // PASO 2: apodos solos. Solo se convierten cuando el contexto y la
-      // gramática indican que se trata del equipo.
       if (baseballContext) {
         MLB_TEAM_TRANSLATIONS
           .filter(item => item.standalone)
@@ -604,12 +682,8 @@
             item.ap.lastIndex = 0;
             cleanedText = cleanedText.replace(item.ap, (match, ...args) => {
               const offset = args[args.length - 2];
-              return shouldTranslateStandaloneNickname(
-                cleanedText,
-                offset,
-                match,
-                baseballContext
-              ) ? item.end : match;
+              return shouldTranslateStandaloneNickname(cleanedText, offset, match, baseballContext)
+                ? item.end : match;
             });
             item.ap.lastIndex = 0;
           });
@@ -617,6 +691,8 @@
 
       return cleanedText;
     }
+
+    
 
     async function loadDictionary() {
       setDictionaryConnectionStatus('loading');
@@ -787,12 +863,29 @@
       const defaults = getDefaultAnglicismTerms();
       if (!defaults.length) return false;
 
-      const { error: insertError } = await supabaseClient
-        .from('anglicism_terms')
-        .insert(defaults.map(item => ({ term: item.term, pattern: item.pattern })));
+      // Cargamos los términos uno por uno para que un término problemático no
+      // impida que toda la lista quede en Supabase. La columna term es UNIQUE.
+      let inserted = 0;
+      let skipped = 0;
+      let firstInsertError = null;
 
-      if (insertError) {
-        console.error('No se pudo cargar la Lista Anglicismos predeterminada:', insertError);
+      for (const item of defaults) {
+        const { error: insertError } = await supabaseClient
+          .from('anglicism_terms')
+          .insert({ term: item.term, pattern: item.pattern });
+
+        if (!insertError) {
+          inserted++;
+        } else if (insertError.code === '23505') {
+          skipped++;
+        } else if (!firstInsertError) {
+          firstInsertError = insertError;
+        }
+      }
+
+      if (firstInsertError) {
+        console.error('No se pudo cargar la Lista Anglicismos predeterminada:', firstInsertError);
+        showToast(`Supabase rechazó la carga: ${firstInsertError.message || firstInsertError.code || 'error de permisos'}`, 'error');
         return false;
       }
 
@@ -1473,7 +1566,7 @@ function forEachTextNode(root, callback) {
 
         if (error) {
           console.error('Error añadiendo anglicismo:', error);
-          showToast('No se pudo añadir el anglicismo.', 'error');
+          showToast(`No se pudo añadir el anglicismo: ${error.message || error.code || 'error de Supabase'}`, 'error');
           return;
         }
 
