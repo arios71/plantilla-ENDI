@@ -389,20 +389,6 @@
     .replace(/\b(\d+),(\d+)(\s*)(%|por ciento|por 100)(?!\w)/gi, '$1.$2$3$4');
 }
 
-    function corregirJuegosNumerados(texto) {
-      if (!texto) return "";
-      const ordinales = {
-        "1": "primer",
-        "2": "segundo",
-        "3": "tercer",
-        "4": "cuarto",
-        "5": "quinto",
-        "6": "sexto",
-        "7": "séptimo"
-      };
-      return texto.replace(/\bJuego\s+([1-7])\b/gi, (_, numero) => `${ordinales[numero]} juego`);
-    }
-
     function limpiarFraccionesDeportivas(texto) {
       if (!texto) return "";
       texto = texto.replace(/\b(\d+)\s+1\/3\s+(entradas?|innings?|episodios?)\b/gi, '$1.1 $2');
@@ -445,6 +431,103 @@
       { keyword: "Giants de San Francisco", url: "https://www.elnuevodia.com/topicos/giants-de-san-francisco/" },
       { keyword: "Rockies de Colorado", url: "https://www.elnuevodia.com/topicos/rockies-de-colorado/" },
       { keyword: "Reds de Cincinnati", url: "https://www.elnuevodia.com/topicos/reds-de-cincinnati/" }
+    ];
+
+    const ENGLISH_CITY_TEAM_TRANSLATIONS = [
+      { ap: /Cincinnati Reds\b/gi, end: "Reds de Cincinnati" },
+      { ap: /New York Yankees\b/gi, end: "Yankees de Nueva York" },
+      { ap: /Boston Red Sox\b/gi, end: "Red Sox de Boston" },
+      { ap: /Baltimore Orioles\b/gi, end: "Orioles de Baltimore" },
+      { ap: /Toronto Blue Jays\b/gi, end: "Blue Jays de Toronto" },
+      { ap: /Tampa Bay Rays\b/gi, end: "Rays de Tampa Bay" },
+      { ap: /Cleveland Guardians\b/gi, end: "Guardians de Cleveland" },
+      { ap: /Detroit Tigers\b/gi, end: "Tigers de Detroit" },
+      { ap: /Kansas City Royals\b/gi, end: "Royals de Kansas City" },
+      { ap: /Minnesota Twins\b/gi, end: "Twins de Minnesota" },
+      { ap: /Chicago White Sox\b/gi, end: "White Sox de Chicago" },
+      { ap: /Houston Astros\b/gi, end: "Astros de Houston" },
+      { ap: /Texas Rangers\b/gi, end: "Rangers de Texas" },
+      { ap: /Seattle Mariners\b/gi, end: "Mariners de Seattle" },
+      { ap: /Los Angeles Angels\b/gi, end: "Angels de Los Ángeles" },
+      { ap: /Oakland Athletics\b/gi, end: "Athletics" },
+      { ap: /Atlanta Braves\b/gi, end: "Braves de Atlanta" },
+      { ap: /Philadelphia Phillies\b/gi, end: "Phillies de Filadelfia" },
+      { ap: /Miami Marlins\b/gi, end: "Marlins de Miami" },
+      { ap: /Washington Nationals\b/gi, end: "Nationals de Washington" },
+      { ap: /New York Mets\b/gi, end: "Mets de Nueva York" },
+      { ap: /Milwaukee Brewers\b/gi, end: "Brewers de Milwaukee" },
+      { ap: /Pittsburgh Pirates\b/gi, end: "Pirates de Pittsburgh" },
+      { ap: /St\. Louis Cardinals\b/gi, end: "Cardinals de San Luis" },
+      { ap: /Chicago Cubs\b/gi, end: "Cubs de Chicago" },
+      { ap: /Los Angeles Dodgers\b/gi, end: "Dodgers de Los Ángeles" },
+      { ap: /San Diego Padres\b/gi, end: "Padres de San Diego" },
+      { ap: /Arizona Diamondbacks\b/gi, end: "Diamondbacks de Arizona" },
+      { ap: /San Francisco Giants\b/gi, end: "Giants de San Francisco" },
+      { ap: /Colorado Rockies\b/gi, end: "Rockies de Colorado" },
+
+      { ap: /Atlanta Hawks\b/gi, end: "Hawks de Atlanta" },
+      { ap: /Boston Celtics\b/gi, end: "Celtics de Boston" },
+      { ap: /Brooklyn Nets\b/gi, end: "Nets de Brooklyn" },
+      { ap: /Charlotte Hornets\b/gi, end: "Hornets de Charlotte" },
+      { ap: /Chicago Bulls\b/gi, end: "Bulls de Chicago" },
+      { ap: /Cleveland Cavaliers\b/gi, end: "Cavaliers de Cleveland" },
+      { ap: /Dallas Mavericks\b/gi, end: "Mavericks de Dallas" },
+      { ap: /Denver Nuggets\b/gi, end: "Nuggets de Denver" },
+      { ap: /Detroit Pistons\b/gi, end: "Pistons de Detroit" },
+      { ap: /Golden State Warriors\b/gi, end: "Warriors de Golden State" },
+      { ap: /Houston Rockets\b/gi, end: "Rockets de Houston" },
+      { ap: /Indiana Pacers\b/gi, end: "Pacers de Indiana" },
+      { ap: /Los Angeles Clippers\b/gi, end: "Clippers de Los Ángeles" },
+      { ap: /Los Angeles Lakers\b/gi, end: "Lakers de Los Ángeles" },
+      { ap: /Memphis Grizzlies\b/gi, end: "Grizzlies de Memphis" },
+      { ap: /Miami Heat\b/gi, end: "Heat de Miami" },
+      { ap: /Milwaukee Bucks\b/gi, end: "Bucks de Milwaukee" },
+      { ap: /Minnesota Timberwolves\b/gi, end: "Timberwolves de Minnesota" },
+      { ap: /New Orleans Pelicans\b/gi, end: "Pelicans de Nueva Orleans" },
+      { ap: /New York Knicks\b/gi, end: "Knicks de Nueva York" },
+      { ap: /Oklahoma City Thunder\b/gi, end: "Thunder de Oklahoma City" },
+      { ap: /Orlando Magic\b/gi, end: "Magic de Orlando" },
+      { ap: /Philadelphia 76ers\b/gi, end: "76ers de Filadelfia" },
+      { ap: /Phoenix Suns\b/gi, end: "Suns de Phoenix" },
+      { ap: /Portland Trail Blazers\b/gi, end: "Trail Blazers de Portland" },
+      { ap: /Sacramento Kings\b/gi, end: "Kings de Sacramento" },
+      { ap: /San Antonio Spurs\b/gi, end: "Spurs de San Antonio" },
+      { ap: /Toronto Raptors\b/gi, end: "Raptors de Toronto" },
+      { ap: /Utah Jazz\b/gi, end: "Jazz de Utah" },
+      { ap: /Washington Wizards\b/gi, end: "Wizards de Washington" },
+
+      { ap: /Arizona Cardinals\b/gi, end: "Cardinals de Arizona" },
+      { ap: /Atlanta Falcons\b/gi, end: "Falcons de Atlanta" },
+      { ap: /Baltimore Ravens\b/gi, end: "Ravens de Baltimore" },
+      { ap: /Buffalo Bills\b/gi, end: "Bills de Buffalo" },
+      { ap: /Carolina Panthers\b/gi, end: "Panthers de Carolina" },
+      { ap: /Chicago Bears\b/gi, end: "Bears de Chicago" },
+      { ap: /Cincinnati Bengals\b/gi, end: "Bengals de Cincinnati" },
+      { ap: /Cleveland Browns\b/gi, end: "Browns de Cleveland" },
+      { ap: /Dallas Cowboys\b/gi, end: "Cowboys de Dallas" },
+      { ap: /Denver Broncos\b/gi, end: "Broncos de Denver" },
+      { ap: /Detroit Lions\b/gi, end: "Lions de Detroit" },
+      { ap: /Green Bay Packers\b/gi, end: "Packers de Green Bay" },
+      { ap: /Houston Texans\b/gi, end: "Texans de Houston" },
+      { ap: /Indianapolis Colts\b/gi, end: "Colts de Indianápolis" },
+      { ap: /Jacksonville Jaguars\b/gi, end: "Jaguars de Jacksonville" },
+      { ap: /Kansas City Chiefs\b/gi, end: "Chiefs de Kansas City" },
+      { ap: /Las Vegas Raiders\b/gi, end: "Raiders de Las Vegas" },
+      { ap: /Los Angeles Chargers\b/gi, end: "Chargers de Los Ángeles" },
+      { ap: /Los Angeles Rams\b/gi, end: "Rams de Los Ángeles" },
+      { ap: /Miami Dolphins\b/gi, end: "Dolphins de Miami" },
+      { ap: /Minnesota Vikings\b/gi, end: "Vikings de Minnesota" },
+      { ap: /New England Patriots\b/gi, end: "Patriots de Nueva Inglaterra" },
+      { ap: /New Orleans Saints\b/gi, end: "Saints de Nueva Orleans" },
+      { ap: /New York Giants\b/gi, end: "Giants de Nueva York" },
+      { ap: /New York Jets\b/gi, end: "Jets de Nueva York" },
+      { ap: /Philadelphia Eagles\b/gi, end: "Eagles de Filadelfia" },
+      { ap: /Pittsburgh Steelers\b/gi, end: "Steelers de Pittsburgh" },
+      { ap: /San Francisco 49ers\b/gi, end: "49ers de San Francisco" },
+      { ap: /Seattle Seahawks\b/gi, end: "Seahawks de Seattle" },
+      { ap: /Tampa Bay Buccaneers\b/gi, end: "Buccaneers de Tampa Bay" },
+      { ap: /Tennessee Titans\b/gi, end: "Titans de Tennessee" },
+      { ap: /Washington Commanders\b/gi, end: "Commanders de Washington" }
     ];
 
     const MLB_TEAM_TRANSLATIONS = [
@@ -595,7 +678,60 @@
 
     function translateTeamNamesEND(text) {
       let cleanedText = text;
-      const baseballContext = hasBaseballTeamContext(text);
+
+      // Los Angeles es un caso especial: en inglés, "Los" forma parte del
+      // nombre de la ciudad; en el estilo de END, "Los/los" debe convertirse
+      // en el artículo y "Angeles/Ángeles" debe quedar dentro de "de Los Ángeles".
+      // Esto aplica a MLB, NBA y NFL.
+      const LOS_ANGELES_TEAM_TRANSLATIONS = [
+        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Angels\b/gi, end: "Angels de Los Ángeles" },
+        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Dodgers\b/gi, end: "Dodgers de Los Ángeles" },
+        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Clippers\b/gi, end: "Clippers de Los Ángeles" },
+        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Lakers\b/gi, end: "Lakers de Los Ángeles" },
+        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Chargers\b/gi, end: "Chargers de Los Ángeles" },
+        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Rams\b/gi, end: "Rams de Los Ángeles" }
+      ];
+
+      function esInicioDeOracion(texto, offset) {
+        const before = texto.slice(0, offset);
+        const beforeSinComillas = before.replace(/[\s"'“”‘’«»¿¡]+$/u, "");
+
+        if (!beforeSinComillas.trim()) return true;
+
+        // Inicio después de punto, signo de interrogación o exclamación.
+        if (/[.!?][\s"'“”‘’»)]*$/u.test(before)) return true;
+
+        // También reconoce el comienzo después del guion de una dateline,
+        // por ejemplo: "Nueva York - Los Angeles Dodgers...".
+        const lineaActual = beforeSinComillas.split(/\n/).pop();
+        if (/^[^.!?\n]{1,100}\s[-–—]\s*$/u.test(lineaActual)) return true;
+
+        return false;
+      }
+
+      LOS_ANGELES_TEAM_TRANSLATIONS.forEach(item => {
+        item.ap.lastIndex = 0;
+        cleanedText = cleanedText.replace(item.ap, (match, ...args) => {
+          const offset = args[args.length - 2];
+          const article = esInicioDeOracion(cleanedText, offset) ? "Los" : "los";
+          return `${article} ${item.end}`;
+        });
+        item.ap.lastIndex = 0;
+      });
+
+      // El resto de las traducciones de ciudades/equipos se mantiene intacto.
+      // Se excluyen aquí únicamente las seis entradas "Los Angeles ..." para
+      // evitar que vuelvan a consumir el "Los" que acabamos de convertir en
+      // artículo.
+      ENGLISH_CITY_TEAM_TRANSLATIONS.forEach(item => {
+        if (/^Los\s+Angeles\s+/i.test(item.ap.source)) return;
+
+        item.ap.lastIndex = 0;
+        cleanedText = cleanedText.replace(item.ap, item.end);
+        item.ap.lastIndex = 0;
+      });
+
+      const baseballContext = hasBaseballTeamContext(cleanedText);
 
       MLB_TEAM_TRANSLATIONS
         .filter(item => !item.standalone)
@@ -684,7 +820,6 @@
       if (toggleDateline.checked) raw = transformDatelineEND(raw);
       if (toggleMLBTeams.checked) raw = translateTeamNamesEND(raw);
 
-      raw = corregirJuegosNumerados(raw);
       raw = limpiarPorcentajesAP(raw);
       raw = limpiarFraccionesDeportivas(raw);
       raw = aplicarCursivasDeportivas(raw);
