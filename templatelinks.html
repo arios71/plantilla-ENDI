@@ -95,7 +95,7 @@
           </button>
         </div>
         <div class="p-3">
-          <textarea id="inputText" rows="12" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent resize-y text-sm leading-relaxed font-sans placeholder-slate-400" placeholder="Pega aquí el texto de AP (ej: 'NUEVA YORK (AP) — Los Cachorros de Chicago vencieron a los Rojos de Cincinnati...')..."></textarea>
+          <textarea id="inputText" rows="12" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent resize-y text-sm leading-relaxed font-sans placeholder-slate-400" placeholder="Pega aquí el texto de AP (ej: 'NUEVA YORK (AP) — Los Cachorros de Chicago...')..."></textarea>
         </div>
       </div>
 
@@ -108,7 +108,7 @@
         <div class="space-y-3">
           <!-- Dateline AP to END Toggle -->
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-700">Procedencia END (NUEVA YORK —)</span>
+            <span class="text-xs font-medium text-slate-700">Procedencia END (Nueva York -)</span>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" id="toggleDateline" checked class="sr-only peer">
               <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
@@ -220,6 +220,7 @@
 
   </main>
 
+  <!-- DICTIONARY MODAL -->
   <div id="dictModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
       
@@ -239,6 +240,7 @@
           <span id="adminStatus" class="text-[11px] text-slate-500">Solo lectura</span>
         </div>
 
+        <!-- Admin Login Panel Structure Restored -->
         <div id="adminLoginPanel" class="space-y-2">
           <div class="flex items-center justify-between gap-2">
             <p class="text-[11px] text-slate-500">Solo el administrador autorizado puede modificar términos.</p>
@@ -246,7 +248,7 @@
               Administrar
             </button>
           </div>
-          <form id="adminLoginForm" class="hidden grid grid-cols-1 sm:grid-cols-12 gap-2">
+          <form id="adminLoginForm" class="hidden grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
             <input type="email" id="adminEmail" placeholder="Correo del administrador" autocomplete="username" required class="sm:col-span-4 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
             <input type="password" id="adminPassword" placeholder="Contraseña" autocomplete="current-password" required class="sm:col-span-4 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
             <button type="submit" class="sm:col-span-4 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition">
@@ -255,13 +257,14 @@
           </form>
         </div>
 
+        <!-- Admin Edit Panel -->
         <div id="adminEditPanel" class="hidden space-y-3">
           <div class="flex items-center justify-between gap-2">
             <p class="text-xs text-slate-600 font-medium">Añadir nuevo término o tópico:</p>
             <button type="button" id="btnLogout" class="text-[11px] text-slate-500 hover:text-red-600 font-medium">Cerrar sesión</button>
           </div>
           <form id="addKeywordForm" class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-            <input type="text" id="newKeyword" placeholder="Ej: Athletics" required class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+            <input type="text" id="newKeyword" placeholder="Ej: Béisbol" required class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
             <input type="url" id="newUrl" placeholder="URL opcional" class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
             <button type="submit" class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1">
               <i class="fa-solid fa-plus"></i> Añadir
@@ -296,7 +299,52 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // Diccionario predeterminado con los 30 equipos exactos de MLB que proporcionaste
+    // Lista de términos deportivos en inglés con cursivas automáticas
+    const palabrasDeportivasEnCursiva = [
+      "strike", "strikes", "out", "outs", "inning", "innings", 
+      "draft", "drafts", "passed ball", "slider", "cutter", 
+      "pitcher", "pitchers", "catcher", "catchers", "coach", "coaches", 
+      "manager", "managers", "outfielder", "outfielders", "outfield", 
+      "infield", "infielder", "infielders", "home", "Home Run Derby", 
+      "grand slam", "bullpen", "bullpens", "fly", "ground ball", 
+      "dugout", "dugouts", "touchdown", "quarterback", "turnover", 
+      "turnovers", "fumble", "fumbles", "sack", "sacks", "birdie", 
+      "birdies", "bogey", "bogeys", "eagle", "eagles", "green", 
+      "greens", "tee", "tees", "fairway", "fairways", "putt", 
+      "putts", "putter", "putters", "chip", "chips", "rough", 
+      "handicap", "handicaps", "par", "pars", "caddie", "caddies", 
+      "driver", "drivers", "wedge", "wedges", "hook", "hooks", 
+      "slice", "slices", "swing", "swings", "fast break", "playoff", 
+      "playoffs", "uppercut", "knock out", "knockdown", "goal average"
+    ];
+
+    function aplicarCursivasDeportivas(texto) {
+      if (!texto) return "";
+      const terminosOrdenados = [...palabrasDeportivasEnCursiva].sort((a, b) => b.length - a.length);
+      let textoProcesado = texto;
+      terminosOrdenados.forEach(termino => {
+        const regex = new RegExp(`\\b(${termino})\\b`, 'gi');
+        textoProcesado = textoProcesado.replace(regex, '<em>$1</em>');
+      });
+      return textoProcesado;
+    }
+
+    function limpiarPorcentajesAP(texto) {
+      if (!texto) return "";
+      return texto.replace(/\b(\d+),(\d+)\s*(%|por ciento|por 100)\b/gi, '$1.$2 $3');
+    }
+
+    function limpiarFraccionesDeportivas(texto) {
+      if (!texto) return "";
+      texto = texto.replace(/\b(\d+)\s+1\/3\s+(entradas?|innings?|episodios?)\b/gi, '$1.1 $2');
+      texto = texto.replace(/\b(\d+)\s+2\/3\s+(entradas?|innings?|episodios?)\b/gi, '$1.2 $2');
+      texto = texto.replace(/\b(\d+)\s+1\/2\s+(entradas?|innings?|episodios?)\b/gi, '$1.5 $2');
+      texto = texto.replace(/\b(\d+)\s+1\/2\s+(juegos?|partidos?|encuentros?|desaf[ií]os?)\b/gi, '$1.5 $2');
+      texto = texto.replace(/\b(\d+)\s+1\/4\s+(juegos?|partidos?|encuentros?|desaf[ií]os?)\b/gi, '$1.25 $2');
+      texto = texto.replace(/\b(\d+)\s+3\/4\s+(juegos?|partidos?|encuentros?|desaf[ií]os?)\b/gi, '$1.75 $2');
+      return texto;
+    }
+
     const DEFAULT_DICTIONARY = [
       { keyword: "Cubs de Chicago", url: "https://www.elnuevodia.com/topicos/cubs-de-chicago/" },
       { keyword: "Twins de Minnesota", url: "https://www.elnuevodia.com/topicos/twins-de-minnesota/" },
@@ -330,14 +378,6 @@
       { keyword: "Reds de Cincinnati", url: "https://www.elnuevodia.com/topicos/reds-de-cincinnati/" }
     ];
 
-    // Reglas de traducción para cables de AP -> Estilo END en inglés
-    //
-    // IMPORTANTE:
-    // Los nombres completos ("Nacionales de Washington", "Gigantes de San
-    // Francisco", etc.) se traducen siempre. Los apodos solos NO se traducen
-    // automáticamente: requieren contexto de béisbol/equipo para evitar falsos
-    // positivos como "leyes nacionales", "corporaciones nacionales" o
-    // "gigantes de la industria".
     const MLB_TEAM_TRANSLATIONS = [
       { ap: /Medias Rojas de Boston/g, end: "Red Sox de Boston" },
       { ap: /Medias Blancas de Chicago/g, end: "White Sox de Chicago" },
@@ -361,7 +401,6 @@
       { ap: /Cardenales de San Luis/g, end: "Cardinals de San Luis" },
       { ap: /Gigantes de San Francisco/g, end: "Giants de San Francisco" },
 
-      // Apodos solos: se procesan únicamente dentro de contexto de MLB.
       { ap: /\bMedias Rojas\b/g, end: "Red Sox", standalone: true },
       { ap: /\bMedias Blancas\b/g, end: "White Sox", standalone: true },
       { ap: /\bGuardianes\b/g, end: "Guardians", standalone: true },
@@ -384,15 +423,9 @@
       { ap: /\bGigantes\b/g, end: "Giants", standalone: true }
     ];
 
-    // Palabras y expresiones que identifican razonablemente un texto de béisbol.
-    // No basta con que exista alguna de estas palabras: para un apodo aislado
-    // también se exige una construcción que parezca referirse al equipo.
     const BASEBALL_CONTEXT = /\b(?:béisbol|beisbol|MLB|Grandes Ligas|Liga Nacional|Liga Americana|Serie Mundial|jonr[oó]n(?:es)?|cuadrangular(?:es)?|home run(?:s)?|bate(?:ó|aron|aron)|bateador(?:es)?|batea(?:n|ron)|lanzador(?:es)?|lanz[oó]|pitcher(?:s)?|relevista(?:s)?|abridor(?:es)?|receptor(?:es)?|catcher(?:s)?|inning(?:s)?|entrada(?:s)?|carrera(?:s)?|bases?|bullpen|diamante|out(?:s)?|hit(?:s)?|doble(?:s)?|triple(?:s)?|roleta(?:s)?|sencillo(?:s)?|serie(?:s)?|par(?:tido|tidos)|temporada|playoffs|postemporada|clasificaci[oó]n|wild card|wild-card)\b/i;
 
     function hasBaseballTeamContext(text) {
-      // Si aparece el nombre completo de cualquiera de los equipos que esta
-      // plantilla traduce, el resto de apariciones de su apodo se consideran
-      // referencias al equipo.
       return MLB_TEAM_TRANSLATIONS.some(item => {
         if (item.standalone) return false;
         item.ap.lastIndex = 0;
@@ -404,54 +437,24 @@
 
     function shouldTranslateStandaloneNickname(fullText, offset, match, baseballContext) {
       if (!baseballContext) return false;
-
-      // Los nombres propios de los equipos vienen capitalizados en los cables.
-      // Esta comprobación evita transformar usos comunes en minúscula:
-      // "leyes nacionales", "gigantes de la industria", etc.
       if (!match || match[0] !== match[0].toUpperCase()) return false;
-
       const before = fullText.slice(Math.max(0, offset - 20), offset);
       const after = fullText.slice(offset + match.length, offset + match.length + 35);
-
-      // En el uso normal de un equipo, el apodo aparece como sustantivo:
-      // "los Nacionales", "los Gigantes", "los Tigres", etc.
-      // Esto evita casos como "leyes nacionales" o "gigantes de la industria".
       const precededByArticle = /(?:^|\s)(?:el|la|los|las)\s+$/i.test(before);
-
       if (!precededByArticle) return false;
-
-      // "los nacionales de Puerto Rico", "los gigantes de la industria", etc.
-      // no deben convertirse. Los nombres completos de los equipos ya fueron
-      // procesados antes de llegar a esta regla.
       if (/^\s+de\s+/i.test(after)) return false;
-
       return true;
     }
 
-    // ============================================================
-    // SUPABASE — Diccionario central
-    // La Publishable key puede estar en el frontend. La seguridad real
-    // de escritura está en RLS, configurado en Supabase.
-    // ============================================================
     const SUPABASE_URL = "https://ngkygzwqtwxcggukqznj.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_D3k7urSeKP8aR0ypEdrOXw_6-sxarN-";
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY,
-      {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: false
-        }
-      }
-    );
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+    });
 
     let dictionary = [];
     let processedHtml = "";
-    let dictionaryFromSupabase = false;
     let currentUser = null;
-    let migrationInProgress = false;
 
     const inputText = document.getElementById('inputText');
     const previewOutput = document.getElementById('previewOutput');
@@ -462,28 +465,62 @@
     const toggleDateline = document.getElementById('toggleDateline');
     const toggleMLBTeams = document.getElementById('toggleMLBTeams');
     const dictCountBadge = document.getElementById('dictCountBadge');
-    
+    const dictionaryConnectionStatus = document.getElementById('dictionaryConnectionStatus');
+
     window.addEventListener('DOMContentLoaded', async () => {
       setupEventListeners();
-      await loadDictionary();
-      await updateAuthUI();
+      await checkAuthAndLoadDictionary();
       processText();
     });
 
-    function generateEndTopicUrl(term) {
-      const slug = term.toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9 -]/g, "")
-        .trim()
-        .replace(/\s+/g, "-");
-      return `https://www.elnuevodia.com/topicos/${slug}/`;
+    async function checkAuthAndLoadDictionary() {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        currentUser = session?.user || null;
+        updateAdminUI();
+
+        const { data, error } = await supabaseClient
+          .from('dictionary_terms')
+          .select('id, keyword, url')
+          .order('keyword', { ascending: true });
+
+        if (error || !Array.isArray(data) || data.length === 0) {
+          dictionary = [...DEFAULT_DICTIONARY];
+          dictionaryConnectionStatus.innerHTML = '<i class="fa-solid fa-circle text-amber-400 text-[8px]"></i> Diccionario local activo';
+        } else {
+          dictionary = data.map(item => ({ id: item.id, keyword: item.keyword, url: item.url }));
+          dictionaryConnectionStatus.innerHTML = '<i class="fa-solid fa-circle text-emerald-500 text-[8px]"></i> Conectado a Supabase';
+        }
+      } catch (err) {
+        dictionary = [...DEFAULT_DICTIONARY];
+        dictionaryConnectionStatus.innerHTML = '<i class="fa-solid fa-circle text-red-500 text-[8px]"></i> Error de conexión (Local)';
+      }
+      dictionary.sort((a, b) => b.keyword.length - a.keyword.length);
+      dictCountBadge.textContent = dictionary.length;
+    }
+
+    function updateAdminUI() {
+      const adminStatus = document.getElementById('adminStatus');
+      const adminLoginPanel = document.getElementById('adminLoginPanel');
+      const adminEditPanel = document.getElementById('adminEditPanel');
+
+      if (currentUser) {
+        adminStatus.textContent = `Sesión iniciada: ${currentUser.email}`;
+        adminStatus.className = "text-[11px] text-emerald-600 font-semibold";
+        adminLoginPanel.classList.add('hidden');
+        adminEditPanel.classList.remove('hidden');
+      } else {
+        adminStatus.textContent = "Solo lectura";
+        adminStatus.className = "text-[11px] text-slate-500";
+        adminLoginPanel.classList.remove('hidden');
+        adminEditPanel.classList.add('hidden');
+      }
     }
 
     function transformDatelineEND(text) {
-      return text.replace(/^([A-ZÁÉÍÓÚÑ\s]{2,})\s*(\([A-Z\s]+\))?\s*[\-–—]{1,2}\s*/, (match, city) => {
-        let cleanCity = city.trim();
-        let formattedCity = cleanCity.toLowerCase().replace(/(?:^|\s)\S/g, a => a.toUpperCase());
-        return `${formattedCity} — `;
+      return text.replace(/^([A-ZÁÉÍÓÚÑ\s,.]+?)\s*(\([A-Z\s]+\))?\s*[\-–—]{1,2}\s*/, (match, city) => {
+        let cleanCity = city.trim().toLowerCase().replace(/(?:^|\s)\S/g, l => l.toUpperCase());
+        return `${cleanCity} - `;
       });
     }
 
@@ -491,8 +528,6 @@
       let cleanedText = text;
       const baseballContext = hasBaseballTeamContext(text);
 
-      // PASO 1: nombres completos. Estos siempre se convierten porque no son
-      // ambiguos: "Nacionales de Washington" -> "Nationals de Washington".
       MLB_TEAM_TRANSLATIONS
         .filter(item => !item.standalone)
         .forEach(item => {
@@ -501,8 +536,6 @@
           item.ap.lastIndex = 0;
         });
 
-      // PASO 2: apodos solos. Solo se convierten cuando el contexto y la
-      // gramática indican que se trata del equipo.
       if (baseballContext) {
         MLB_TEAM_TRANSLATIONS
           .filter(item => item.standalone)
@@ -510,703 +543,215 @@
             item.ap.lastIndex = 0;
             cleanedText = cleanedText.replace(item.ap, (match, ...args) => {
               const offset = args[args.length - 2];
-              return shouldTranslateStandaloneNickname(
-                cleanedText,
-                offset,
-                match,
-                baseballContext
-              ) ? item.end : match;
+              return shouldTranslateStandaloneNickname(cleanedText, offset, match, baseballContext) ? item.end : match;
             });
             item.ap.lastIndex = 0;
           });
       }
-
       return cleanedText;
     }
 
-    async function loadDictionary() {
-      setDictionaryConnectionStatus('loading');
-
-      const { data, error } = await supabaseClient
-        .from('dictionary_terms')
-        .select('id, keyword, url')
-        .order('keyword', { ascending: true });
-
-      if (error) {
-        console.error('Error cargando diccionario central:', error);
-        dictionary = [...DEFAULT_DICTIONARY];
-        dictionaryFromSupabase = false;
-        setDictionaryConnectionStatus('error');
-        updateDictBadge();
-        return;
-      }
-
-      if (Array.isArray(data) && data.length > 0) {
-        dictionary = data
-          .filter(item => item.keyword && item.url)
-          .map(item => ({ id: item.id, keyword: item.keyword, url: item.url }));
-        dictionaryFromSupabase = true;
-        setDictionaryConnectionStatus('connected');
-      } else {
-        // La tabla está vacía: usamos los valores predeterminados solo como
-        // respaldo temporal. El administrador podrá cargarlos al iniciar sesión.
-        dictionary = [...DEFAULT_DICTIONARY];
-        dictionaryFromSupabase = false;
-        setDictionaryConnectionStatus('empty');
-      }
-
-      sortDictionaryForProcessing();
-      updateDictBadge();
-    }
-
-    function sortDictionaryForProcessing() {
-      dictionary.sort((a, b) => b.keyword.length - a.keyword.length);
-    }
-
-    function sortDictionaryForDisplay(items) {
-      return [...items].sort((a, b) =>
-        a.keyword.localeCompare(b.keyword, 'es', { sensitivity: 'base' })
-      );
-    }
-
-    function updateDictBadge() {
-      dictCountBadge.textContent = dictionary.length;
-    }
-
-    function setDictionaryConnectionStatus(status) {
-      const el = document.getElementById('dictionaryConnectionStatus');
-      if (!el) return;
-
-      const states = {
-        loading: { icon: 'fa-circle text-amber-400', text: 'Conectando diccionario central...' },
-        connected: { icon: 'fa-circle text-emerald-500', text: 'Diccionario central sincronizado' },
-        empty: { icon: 'fa-circle text-amber-400', text: 'Diccionario central vacío — pendiente de carga' },
-        error: { icon: 'fa-circle text-red-500', text: 'Sin conexión — usando respaldo local' }
-      };
-
-      const state = states[status] || states.loading;
-      el.innerHTML = `<i class="fa-solid ${state.icon} text-[8px]"></i> ${state.text}`;
-    }
-
-    function getLocalDictionaryForMigration() {
-      const saved = localStorage.getItem('end_sports_dictionary');
-      if (!saved) return null;
-
-      try {
-        const parsed = JSON.parse(saved);
-        if (!Array.isArray(parsed)) return null;
-
-        const valid = parsed
-          .filter(item => item && typeof item.keyword === 'string' && item.keyword.trim())
-          .map(item => ({
-            keyword: item.keyword.trim(),
-            url: (item.url || generateEndTopicUrl(item.keyword.trim())).trim()
-          }));
-
-        return valid.length ? valid : null;
-      } catch (error) {
-        console.warn('No se pudo leer el diccionario local para migración.', error);
-        return null;
-      }
-    }
-
-    async function migrateLocalDictionaryToSupabase() {
-      if (!currentUser || migrationInProgress) return;
-      migrationInProgress = true;
-
-      const localDictionary = getLocalDictionaryForMigration();
-      const { data: centralData, error: centralError } = await supabaseClient
-        .from('dictionary_terms')
-        .select('id, keyword, url');
-
-      if (centralError) {
-        console.error('No se pudo comprobar el diccionario central:', centralError);
-        migrationInProgress = false;
-        return;
-      }
-
-      // Si no existe todavía un diccionario local, cargamos los valores
-      // predeterminados. Si sí existe, usamos ese diccionario completo para
-      // conservar también los términos NBA y cualquier otro añadido previo.
-      const source = localDictionary || [...DEFAULT_DICTIONARY];
-      const centralMap = new Map(
-        (centralData || []).map(item => [item.keyword.trim().toLocaleLowerCase('es'), item])
-      );
-
-      let inserted = 0;
-      let updated = 0;
-
-      for (const item of source) {
-        const key = item.keyword.trim().toLocaleLowerCase('es');
-        const existing = centralMap.get(key);
-
-        if (existing) {
-          if (existing.url !== item.url) {
-            const { error } = await supabaseClient
-              .from('dictionary_terms')
-              .update({ url: item.url })
-              .eq('id', existing.id);
-
-            if (!error) {
-              existing.url = item.url;
-              updated++;
-            } else {
-              console.error('Error actualizando término durante migración:', error);
-            }
-          }
-        } else {
-          const { data: insertedRows, error } = await supabaseClient
-            .from('dictionary_terms')
-            .insert({ keyword: item.keyword, url: item.url })
-            .select('id, keyword, url');
-
-          if (!error && insertedRows && insertedRows[0]) {
-            centralMap.set(key, insertedRows[0]);
-            inserted++;
-          } else if (error) {
-            console.error('Error insertando término durante migración:', error);
-          }
-        }
-      }
-
-      await loadDictionary();
-
-      migrationInProgress = false;
-
-      if (inserted || updated) {
-        const details = [];
-        if (inserted) details.push(`${inserted} añadido(s)`);
-        if (updated) details.push(`${updated} actualizado(s)`);
-        showToast(`Diccionario central: ${details.join(' y ')}.`);
-      }
-    }
-
-    async function updateAuthUI() {
-      const { data } = await supabaseClient.auth.getSession();
-      currentUser = data?.session?.user || null;
-
-      const loginPanel = document.getElementById('adminLoginPanel');
-      const editPanel = document.getElementById('adminEditPanel');
-      const adminStatus = document.getElementById('adminStatus');
-
-      if (currentUser) {
-        loginPanel.classList.add('hidden');
-        editPanel.classList.remove('hidden');
-        adminStatus.textContent = `Sesión activa: ${currentUser.email || 'administrador'}`;
-        adminStatus.className = 'text-[11px] text-emerald-600 font-medium';
-
-        await migrateLocalDictionaryToSupabase();
-      } else {
-        loginPanel.classList.remove('hidden');
-        editPanel.classList.add('hidden');
-        adminStatus.textContent = 'Solo lectura';
-        adminStatus.className = 'text-[11px] text-slate-500';
-      }
-    }
-
-    async function signInAdmin(email, password) {
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) {
-        console.error('Error de autenticación:', error);
-        showToast(`No se pudo iniciar sesión: ${error.message}`, 'error');
-        return false;
-      }
-
-      await updateAuthUI();
-      renderDictionaryList();
-      processText();
-      showToast('Sesión de administrador iniciada.');
-      return true;
-    }
-
-    async function signOutAdmin() {
-      const { error } = await supabaseClient.auth.signOut();
-      if (error) {
-        showToast('No se pudo cerrar la sesión.', 'error');
-        return;
-      }
-      currentUser = null;
-      await updateAuthUI();
-      renderDictionaryList();
-      showToast('Sesión cerrada.');
-    }
-
-    function applyNumericFormatting(text) {
-  let formatted = text;
-
-  // AP: miles con punto -> coma (47.084 -> 47,084)
-  formatted = formatted.replace(/\b\d{1,3}(?:\.\d{3})+\b/g, match =>
-    match.replace(/\./g, ',')
-  );
-
-  // AP: decimal con coma -> punto solo con 1-2 dígitos decimales.
-  formatted = formatted.replace(/\b\d+,\d{1,2}\b/g, match =>
-    match.replace(',', '.')
-  );
-
-  // Béisbol: 2 1/3 o 2 2/3 se convierten a decimal cuando se trata de entradas,
-  // episodios o innings, en singular o plural.
-  const pitchingUnits = '(?:entrada|entradas|episodio|episodios|inning|innings)';
-  formatted = formatted.replace(
-    new RegExp('\\b(\\d+)\\s+1\\/3(?=\\s+' + pitchingUnits + '\\b)', 'gi'),
-    '$1.1'
-  );
-  formatted = formatted.replace(
-    new RegExp('\\b(\\d+)\\s+2\\/3(?=\\s+' + pitchingUnits + '\\b)', 'gi'),
-    '$1.2'
-  );
-
-  // Fracciones de medio juego/partido: la conversión no depende de una sola palabra.
-  // Acepta juegos, partidos, encuentros y desafíos, en singular o plural.
-  formatted = formatted.replace(
-    /\b(\d+)\s+1\/2(?=\s+(?:juego|juegos|partido|partidos|encuentro|encuentros|desafío|desafíos)(?=\s|[.,;:!?]|$))/gi,
-    '$1.5'
-  );
-
-  // Juego 1, Juego 2, etc. -> primer juego, segundo juego...
-  const gameNumbers = {
-    '1': 'primer',
-    '2': 'segundo',
-    '3': 'tercer',
-    '4': 'cuarto',
-    '5': 'quinto',
-    '6': 'sexto',
-    '7': 'séptimo'
-  };
-  formatted = formatted.replace(/\bJuego\s+([1-7])\b/gi, (match, number) =>
-    `${gameNumbers[number]} juego`
-  );
-
-  return formatted;
-}
-
-function forEachTextNode(root, callback) {
-      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-      const nodes = [];
-      let node;
-      while ((node = walker.nextNode())) {
-        if (node.parentElement && !node.parentElement.closest('a, script, style, em')) {
-          nodes.push(node);
-        }
-      }
-      nodes.forEach(callback);
-    }
-
-    function autoItalicizeEnglishSportsTerms(root) {
-      // Términos deportivos en inglés que se dejan en inglés en las notas.
-      // Se excluyen enlaces y texto ya dentro de <em> para no alterar el HTML.
-      const regex = /\b(?:inning|innings|playoff|playoffs|wild\s+card|wild\s+cards|home\s+run|home\s+runs|pitcher|pitchers|catcher|catchers|bullpen|closer|closers|reliever|relievers|starter|starters|out|outs|hit|hits|strike|strikes|walk|walks|double|doubles|triple|triples|slider|sliders|changeup|changeups|curveball|curveballs|fastball|fastballs|sinker|sinkers|sweeper|sweepers|splitter|splitters|lineup|lineups|batting\s+order|designated\s+hitter|designated\s+hitters|draft|passed\s+ball|passed\s+balls|wild\s+pitch|wild\s+pitches|balk|balks|walk[-\s]?off|sacrifice\s+fly|sacrifice\s+flies|sacrifice\s+bunt|sacrifice\s+bunts|stolen\s+base|stolen\s+bases|caught\s+stealing|pickoff|pickoffs|double\s+play|double\s+plays|triple\s+play|triple\s+plays|force\s+out|force\s+outs|tag\s+out|tag\s+outs|groundout|groundouts|flyout|flyouts|strikeout|strikeouts|grand\s+slam|grand\s+slams|shutout|shutouts|no[-\s]?hitter|no[-\s]?hitters|perfect\s+game|perfect\s+games|lead[-\s]?off|leadoff|pinch\s+hitter|pinch\s+hitters|pinch\s+runner|pinch\s+runners|utility\s+player|utility\s+players|prospect|prospects|rookie|rookies|spring\s+training|trade\s+deadline|waiver|waivers|all[-\s]?star|all[-\s]?stars|home\s+run\s+derby|home\s+plate|home|plate|plates|cutter|cutters|derby|batter|batters|batting|bat|bats|shortstop|shortstops|third\s+baseman|third\s+basemen|second\s+baseman|second\s+basemen|first\s+baseman|first\s+basemen|outfielder|outfielders|infielder|infielders|outfield|infield|dugout|dugouts|on[-\s]?deck|on[-\s]?base|on[-\s]?deck|batting\s+practice|batting\s+coach|base\s+coach|first\s+base|second\s+base|third\s+base|home\s+run|grand\s+slam|inside[-\s]?the[-\s]?park|sac\s+fly|sacrifice\s+fly|sac\s+bunt|sacrifice\s+bunt|hit[-\s]?by[-\s]?pitch|hit\s+by\s+pitch|intentional\s+walk|walk\s+off|walk[-\s]?off|run[-\s]?batted[-\s]?in|runs[-\s]?batted[-\s]?in|RBI|ERA|WHIP|OPS|OBP|SLG|BABIP|WAR|FIP|QS|save|saves|hold|holds|blown\s+save|blown\s+saves|setup\s+man|setup\s+men|middle\s+reliever|middle\s+relievers|long\s+reliever|long\s+relievers|left[-\s]?hander|right[-\s]?hander|lefty|lefties|righty|righties|switch[-\s]?hitter|switch[-\s]?hitters|utility\s+man|utility\s+men|utility\s+infielder|utility\s+infielders|utility\s+outfielder|utility\s+outfielders|catcher\s+interference|pitch\s+clock|pitch\s+com|ghost\s+runner|runner\s+on\s+second|bases[-\s]?loaded|loaded\s+bases|inside\s+corner|outside\s+corner|inside\s+pitch|outside\s+pitch|high\s+fastball|low\s+fastball|breaking\s+ball|breaking\s+balls|off[-\s]?speed|off[-\s]?speed\s+pitch|two[-\s]?seamer|four[-\s]?seamer|four[-\s]?seam|two[-\s]?seam|curve|curves|knuckleball|knuckleballs|knuckle[-\s]?curve|knuckle[-\s]?curves|forkball|forkballs|splitter|splitters|sinker|sinkers|sweeper|sweepers|slider|sliders|changeup|changeups|fastball|fastballs|cutter|cutters|slugging|slugger|sluggers|batting\s+average|on[-\s]?base\s+percentage|slugging\s+percentage|fastbreak|fast\s+break|half\s+court|full\s+court|frontcourt|backcourt|point\s+guard|shooting\s+guard|small\s+forward|power\s+forward|center|centers|forward|forwards|guard|guards|sixth\s+man|sixth\s+woman|pick\s+and\s+roll|pick\s+and\s+pop|pick\s+and\s+rolls|alley[-\s]?oop|slam\s+dunk|dunk|dunks|layup|layups|tip[-\s]?in|tip[-\s]?ins|jump\s+shot|jumpers|jumper|fadeaway|fadeaway\s+jumper|hook\s+shot|bank\s+shot|three[-\s]?pointer|three[-\s]?pointers|two[-\s]?pointer|two[-\s]?pointers|free\s+throw|free\s+throws|turnover|turnovers|steal|steals|block|blocks|assist|assists|rebound|rebounds|box\s+out|box\s+outs|double[-\s]?double|triple[-\s]?double|quadruple[-\s]?double|buzzer[-\s]?beater|game[-\s]?winner|game[-\s]?winning|shot\s+clock|shot\s+creator|rim\s+protector|stretch\s+four|two[-\s]?way|two[-\s]?way\s+player|playmaker|playmakers|ball\s+handler|ball\s+handlers|spacing|switch|switches|switching|mismatch|mismatches|screen|screens|screening|closeout|closeouts|rotation|rotations|transition|pace|pick\s+and\s+roll|NBA\s+draft|lottery\s+pick|lottery\s+picks|undrafted|rookie\s+scale|salary\s+cap|hard\s+cap|luxury\s+tax|trade\s+exception|two[-\s]?way\s+contract|buyout|buyouts|waiver\s+wire|free\s+agency|free\s+agent|free\s+agents|play[-\s]?in|home\s+court|road\s+game|road\s+games|clutch|clutch\s+time|overtime|shot|shots|par|birdie|birdies|eagle|eagles|albatross|albatrosses|bogey|bogeys|double\s+bogey|double\s+bogeys|tee|tees|tee\s+box|fairway|fairways|rough|green|greens|putt|putts|putter|putters|putting|drive|drives|driver|drivers|approach|approaches|approach\s+shot|approach\s+shots|chip|chips|chipping|pitch|pitches|pitching|bunker|bunkers|sand\s+trap|sand\s+traps|hazard|hazards|water\s+hazard|water\s+hazards|golf\s+cart|caddie|caddies|clubhouse|links|links\s+course|stroke|strokes|stroke\s+play|match\s+play|medal\s+play|cut|cuts|made\s+the\s+cut|missed\s+the\s+cut|leaderboard|leaderboards|major|majors|round|rounds|final\s+round|opening\s+round|back\s+nine|front\s+nine|nine\s+holes|18\s+holes|par[-\s]?3|par[-\s]?4|par[-\s]?5|one[-\s]?under|two[-\s]?under|three[-\s]?under|one[-\s]?over|two[-\s]?over|three[-\s]?over|under\s+par|over\s+par|tee\s+time|gimme|gimme\s+putt|boxing|boxer|boxers|fight|fights|fighter|fighters|bout|bouts|title\s+fight|title\s+fights|championship\s+bout|contender|contenders|challenger|challengers|undisputed|unified|unification|knockout|knockouts|knockout\s+artist|TKO|KO|technical\s+knockout|technical\s+knockouts|knockdown|knockdowns|count|counts|standing\s+eight|corner|cornermen|cutman|cutmen|ring|ringside|ring\s+walk|weigh[-\s]?in|weigh[-\s]?ins|weight\s+class|weight\s+classes|heavyweight|lightweight|welterweight|middleweight|bantamweight|featherweight|flyweight|super\s+heavyweight|super\s+middleweight|super\s+welterweight|super\s+lightweight|super\s+featherweight|super\s+bantamweight|southpaw|orthodox|jab|jabs|cross|crosses|hook|hooks|uppercut|uppercuts|body\s+shot|body\s+shots|combination|combinations|counterpunch|counterpunches|head\s+shot|head\s+shots|punch|punches|power\s+punch|power\s+punches|clean\s+shot|clean\s+shots|decision|decisions|split\s+decision|majority\s+decision|unanimous\s+decision|draw|draws|technical\s+decision|referee|referees|judges|judge|scorecard|scorecards|rounds|bell|bells|NFL|football|quarterback|quarterbacks|QB|running\s+back|running\s+backs|wide\s+receiver|wide\s+receivers|tight\s+end|tight\s+ends|offensive\s+line|defensive\s+line|lineman|linemen|defensive\s+back|defensive\s+backs|cornerback|cornerbacks|safety|safeties|linebacker|linebackers|fullback|fullbacks|slot\s+receiver|slot\s+receivers|pass\s+rusher|pass\s+rushers|edge\s+rusher|edge\s+rushers|special\s+teams|placekicker|placekickers|kicker|kickers|punter|punters|long\s+snapper|long\s+snappers|kickoff|kickoffs|punt|punts|fair\s+catch|fair\s+catches|touchdown|touchdowns|extra\s+point|extra\s+points|field\s+goal|field\s+goals|two[-\s]?point\s+conversion|two[-\s]?point\s+conversions|conversion|conversions|safety|safeties|fumble|fumbles|fumble\s+recovery|fumble\s+recoveries|interception|interceptions|pick[-\s]?six|pass\s+interference|defensive\s+pass\s+interference|offensive\s+pass\s+interference|holding|false\s+start|offsides|offside|encroachment|neutral\s+zone\s+infraction|delay\s+of\s+game|roughing\s+the\s+passer|roughing\s+the\s+kicker|illegal\s+contact|personal\s+foul|face\s+mask|facemask|taunting|unsportsmanlike\s+conduct|horse[-\s]?collar|tackle|tackles|tackling|sack|sacks|blitz|blitzes|blitzing|coverage|man\s+coverage|zone\s+coverage|press\s+coverage|red\s+zone|end\s+zone|goal\s+line|first\s+down|first\s+downs|third\s+down|fourth\s+down|two[-\s]?minute\s+warning|hurry[-\s]?up|no[-\s]?huddle|shotgun|shotgun\s+formation|wildcat|play\s+action|play[-\s]?action|read\s+option|option\s+play|screen\s+pass|deep\s+ball|deep\s+pass|pass\s+rush|run\s+game|passing\s+game|running\s+game|turnover\s+margin|time\s+of\s+possession|drive|drives|three[-\s]?and[-\s]?out|two[-\s]?minute\s+drill|game\s+clock|playoff\s+berth|wild\s+card|bye|bye\s+week|home\s+field|road\s+game|franchise\s+tag|salary\s+cap|free\s+agency|free\s+agent|trade\s+deadline|waiver\s+wire|practice\s+squad|active\s+roster|depth\s+chart|roster|rosters|starter|starters|head\s+coach|offensive\s+coordinator|defensive\s+coordinator|special\s+teams\s+coordinator|play\s+caller|play\s+calling|snap|snaps|line\s+of\s+scrimmage|preseason|regular\s+season|Super\s+Bowl|Pro\s+Bowl)\b/gi;
-
-      forEachTextNode(root, node => {
-        regex.lastIndex = 0;
-        if (!regex.test(node.nodeValue)) return;
-        regex.lastIndex = 0;
-        const frag = document.createDocumentFragment();
-        let last = 0;
-        let match;
-        while ((match = regex.exec(node.nodeValue))) {
-          if (match.index > last) {
-            frag.appendChild(document.createTextNode(node.nodeValue.slice(last, match.index)));
-          }
-          const em = document.createElement('em');
-          em.textContent = match[0];
-          frag.appendChild(em);
-          last = match.index + match[0].length;
-        }
-        if (last < node.nodeValue.length) {
-          frag.appendChild(document.createTextNode(node.nodeValue.slice(last)));
-        }
-        node.parentNode.replaceChild(frag, node);
-      });
-    }
-
     function processText() {
-      const rawText = inputText.value;
-      if (!rawText.trim()) {
-        previewOutput.innerHTML = `<p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>`;
+      let raw = inputText.value || "";
+      if (!raw.trim()) {
+        previewOutput.innerHTML = '<p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>';
         codeOutput.textContent = "";
         statsMatches.textContent = "0 términos enlazados";
-        processedHtml = "";
         return;
       }
 
-      let paragraphs = rawText.split(/\n+/).filter(p => p.trim().length > 0);
-      const isBold = toggleBold.checked;
-      const isBlank = toggleTargetBlank.checked;
-      const isDatelineFormatted = toggleDateline ? toggleDateline.checked : true;
-      const isMLBTranslated = toggleMLBTeams ? toggleMLBTeams.checked : true;
+      if (toggleDateline.checked) raw = transformDatelineEND(raw);
+      if (toggleMLBTeams.checked) raw = translateTeamNamesEND(raw);
+
+      raw = limpiarPorcentajesAP(raw);
+      raw = limpiarFraccionesDeportivas(raw);
+      raw = aplicarCursivasDeportivas(raw);
+
       const replaceMode = document.querySelector('input[name="replaceMode"]:checked').value;
+      const useBold = toggleBold.checked;
+      const useBlank = toggleTargetBlank.checked;
 
-      if (isDatelineFormatted && paragraphs.length > 0) {
-        paragraphs[0] = transformDatelineEND(paragraphs[0]);
-      }
+      let matchCount = 0;
+      const foundKeywordsSet = new Set();
+      let paragraphs = raw.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
 
-      let totalMatches = 0;
-      // En modo "Solo 1ª aparición", controlamos por URL/tópico y no por
-      // la frase exacta. Así, "Nationals de Washington" y "Nationals"
-      // cuentan como el mismo equipo y solo se enlaza la primera aparición.
-      const matchedTopicsSet = new Set();
-
-      const processedParagraphs = paragraphs.map(p => {
-        let textP = p;
-
-        if (isMLBTranslated) {
-          textP = translateTeamNamesEND(textP);
-        }
-
-        textP = applyNumericFormatting(textP);
-
+      let processedParagraphs = paragraphs.map(paragraph => {
+        let textResult = paragraph;
         dictionary.forEach(item => {
-          if (!item.keyword || !item.keyword.trim()) return;
+          const kw = item.keyword;
+          const url = item.url;
+          if (replaceMode === 'first' && foundKeywordsSet.has(kw.toLowerCase())) return;
 
-          const topicKey = (item.url || item.keyword).toLowerCase().replace(/\/$/, '');
+          const escapedKw = kw.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+          const regex = new RegExp(`\\b(${escapedKw})\\b`, 'gi');
 
-          if (replaceMode === 'first' && matchedTopicsSet.has(topicKey)) {
-            return;
-          }
-
-          const escapedKw = item.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const boundaryEnd = /\.$/.test(item.keyword) ? '' : '\\b';
-          const regex = new RegExp(`\\b(${escapedKw})${boundaryEnd}`, replaceMode === 'all' ? 'gi' : 'i');
-
-          let hasMatchedInThisP = false;
-
-          textP = textP.replace(regex, (match) => {
-            if (replaceMode === 'first' && (matchedTopicsSet.has(topicKey) || hasMatchedInThisP)) {
-              return match;
-            }
-
-            matchedTopicsSet.add(topicKey);
-            hasMatchedInThisP = true;
-            totalMatches++;
-
-            const targetAttr = isBlank ? ' target="_blank" rel="noopener"' : '';
-            const linkHtml = `<a href="${item.url}"${targetAttr}>${match}</a>`;
-
-            return isBold ? `<strong>${linkHtml}</strong>` : linkHtml;
+          let replacedThisTerm = false;
+          textResult = textResult.replace(regex, (match) => {
+            if (replaceMode === 'first' && foundKeywordsSet.has(kw.toLowerCase())) return match;
+            replacedThisTerm = true;
+            foundKeywordsSet.add(kw.toLowerCase());
+            matchCount++;
+            let inner = useBold ? `<strong>${match}</strong>` : match;
+            let targetAttr = useBlank ? ` target="_blank" rel="noopener noreferrer"` : ``;
+            return `<a href="${url}"${targetAttr}>${inner}</a>`;
           });
         });
-
-        return `<p>${textP}</p>`;
+        return `<p>${textResult}</p>`;
       });
 
-      processedHtml = processedParagraphs.join('\n\n');
-
-      // Aplicar las itálicas automáticas sobre el HTML final, sin tocar enlaces.
-      const formattedRoot = document.createElement('div');
-      formattedRoot.innerHTML = processedHtml;
-      autoItalicizeEnglishSportsTerms(formattedRoot);
-      processedHtml = Array.from(formattedRoot.childNodes)
-        .map(node => node.outerHTML || node.textContent || '')
-        .join('\n\n');
-
+      processedHtml = processedParagraphs.join('\n');
       previewOutput.innerHTML = processedHtml;
       codeOutput.textContent = processedHtml;
-      statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
+      statsMatches.textContent = `${matchCount} término(s) enlazado(s)`;
     }
-
-    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-      currentUser = session?.user || null;
-      await updateAuthUI();
-      renderDictionaryList();
-    });
 
     function setupEventListeners() {
       inputText.addEventListener('input', processText);
-      toggleBold.addEventListener('change', processText);
-      toggleTargetBlank.addEventListener('change', processText);
-      if (toggleDateline) toggleDateline.addEventListener('change', processText);
-      if (toggleMLBTeams) toggleMLBTeams.addEventListener('change', processText);
-      
-      document.querySelectorAll('input[name="replaceMode"]').forEach(radio => {
-        radio.addEventListener('change', processText);
-      });
-
+      document.querySelectorAll('input, select').forEach(el => el.addEventListener('change', processText));
       document.getElementById('btnClearInput').addEventListener('click', () => {
-        inputText.value = "";
+        inputText.value = '';
         processText();
       });
+      document.getElementById('btnRegenerate').addEventListener('click', processText);
 
-      document.getElementById('btnRegenerate').addEventListener('click', () => {
-        processText();
-        showToast("Texto regenerado correctamente.");
+      document.getElementById('tabPreview').addEventListener('click', () => {
+        document.getElementById('viewPreview').classList.remove('hidden');
+        document.getElementById('viewCode').classList.add('hidden');
+        document.getElementById('tabPreview').className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
+        document.getElementById('tabCode').className = "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
       });
 
-      const tabPreview = document.getElementById('tabPreview');
-      const tabCode = document.getElementById('tabCode');
-      const viewPreview = document.getElementById('viewPreview');
-      const viewCode = document.getElementById('viewCode');
-
-      tabPreview.addEventListener('click', () => {
-        tabPreview.className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
-        tabCode.className = "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
-        viewPreview.classList.remove('hidden');
-        viewCode.classList.add('hidden');
-      });
-
-      tabCode.addEventListener('click', () => {
-        tabCode.className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
-        tabPreview.className = "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
-        viewCode.classList.remove('hidden');
-        viewPreview.classList.add('hidden');
+      document.getElementById('tabCode').addEventListener('click', () => {
+        document.getElementById('viewCode').classList.remove('hidden');
+        document.getElementById('viewPreview').classList.add('hidden');
+        document.getElementById('tabCode').className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
+        document.getElementById('tabPreview').className = "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
       });
 
       document.getElementById('btnCopyHtml').addEventListener('click', () => {
-        if (!processedHtml) {
-          showToast("No hay contenido para copiar", "error");
-          return;
-        }
-        copyToClipboard(processedHtml);
-        showToast("¡Código HTML copiado!");
+        navigator.clipboard.writeText(processedHtml).then(() => showToast("HTML copiado al portapapeles"));
       });
 
       document.getElementById('btnCopyRich').addEventListener('click', () => {
-        if (!processedHtml) {
-          showToast("No hay contenido para copiar", "error");
-          return;
-        }
-        
-        try {
-          const blobHtml = new Blob([processedHtml], { type: 'text/html' });
-          const blobText = new Blob([previewOutput.innerText], { type: 'text/plain' });
-          const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })];
-          
-          navigator.clipboard.write(data).then(() => {
-            showToast("¡Texto Enriquecido copiado!");
-          }).catch(() => {
-            copyToClipboard(processedHtml);
-            showToast("Copiado como HTML");
-          });
-        } catch (err) {
-          copyToClipboard(processedHtml);
-          showToast("Copiado al portapapeles");
-        }
+        const blob = new Blob([processedHtml], { type: 'text/html' });
+        const textBlob = new Blob([previewOutput.innerText], { type: 'text/plain' });
+        navigator.clipboard.write([
+          new ClipboardItem({ 'text/html': blob, 'text/plain': textBlob })
+        ]).then(() => showToast("Texto enriquecido copiado")).catch(() => {
+          navigator.clipboard.writeText(previewOutput.innerText).then(() => showToast("Copiado como texto plano"));
+        });
       });
 
-      const dictModal = document.getElementById('dictModal');
-      document.getElementById('btnOpenDictionary').addEventListener('click', async () => {
-        dictModal.classList.remove('hidden');
-        await loadDictionary();
-        await updateAuthUI();
-        renderDictionaryList();
-      });
-
-      const closeModal = () => dictModal.classList.add('hidden');
-      document.getElementById('btnCloseModal').addEventListener('click', closeModal);
-      document.getElementById('btnCloseModalBottom').addEventListener('click', closeModal);
-
+      // Botón "Administrar" desplegable del formulario de login
       document.getElementById('btnShowLogin').addEventListener('click', () => {
-        const form = document.getElementById('adminLoginForm');
-        form.classList.toggle('hidden');
-        if (!form.classList.contains('hidden')) {
-          document.getElementById('adminEmail').focus();
-        }
+        const loginForm = document.getElementById('adminLoginForm');
+        loginForm.classList.toggle('hidden');
       });
 
+      // Manejo de inicio de sesión de Supabase
       document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('adminEmail').value.trim();
         const password = document.getElementById('adminPassword').value;
-        await signInAdmin(email, password);
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+          showToast("Error de acceso: " + error.message);
+        } else {
+          currentUser = data.user;
+          updateAdminUI();
+          document.getElementById('adminLoginForm').reset();
+          document.getElementById('adminLoginForm').classList.add('hidden');
+          showToast("Sesión iniciada correctamente");
+        }
       });
 
-      document.getElementById('btnLogout').addEventListener('click', signOutAdmin);
+      // Cerrar sesión
+      document.getElementById('btnLogout').addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        currentUser = null;
+        updateAdminUI();
+        showToast("Sesión cerrada");
+      });
 
-      document.getElementById('dictSearch').addEventListener('input', renderDictionaryList);
-
+      // Añadir nuevo término al diccionario
       document.getElementById('addKeywordForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-
         if (!currentUser) {
-          showToast('Debes iniciar sesión como administrador.', 'error');
+          showToast("Debe iniciar sesión como administrador");
           return;
         }
+        const keyword = document.getElementById('newKeyword').value.trim();
+        let url = document.getElementById('newUrl').value.trim();
+        if (!url) {
+          url = `https://www.elnuevodia.com/topicos/${keyword.toLowerCase().replace(/[^a-z0-9]+/g, '-')}/`;
+        }
 
-        const kwInput = document.getElementById('newKeyword');
-        const urlInput = document.getElementById('newUrl');
-        const keyword = kwInput.value.trim();
-        let url = urlInput.value.trim();
-
-        if (!url) url = generateEndTopicUrl(keyword);
-
-        if (!keyword) return;
-
-        const { error } = await supabaseClient
-          .from('dictionary_terms')
-          .insert({ keyword, url });
-
+        const { error } = await supabaseClient.from('dictionary_terms').insert([{ keyword, url }]);
         if (error) {
-          if (error.code === '23505') {
-            showToast('Ese término ya existe en el diccionario.', 'error');
-          } else {
-            console.error('Error añadiendo término:', error);
-            showToast('No se pudo añadir el término.', 'error');
-          }
-          return;
-        }
-
-        await loadDictionary();
-        renderDictionaryList();
-        processText();
-        kwInput.value = '';
-        urlInput.value = '';
-        showToast(`Tópico "${keyword}" añadido.`);
-      });
-
-      document.getElementById('btnResetDefault').addEventListener('click', async () => {
-        if (!currentUser) {
-          showToast('Debes iniciar sesión como administrador.', 'error');
-          return;
-        }
-
-        if (!confirm('¿Seguro que deseas reemplazar el diccionario central por los términos predeterminados? Esto eliminará también los términos personalizados, incluidos los de NBA.')) {
-          return;
-        }
-
-        const { error: deleteError } = await supabaseClient
-          .from('dictionary_terms')
-          .delete()
-          .not('id', 'is', null);
-
-        if (deleteError) {
-          console.error('Error restableciendo diccionario:', deleteError);
-          showToast('No se pudo restablecer el diccionario.', 'error');
-          return;
-        }
-
-        const { error: insertError } = await supabaseClient
-          .from('dictionary_terms')
-          .insert(DEFAULT_DICTIONARY.map(item => ({ keyword: item.keyword, url: item.url })));
-
-        if (insertError) {
-          console.error('Error cargando valores predeterminados:', insertError);
-          showToast('Se eliminaron los términos, pero no se pudieron cargar los predeterminados.', 'error');
-          await loadDictionary();
-          renderDictionaryList();
+          showToast("Error al guardar: " + error.message);
+        } else {
+          showToast("Término añadido con éxito");
+          document.getElementById('newKeyword').value = '';
+          document.getElementById('newUrl').value = '';
+          await checkAuthAndLoadDictionary();
+          renderDictListModal(document.getElementById('dictSearch').value);
           processText();
-          return;
         }
-
-        await loadDictionary();
-        renderDictionaryList();
-        processText();
-        showToast('Diccionario central restablecido.');
       });
+
+      document.getElementById('btnOpenDictionary').addEventListener('click', () => {
+        document.getElementById('dictModal').classList.remove('hidden');
+        renderDictListModal();
+      });
+
+      const closeModal = () => document.getElementById('dictModal').classList.add('hidden');
+      document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+      document.getElementById('btnCloseModalBottom').addEventListener('click', closeModal);
     }
 
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>'"]/g, char => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        "'": '&#039;',
-        '"': '&quot;'
-      })[char]);
-    }
-
-    function sanitizeUrl(url) {
-      try {
-        const parsed = new URL(url);
-        return /^https?:$/i.test(parsed.protocol) ? parsed.href : '#';
-      } catch {
-        return '#';
-      }
-    }
-
-    function renderDictionaryList() {
+    function renderDictListModal(filter = '') {
       const container = document.getElementById('dictListContainer');
-      const search = (document.getElementById('dictSearch')?.value || '').trim().toLocaleLowerCase('es');
-
-      const filtered = dictionary.filter(item => {
-        if (!search) return true;
-        return item.keyword.toLocaleLowerCase('es').includes(search) ||
-               item.url.toLocaleLowerCase('es').includes(search);
-      });
-
+      const filtered = dictionary.filter(item => item.keyword.toLowerCase().includes(filter.toLowerCase()));
       if (filtered.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">No se encontraron términos para esa búsqueda.</p>`;
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No se encontraron términos.</p>`;
         return;
       }
-
-      const displayItems = sortDictionaryForDisplay(filtered);
-
-      container.innerHTML = displayItems.map(item => {
-        const dictionaryIndex = dictionary.indexOf(item);
-        const safeKeyword = escapeHtml(item.keyword);
-        const safeUrl = escapeHtml(item.url);
-        const href = escapeHtml(sanitizeUrl(item.url));
-        const deleteButton = currentUser
-          ? `<button onclick="removeKeywordById('${escapeHtml(item.id || '')}')" class="text-slate-400 hover:text-red-600 p-1.5 transition" title="Eliminar término"><i class="fa-solid fa-trash-can"></i></button>`
-          : '';
-
-        return `
-          <div class="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition text-xs">
-            <div class="flex-1 min-w-0 pr-2">
-              <span class="font-bold text-slate-800 block truncate">${safeKeyword}</span>
-              <a href="${href}" target="_blank" rel="noopener" class="text-brand-600 hover:underline truncate block text-[11px]">${safeUrl}</a>
-            </div>
-            ${deleteButton}
+      container.innerHTML = filtered.map(item => `
+        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+          <div>
+            <span class="font-semibold text-slate-800">${item.keyword}</span>
+            <a href="${item.url}" target="_blank" class="block text-[10px] text-brand-600 truncate max-w-md">${item.url}</a>
           </div>
-        `;
-      }).join('');
+          ${currentUser ? `<button onclick="deleteDictionaryTerm('${item.id}')" class="text-slate-400 hover:text-red-600 px-2 py-1 transition"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+        </div>
+      `).join('');
     }
 
-    window.removeKeywordById = async function(id) {
-      if (!currentUser) {
-        showToast('Debes iniciar sesión como administrador.', 'error');
-        return;
-      }
+    async function deleteDictionaryTerm(id) {
+      if (!currentUser) return;
+      if (!confirm("¿Seguro que deseas eliminar este término?")) return;
 
-      const item = dictionary.find(entry => entry.id === id);
-      if (!item) return;
-
-      if (!confirm(`¿Eliminar el término "${item.keyword}" del diccionario central?`)) return;
-
-      const { error } = await supabaseClient
-        .from('dictionary_terms')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabaseClient.from('dictionary_terms').delete().eq('id', id);
       if (error) {
-        console.error('Error eliminando término:', error);
-        showToast('No se pudo eliminar el término.', 'error');
-        return;
+        showToast("Error al eliminar: " + error.message);
+      } else {
+        showToast("Término eliminado");
+        await checkAuthAndLoadDictionary();
+        renderDictListModal(document.getElementById('dictSearch').value);
+        processText();
       }
-
-      await loadDictionary();
-      renderDictionaryList();
-      processText();
-      showToast(`Tópico "${item.keyword}" eliminado.`);
-    };
-
-    function copyToClipboard(text) {
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
     }
 
-    function showToast(msg, type = 'success') {
+    document.getElementById('dictSearch').addEventListener('input', (e) => {
+      renderDictListModal(e.target.value);
+    });
+
+    function showToast(msg) {
       const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMsg');
-      const toastIcon = document.getElementById('toastIcon');
-
-      toastMsg.textContent = msg;
-      if (type === 'error') {
-        toastIcon.className = "fa-solid fa-circle-exclamation text-red-400";
-      } else {
-        toastIcon.className = "fa-solid fa-check text-emerald-400";
-      }
-
+      document.getElementById('toastMsg').textContent = msg;
       toast.classList.remove('translate-y-20', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-
-      setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('translate-y-20', 'opacity-0');
-      }, 3000);
+      setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
     }
   </script>
 </body>
