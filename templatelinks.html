@@ -338,8 +338,13 @@
             <span id="anglicismCountBadge" class="text-[11px] text-slate-500">0</span>
           </div>
 
-          <div id="anglicismAdminNote" class="hidden text-[11px] text-slate-500">
-            Solo el administrador autorizado puede modificar esta lista.
+          <div id="anglicismAdminPanel" class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <p id="anglicismAdminNote" class="text-[11px] text-slate-500">Solo el administrador autorizado puede modificar esta lista.</p>
+              <button type="button" id="btnShowAnglicismLogin" class="shrink-0 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition">
+                Administrar
+              </button>
+            </div>
           </div>
 
           <form id="addAnglicismForm" class="hidden grid grid-cols-1 sm:grid-cols-12 gap-2">
@@ -534,6 +539,13 @@
     let anglicismTerms = [];
     let anglicismsFromSupabase = false;
 
+    const ADMIN_EMAIL = 'arios71@gmail.com';
+
+    function isAdminUser() {
+      return !!currentUser &&
+        String(currentUser.email || '').trim().toLocaleLowerCase('es') === ADMIN_EMAIL;
+    }
+
     const inputText = document.getElementById('inputText');
     const previewOutput = document.getElementById('previewOutput');
     const codeOutput = document.getElementById('codeOutput');
@@ -702,12 +714,6 @@
       const seen = new Set();
       return match[1].split('|')
         .filter(pattern => pattern !== 'par')
-        .filter(pattern => {
-          const key = pattern.toLocaleLowerCase('es');
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        })
         .map(pattern => ({
           term: pattern
             .replace(/\\s\+/g, ' ')
@@ -716,7 +722,17 @@
             .replace(/\\s\?/g, ' ')
             .replace(/\\/g, ''),
           pattern
-        }));
+        }))
+        // Algunos términos aparecen más de una vez en la regex original
+        // (por ejemplo, "wild card", "home run" y "slider"). Como la tabla
+        // de Supabase tiene "term" como UNIQUE, eliminamos los duplicados por
+        // término, no por patrón, antes de cargar la lista.
+        .filter(item => {
+          const key = item.term.trim().toLocaleLowerCase('es');
+          if (!key || key === 'par' || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
     }
 
     function patternFromAnglicismTerm(term) {
@@ -759,7 +775,7 @@
     }
 
     async function seedAnglicismListIfEmpty() {
-      if (!currentUser) return false;
+      if (!isAdminUser()) return false;
 
       const { data, error } = await supabaseClient
         .from('anglicism_terms')
@@ -795,26 +811,72 @@
         return;
       }
 
-      const canEdit = !!currentUser && anglicismsFromSupabase;
+      const canEdit = isAdminUser();
       container.innerHTML = [...filtered]
         .sort((a, b) => a.term.localeCompare(b.term, 'es', { sensitivity: 'base' }))
         .map(item => {
           const safeTerm = escapeHtml(item.term);
-          const deleteButton = canEdit && item.id
-            ? `<button onclick="removeAnglicismById('${escapeHtml(item.id)}')" class="text-slate-400 hover:text-red-600 p-1.5 transition" title="Eliminar anglicismo"><i class="fa-solid fa-trash-can"></i></button>`
+          const actionButtons = canEdit && item.id
+            ? `<div class="flex items-center gap-1">
+                 <button onclick="editAnglicismById('${escapeHtml(item.id)}')" class="text-slate-400 hover:text-brand-600 p-1.5 transition" title="Editar anglicismo"><i class="fa-solid fa-pen"></i></button>
+                 <button onclick="removeAnglicismById('${escapeHtml(item.id)}')" class="text-slate-400 hover:text-red-600 p-1.5 transition" title="Eliminar anglicismo"><i class="fa-solid fa-trash-can"></i></button>
+               </div>`
             : '';
           return `
             <div class="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition text-xs">
               <span class="font-semibold text-slate-800">${safeTerm}</span>
-              ${deleteButton}
+              ${actionButtons}
             </div>
           `;
         }).join('');
     }
 
+    window.editAnglicismById = async function(id) {
+      if (!isAdminUser()) {
+        showToast('Debes iniciar sesión como administrador autorizado.', 'error');
+        return;
+      }
+
+      const item = anglicismTerms.find(entry => String(entry.id) === String(id));
+      if (!item) return;
+
+      const newTerm = prompt('Editar anglicismo:', item.term);
+      if (newTerm === null) return;
+      const term = newTerm.trim();
+      if (!term) {
+        showToast('El anglicismo no puede quedar vacío.', 'error');
+        return;
+      }
+
+      const duplicate = anglicismTerms.some(entry =>
+        String(entry.id) !== String(id) &&
+        entry.term.toLocaleLowerCase('es') === term.toLocaleLowerCase('es')
+      );
+      if (duplicate) {
+        showToast('Ese anglicismo ya está en la lista.', 'error');
+        return;
+      }
+
+      const { error } = await supabaseClient
+        .from('anglicism_terms')
+        .update({ term, pattern: patternFromAnglicismTerm(term) })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error editando anglicismo:', error);
+        showToast('No se pudo editar el anglicismo.', 'error');
+        return;
+      }
+
+      await loadAnglicismList();
+      renderAnglicismList();
+      processText();
+      showToast(`"${term}" actualizado en la Lista Anglicismos.`);
+    };
+
     window.removeAnglicismById = async function(id) {
-      if (!currentUser) {
-        showToast('Debes iniciar sesión como administrador.', 'error');
+      if (!isAdminUser()) {
+        showToast('Debes iniciar sesión como administrador autorizado.', 'error');
         return;
       }
 
@@ -917,12 +979,19 @@
       const loginPanel = document.getElementById('adminLoginPanel');
       const editPanel = document.getElementById('adminEditPanel');
       const adminStatus = document.getElementById('adminStatus');
+      const anglicismAdminNote = document.getElementById('anglicismAdminNote');
+      const anglicismAdminButton = document.getElementById('btnShowAnglicismLogin');
+      const addAnglicismForm = document.getElementById('addAnglicismForm');
 
       if (currentUser) {
         loginPanel.classList.add('hidden');
         editPanel.classList.remove('hidden');
         adminStatus.textContent = `Sesión activa: ${currentUser.email || 'administrador'}`;
         adminStatus.className = 'text-[11px] text-emerald-600 font-medium';
+        if (anglicismAdminNote) anglicismAdminNote.textContent = `Sesión activa: ${currentUser.email || 'administrador'}`;
+        if (anglicismAdminNote) anglicismAdminNote.className = 'text-[11px] text-emerald-600 font-medium';
+        if (anglicismAdminButton) anglicismAdminButton.classList.add('hidden');
+        if (addAnglicismForm) addAnglicismForm.classList.remove('hidden');
 
         await migrateLocalDictionaryToSupabase();
         await seedAnglicismListIfEmpty();
@@ -932,6 +1001,12 @@
         editPanel.classList.add('hidden');
         adminStatus.textContent = 'Solo lectura';
         adminStatus.className = 'text-[11px] text-slate-500';
+        if (anglicismAdminNote) {
+          anglicismAdminNote.textContent = 'Solo el administrador autorizado puede modificar esta lista.';
+          anglicismAdminNote.className = 'text-[11px] text-slate-500';
+        }
+        if (anglicismAdminButton) anglicismAdminButton.classList.remove('hidden');
+        if (addAnglicismForm) addAnglicismForm.classList.add('hidden');
       }
     }
 
@@ -1371,11 +1446,14 @@ function forEachTextNode(root, callback) {
       tabAnglicisms.addEventListener('click', showAnglicismsPanel);
       document.getElementById('btnCloseAnglicismPanel').addEventListener('click', closeModal);
       document.getElementById('anglicismSearch').addEventListener('input', renderAnglicismList);
+      document.getElementById('btnShowAnglicismLogin').addEventListener('click', () => {
+        document.getElementById('btnShowLogin').click();
+      });
 
       document.getElementById('addAnglicismForm').addEventListener('submit', async event => {
         event.preventDefault();
-        if (!currentUser) {
-          showToast('Debes iniciar sesión como administrador.', 'error');
+        if (!isAdminUser()) {
+          showToast('Debes iniciar sesión como administrador autorizado.', 'error');
           return;
         }
 
