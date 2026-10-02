@@ -389,6 +389,20 @@
     .replace(/\b(\d+),(\d+)(\s*)(%|por ciento|por 100)(?!\w)/gi, '$1.$2$3$4');
 }
 
+    function corregirJuegosNumerados(texto) {
+      if (!texto) return "";
+      const ordinales = {
+        "1": "primer",
+        "2": "segundo",
+        "3": "tercer",
+        "4": "cuarto",
+        "5": "quinto",
+        "6": "sexto",
+        "7": "séptimo"
+      };
+      return texto.replace(/\bJuego\s+([1-7])\b/gi, (_, numero) => `${ordinales[numero]} juego`);
+    }
+
     function limpiarFraccionesDeportivas(texto) {
       if (!texto) return "";
       texto = texto.replace(/\b(\d+)\s+1\/3\s+(entradas?|innings?|episodios?)\b/gi, '$1.1 $2');
@@ -670,6 +684,7 @@
       if (toggleDateline.checked) raw = transformDatelineEND(raw);
       if (toggleMLBTeams.checked) raw = translateTeamNamesEND(raw);
 
+      raw = corregirJuegosNumerados(raw);
       raw = limpiarPorcentajesAP(raw);
       raw = limpiarFraccionesDeportivas(raw);
       raw = aplicarCursivasDeportivas(raw);
