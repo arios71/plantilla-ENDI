@@ -34,21 +34,26 @@
       width: 6px;
       height: 6px;
     }
+
     ::-webkit-scrollbar-track {
       background: #f1f5f9;
     }
+
     ::-webkit-scrollbar-thumb {
       background: #cbd5e1;
       border-radius: 4px;
     }
+
     ::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
     }
+
     .preview-content a {
       color: #0056b3;
       text-decoration: underline;
       font-weight: 600;
     }
+
     #inputText:empty::before {
       content: attr(data-placeholder);
       color: #94a3b8;
@@ -85,6 +90,7 @@
     }
   </style>
 </head>
+
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
 
   <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
@@ -93,15 +99,22 @@
         <div class="bg-amber-500 text-slate-900 font-black px-2.5 py-1 rounded text-xs tracking-wider uppercase">
           END
         </div>
+
         <div>
           <h1 class="text-lg font-bold leading-none flex items-center gap-2">
             Auto-Linker & Formateador SEO
           </h1>
-          <p class="text-xs text-slate-400 mt-0.5">Optimizado para la redacción de El Nuevo Día</p>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Optimizado para la redacción de El Nuevo Día
+          </p>
         </div>
       </div>
+
       <div class="flex items-center space-x-2">
-        <button id="btnOpenDictionary" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2">
+        <button
+          id="btnOpenDictionary"
+          class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2"
+        >
           <i class="fa-solid fa-book text-amber-400"></i>
           <span>Diccionario (<span id="dictCountBadge">0</span>)</span>
         </button>
@@ -113,82 +126,181 @@
 
     <!-- LEFT COLUMN: Input & Settings -->
     <section class="lg:col-span-5 flex flex-col gap-5">
-      
+
       <!-- Input Card -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
         <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-          <label for="inputText" class="font-semibold text-sm text-slate-700 flex items-center gap-2">
+          <label
+            for="inputText"
+            class="font-semibold text-sm text-slate-700 flex items-center gap-2"
+          >
             <i class="fa-solid fa-pen-to-square text-brand-600"></i>
             1. Borrador Original (AP)
           </label>
-          <button id="btnClearInput" class="text-xs text-slate-500 hover:text-red-600 transition flex items-center gap-1">
+
+          <button
+            id="btnClearInput"
+            class="text-xs text-slate-500 hover:text-red-600 transition flex items-center gap-1"
+          >
             <i class="fa-solid fa-trash-can"></i> Limpiar
           </button>
         </div>
+
         <div class="p-3">
-          <div id="formatToolbar" class="flex flex-wrap items-center gap-1 p-2 mb-2 bg-slate-50 border border-slate-200 rounded-lg" aria-label="Herramientas de formato manual">
-            <button type="button" class="format-btn" data-command="bold" title="Negrita" aria-label="Negrita">
+
+          <div
+            id="formatToolbar"
+            class="flex flex-wrap items-center gap-1 p-2 mb-2 bg-slate-50 border border-slate-200 rounded-lg"
+            aria-label="Herramientas de formato manual"
+          >
+            <button
+              type="button"
+              class="format-btn"
+              data-command="bold"
+              title="Negrita"
+              aria-label="Negrita"
+            >
               <i class="fa-solid fa-bold"></i>
             </button>
-            <button type="button" class="format-btn" data-command="italic" title="Cursiva" aria-label="Cursiva">
+
+            <button
+              type="button"
+              class="format-btn"
+              data-command="italic"
+              title="Cursiva"
+              aria-label="Cursiva"
+            >
               <i class="fa-solid fa-italic"></i>
             </button>
-            <button type="button" class="format-btn" data-command="underline" title="Subrayado" aria-label="Subrayado">
+
+            <button
+              type="button"
+              class="format-btn"
+              data-command="underline"
+              title="Subrayado"
+              aria-label="Subrayado"
+            >
               <i class="fa-solid fa-underline"></i>
             </button>
-            <span class="w-px h-5 bg-slate-300 mx-1" aria-hidden="true"></span>
-            <label class="format-color flex items-center justify-center w-8 h-8 rounded-md cursor-pointer text-slate-600 hover:bg-slate-200 transition" title="Color del texto" aria-label="Color del texto">
+
+            <span
+              class="w-px h-5 bg-slate-300 mx-1"
+              aria-hidden="true"
+            ></span>
+
+            <label
+              class="format-color flex items-center justify-center w-8 h-8 rounded-md cursor-pointer text-slate-600 hover:bg-slate-200 transition"
+              title="Color del texto"
+              aria-label="Color del texto"
+            >
               <i class="fa-solid fa-palette"></i>
-              <input id="textColor" type="color" value="#000000" class="sr-only">
+              <input
+                id="textColor"
+                type="color"
+                value="#000000"
+                class="sr-only"
+              >
             </label>
-            <button type="button" id="btnClearFormat" class="format-btn" title="Quitar formato" aria-label="Quitar formato">
+
+            <button
+              type="button"
+              id="btnClearFormat"
+              class="format-btn"
+              title="Quitar formato"
+              aria-label="Quitar formato"
+            >
               <i class="fa-solid fa-eraser"></i>
             </button>
           </div>
-          <div id="inputText" contenteditable="true" role="textbox" aria-multiline="true"
+
+          <div
+            id="inputText"
+            contenteditable="true"
+            role="textbox"
+            aria-multiline="true"
             class="w-full min-h-[288px] p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent resize-y overflow-y-auto text-sm leading-relaxed font-sans text-slate-800"
             data-placeholder="Pega aquí el texto de AP (ej: 'NUEVA YORK (AP) — Los Cachorros de Chicago...')..."
-            spellcheck="false"></div>
+            spellcheck="false"
+          ></div>
         </div>
       </div>
 
       <!-- Settings Panel -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
+
         <h2 class="font-semibold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2">
-          <i class="fa-solid fa-sliders"></i> Reglas de Formato
+          <i class="fa-solid fa-sliders"></i>
+          Reglas de Formato
         </h2>
 
         <div class="space-y-3">
+
           <!-- Dateline AP to END Toggle -->
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-700">Procedencia END (Nueva York -)</span>
+            <span class="text-xs font-medium text-slate-700">
+              Procedencia END (Nueva York -)
+            </span>
+
             <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="toggleDateline" checked class="sr-only peer">
+              <input
+                type="checkbox"
+                id="toggleDateline"
+                checked
+                class="sr-only peer"
+              >
+
               <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
             </label>
           </div>
 
           <!-- MLB Teams Translation Toggle -->
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-700">Nombres MLB en Inglés (Cachorros &rarr; Cubs)</span>
+            <span class="text-xs font-medium text-slate-700">
+              Nombres MLB en Inglés (Cachorros &rarr; Cubs)
+            </span>
+
             <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="toggleMLBTeams" checked class="sr-only peer">
+              <input
+                type="checkbox"
+                id="toggleMLBTeams"
+                checked
+                class="sr-only peer"
+              >
+
               <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
             </label>
           </div>
 
           <!-- Frequency Setting -->
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-700">Frecuencia de enlaces</span>
+            <span class="text-xs font-medium text-slate-700">
+              Frecuencia de enlaces
+            </span>
+
             <div class="inline-flex rounded-lg bg-slate-100 p-1 border border-slate-200">
+
               <label class="cursor-pointer">
-                <input type="radio" name="replaceMode" value="first" checked class="peer sr-only">
+                <input
+                  type="radio"
+                  name="replaceMode"
+                  value="first"
+                  checked
+                  class="peer sr-only"
+                >
+
                 <span class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 peer-checked:bg-white peer-checked:text-brand-600 peer-checked:shadow-sm block transition">
                   Solo 1ª aparición (SEO)
                 </span>
               </label>
+
               <label class="cursor-pointer">
-                <input type="radio" name="replaceMode" value="all" class="peer sr-only">
+                <input
+                  type="radio"
+                  name="replaceMode"
+                  value="all"
+                  class="peer sr-only"
+                >
+
                 <span class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 peer-checked:bg-white peer-checked:text-brand-600 peer-checked:shadow-sm block transition">
                   Todas
                 </span>
@@ -198,21 +310,40 @@
 
           <!-- Bold Toggle -->
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-700">Enlace en Negrita (&lt;strong&gt;)</span>
+            <span class="text-xs font-medium text-slate-700">
+              Enlace en Negrita (&lt;strong&gt;)
+            </span>
+
             <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="toggleBold" checked class="sr-only peer">
+              <input
+                type="checkbox"
+                id="toggleBold"
+                checked
+                class="sr-only peer"
+              >
+
               <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
             </label>
           </div>
 
           <!-- Target Blank Toggle -->
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-700">Abrir pestaña nueva (_blank)</span>
+            <span class="text-xs font-medium text-slate-700">
+              Abrir pestaña nueva (_blank)
+            </span>
+
             <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="toggleTargetBlank" checked class="sr-only peer">
+              <input
+                type="checkbox"
+                id="toggleTargetBlank"
+                checked
+                class="sr-only peer"
+              >
+
               <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
             </label>
           </div>
+
         </div>
       </div>
 
@@ -220,51 +351,95 @@
 
     <!-- RIGHT COLUMN: Output & Preview -->
     <section class="lg:col-span-7 flex flex-col gap-5">
-      
+
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col flex-1 overflow-hidden">
-        
+
         <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+
           <div class="flex items-center space-x-2">
+
             <div class="flex space-x-1 bg-slate-200/70 p-1 rounded-lg">
-              <button id="tabPreview" class="px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition">
-                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+
+              <button
+                id="tabPreview"
+                class="px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition"
+              >
+                <i class="fa-solid fa-eye mr-1"></i>
+                Vista Previa
               </button>
-              <button id="tabCode" class="px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition">
-                <i class="fa-solid fa-code mr-1"></i> HTML
+
+              <button
+                id="tabCode"
+                class="px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition"
+              >
+                <i class="fa-solid fa-code mr-1"></i>
+                HTML
               </button>
+
             </div>
 
-            <button id="btnRegenerate" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1 shadow-sm active:scale-95">
+            <button
+              id="btnRegenerate"
+              class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1 shadow-sm active:scale-95"
+            >
               <i class="fa-solid fa-rotate text-brand-600"></i>
               <span>Regenerar</span>
             </button>
+
           </div>
 
           <div class="flex items-center space-x-2">
-            <button id="btnCopyRich" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+
+            <button
+              id="btnCopyRich"
+              class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95"
+            >
               <i class="fa-solid fa-paste"></i>
               <span>Copiar Texto Enriquecido</span>
             </button>
-            <button id="btnCopyHtml" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+
+            <button
+              id="btnCopyHtml"
+              class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95"
+            >
               <i class="fa-solid fa-copy"></i>
               <span>Copiar HTML</span>
             </button>
+
           </div>
         </div>
 
-        <div id="viewPreview" class="p-5 flex-1 min-h-[300px] overflow-y-auto">
-          <div id="previewOutput" class="preview-content text-slate-800 text-base leading-relaxed space-y-4">
-            <p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>
+        <div
+          id="viewPreview"
+          class="p-5 flex-1 min-h-[300px] overflow-y-auto"
+        >
+          <div
+            id="previewOutput"
+            class="preview-content text-slate-800 text-base leading-relaxed space-y-4"
+          >
+            <p class="text-slate-400 italic text-sm">
+              El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.
+            </p>
           </div>
         </div>
 
-        <div id="viewCode" class="hidden p-4 bg-slate-900 flex-1 min-h-[300px] overflow-y-auto">
+        <div
+          id="viewCode"
+          class="hidden p-4 bg-slate-900 flex-1 min-h-[300px] overflow-y-auto"
+        >
           <pre><code id="codeOutput" class="text-xs font-mono text-amber-300 whitespace-pre-wrap break-words"></code></pre>
         </div>
 
         <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between text-xs text-slate-500">
           <span id="statsMatches">0 términos enlazados</span>
-          <span id="dictionaryConnectionStatus" class="flex items-center gap-1"><i class="fa-solid fa-circle text-amber-400 text-[8px]"></i> Conectando diccionario central...</span>
+
+          <span
+            id="dictionaryConnectionStatus"
+            class="flex items-center gap-1"
+          >
+            <i class="fa-solid fa-circle text-amber-400 text-[8px]"></i>
+            Conectando diccionario central...
+          </span>
         </div>
 
       </div>
@@ -274,37 +449,84 @@
   </main>
 
   <!-- DICTIONARY MODAL -->
-  <div id="dictModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div
+    id="dictModal"
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4"
+  >
     <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
-      
+
       <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+
         <div class="flex items-center space-x-2">
           <i class="fa-solid fa-book-bookmark text-amber-400 text-lg"></i>
-          <h2 class="font-bold text-base">Diccionario de Tópicos - El Nuevo Día</h2>
+          <h2 class="font-bold text-base">
+            Diccionario de Tópicos - El Nuevo Día
+          </h2>
         </div>
-        <button id="btnCloseModal" class="text-slate-400 hover:text-white transition">
+
+        <button
+          id="btnCloseModal"
+          class="text-slate-400 hover:text-white transition"
+        >
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
       <div class="p-4 bg-slate-50 border-b border-slate-200 space-y-3">
+
         <div class="flex items-center justify-between gap-3">
-          <p class="text-xs text-slate-600 font-medium">Diccionario central de El Nuevo Día</p>
-          <span id="adminStatus" class="text-[11px] text-slate-500">Solo lectura</span>
+          <p class="text-xs text-slate-600 font-medium">
+            Diccionario central de El Nuevo Día
+          </p>
+
+          <span id="adminStatus" class="text-[11px] text-slate-500">
+            Solo lectura
+          </span>
         </div>
 
         <!-- Admin Login Panel Structure Restored -->
         <div id="adminLoginPanel" class="space-y-2">
+
           <div class="flex items-center justify-between gap-2">
-            <p class="text-[11px] text-slate-500">Solo el administrador autorizado puede modificar términos.</p>
-            <button type="button" id="btnShowLogin" class="shrink-0 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition">
+            <p class="text-[11px] text-slate-500">
+              Solo el administrador autorizado puede modificar términos.
+            </p>
+
+            <button
+              type="button"
+              id="btnShowLogin"
+              class="shrink-0 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition"
+            >
               Administrar
             </button>
           </div>
-          <form id="adminLoginForm" class="hidden grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
-            <input type="email" id="adminEmail" placeholder="Correo del administrador" autocomplete="username" required class="sm:col-span-4 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
-            <input type="password" id="adminPassword" placeholder="Contraseña" autocomplete="current-password" required class="sm:col-span-4 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
-            <button type="submit" class="sm:col-span-4 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition">
+
+          <form
+            id="adminLoginForm"
+            class="hidden grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1"
+          >
+            <input
+              type="email"
+              id="adminEmail"
+              placeholder="Correo del administrador"
+              autocomplete="username"
+              required
+              class="sm:col-span-4 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none"
+            >
+
+            <input
+              type="password"
+              id="adminPassword"
+              placeholder="Contraseña"
+              autocomplete="current-password"
+              required
+              class="sm:col-span-4 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none"
+            >
+
+            <button
+              type="submit"
+              class="sm:col-span-4 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition"
+            >
               Iniciar sesión
             </button>
           </form>
@@ -312,31 +534,81 @@
 
         <!-- Admin Edit Panel -->
         <div id="adminEditPanel" class="hidden space-y-3">
+
           <div class="flex items-center justify-between gap-2">
-            <p class="text-xs text-slate-600 font-medium">Añadir nuevo término o tópico:</p>
-            <button type="button" id="btnLogout" class="text-[11px] text-slate-500 hover:text-red-600 font-medium">Cerrar sesión</button>
+            <p class="text-xs text-slate-600 font-medium">
+              Añadir nuevo término o tópico:
+            </p>
+
+            <button
+              type="button"
+              id="btnLogout"
+              class="text-[11px] text-slate-500 hover:text-red-600 font-medium"
+            >
+              Cerrar sesión
+            </button>
           </div>
-          <form id="addKeywordForm" class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-            <input type="text" id="newKeyword" placeholder="Ej: Béisbol" required class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
-            <input type="url" id="newUrl" placeholder="URL opcional" class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
-            <button type="submit" class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1">
-              <i class="fa-solid fa-plus"></i> Añadir
+
+          <form
+            id="addKeywordForm"
+            class="grid grid-cols-1 sm:grid-cols-12 gap-2"
+          >
+            <input
+              type="text"
+              id="newKeyword"
+              placeholder="Ej: Béisbol"
+              required
+              class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none"
+            >
+
+            <input
+              type="url"
+              id="newUrl"
+              placeholder="URL opcional"
+              class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none"
+            >
+
+            <button
+              type="submit"
+              class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1"
+            >
+              <i class="fa-solid fa-plus"></i>
+              Añadir
             </button>
           </form>
         </div>
 
         <div>
-          <input type="search" id="dictSearch" placeholder="Buscar término en el diccionario..." autocomplete="off" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none bg-white">
+          <input
+            type="search"
+            id="dictSearch"
+            placeholder="Buscar término en el diccionario..."
+            autocomplete="off"
+            class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none bg-white"
+          >
         </div>
+
       </div>
 
-      <div class="p-4 flex-1 overflow-y-auto max-h-[50vh] space-y-2" id="dictListContainer"></div>
+      <div
+        class="p-4 flex-1 overflow-y-auto max-h-[50vh] space-y-2"
+        id="dictListContainer"
+      ></div>
 
       <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs">
-        <button id="btnResetDefault" class="text-slate-500 hover:text-red-600 font-medium transition flex items-center gap-1">
-          <i class="fa-solid fa-rotate-left"></i> Restablecer diccionario por defecto
+
+        <button
+          id="btnResetDefault"
+          class="text-slate-500 hover:text-red-600 font-medium transition flex items-center gap-1"
+        >
+          <i class="fa-solid fa-rotate-left"></i>
+          Restablecer diccionario por defecto
         </button>
-        <button id="btnCloseModalBottom" class="bg-slate-800 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-slate-700 transition">
+
+        <button
+          id="btnCloseModalBottom"
+          class="bg-slate-800 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-slate-700 transition"
+        >
           Cerrar
         </button>
       </div>
@@ -344,7 +616,10 @@
     </div>
   </div>
 
-  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-medium transition transform translate-y-20 opacity-0 flex items-center gap-2 z-50">
+  <div
+    id="toast"
+    class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-medium transition transform translate-y-20 opacity-0 flex items-center gap-2 z-50"
+  >
     <i id="toastIcon" class="fa-solid fa-check text-emerald-400"></i>
     <span id="toastMsg">Notificación</span>
   </div>
@@ -352,88 +627,374 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // Lista de términos deportivos en inglés con cursivas automáticas
+
+    // ============================================================
+    // TÉRMINOS DEPORTIVOS EN CURSIVA
+    // ============================================================
+
     const palabrasDeportivasEnCursiva = [
-      "strike", "strikes", "out", "outs", "inning", "innings", 
-      "draft", "drafts", "passed ball", "slider", "cutter", 
-      "pitcher", "pitchers", "catcher", "catchers", "coach", "coaches", 
-      "manager", "managers", "outfielder", "outfielders", "outfield", 
-      "infield", "infielder", "infielders", "home", "Home Run Derby", 
-      "grand slam", "bullpen", "bullpens", "fly", "ground ball", 
-      "dugout", "dugouts", "touchdown", "quarterback", "turnover", 
-      "turnovers", "fumble", "fumbles", "sack", "sacks", "birdie", 
-      "birdies", "bogey", "bogeys", "eagle", "eagles", "green", 
-      "greens", "tee", "tees", "fairway", "fairways", "putt", 
-      "putts", "putter", "putters", "chip", "chips", "rough", 
-      "handicap", "handicaps", "par", "pars", "caddie", "caddies", 
-      "driver", "drivers", "wedge", "wedges", "hook", "hooks", 
-      "slice", "slices", "swing", "swings", "fast break", "playoff", 
-      "playoffs", "uppercut", "knock out", "knockdown", "goal average"
+      "strike",
+      "strikes",
+      "out",
+      "outs",
+      "inning",
+      "innings",
+      "draft",
+      "drafts",
+      "passed ball",
+      "slider",
+      "cutter",
+      "pitcher",
+      "pitchers",
+      "catcher",
+      "catchers",
+      "coach",
+      "coaches",
+      "manager",
+      "managers",
+      "outfielder",
+      "outfielders",
+      "outfield",
+      "infield",
+      "infielder",
+      "infielders",
+      "home",
+      "Home Run Derby",
+      "grand slam",
+      "bullpen",
+      "bullpens",
+      "fly",
+      "ground ball",
+      "dugout",
+      "dugouts",
+      "touchdown",
+      "quarterback",
+      "turnover",
+      "turnovers",
+      "fumble",
+      "fumbles",
+      "sack",
+      "sacks",
+      "birdie",
+      "birdies",
+      "bogey",
+      "bogeys",
+      "eagle",
+      "eagles",
+      "green",
+      "greens",
+      "tee",
+      "tees",
+      "fairway",
+      "fairways",
+      "putt",
+      "putts",
+      "putter",
+      "putters",
+      "chip",
+      "chips",
+      "rough",
+      "handicap",
+      "handicaps",
+      "par",
+      "pars",
+      "caddie",
+      "caddies",
+      "driver",
+      "drivers",
+      "wedge",
+      "wedges",
+      "hook",
+      "hooks",
+      "slice",
+      "slices",
+      "swing",
+      "swings",
+      "fast break",
+      "playoff",
+      "playoffs",
+      "wild card",
+      "wild cards",
+      "uppercut",
+      "knock out",
+      "knockdown",
+      "goal average"
     ];
 
     function aplicarCursivasDeportivas(texto) {
       if (!texto) return "";
-      const terminosOrdenados = [...palabrasDeportivasEnCursiva].sort((a, b) => b.length - a.length);
+
+      const terminosOrdenados = [
+        ...palabrasDeportivasEnCursiva
+      ].sort((a, b) => b.length - a.length);
+
       let textoProcesado = texto;
+
       terminosOrdenados.forEach(termino => {
-        const regex = new RegExp(`\\b(${termino})\\b`, 'gi');
-        textoProcesado = textoProcesado.replace(regex, '<em>$1</em>');
+        const regex = new RegExp(
+          `\\b(${termino})\\b`,
+          'gi'
+        );
+
+        textoProcesado = textoProcesado.replace(
+          regex,
+          '<em>$1</em>'
+        );
       });
+
       return textoProcesado;
     }
 
+
+    // ============================================================
+    // COMILLAS TIPOGRÁFICAS
+    // ============================================================
+
+    /*
+      Convierte comillas dobles rectas:
+        "Sugar" -> “Sugar”
+
+      También permite que los términos del diccionario que estén
+      guardados con comillas rectas funcionen contra texto que haya
+      sido convertido a comillas tipográficas.
+
+      No convierte las comillas utilizadas como símbolo de pulgadas
+      después de un número:
+        6'2" -> 6'2"
+    */
+
+    function convertirComillasDobles(texto) {
+      if (!texto) return "";
+
+      let resultado = "";
+      let dentroDeComillas = false;
+
+      for (let i = 0; i < texto.length; i++) {
+        const caracter = texto[i];
+
+        if (caracter !== '"') {
+          resultado += caracter;
+          continue;
+        }
+
+        const anterior = i > 0 ? texto[i - 1] : "";
+        const siguiente = i < texto.length - 1 ? texto[i + 1] : "";
+
+        // No convertir el símbolo de pulgadas en medidas como 6'2".
+        if (/\d/.test(anterior)) {
+          resultado += '"';
+          continue;
+        }
+
+        /*
+          Si ya estamos dentro de una cita, esta comilla cierra.
+          Si no, abre.
+        */
+        if (!dentroDeComillas) {
+          resultado += "“";
+          dentroDeComillas = true;
+        } else {
+          resultado += "”";
+          dentroDeComillas = false;
+        }
+      }
+
+      return resultado;
+    }
+
+
+    // ============================================================
+    // PORCENTAJES
+    // ============================================================
+
     function limpiarPorcentajesAP(texto) {
-  if (!texto) return "";
-  return texto
-    .replace(/\u00A0/g, " ")
-    .replace(/\b(\d+),(\d+)(\s*)(%|por ciento|por 100)(?!\w)/gi, '$1.$2$3$4');
-}
+      if (!texto) return "";
+
+      return texto
+        .replace(/\u00A0/g, " ")
+        .replace(
+          /\b(\d+),(\d+)(\s*)(%|por ciento|por 100)(?!\w)/gi,
+          '$1.$2$3$4'
+        );
+    }
+
+
+    // ============================================================
+    // FRACCIONES DEPORTIVAS
+    // ============================================================
 
     function limpiarFraccionesDeportivas(texto) {
       if (!texto) return "";
-      texto = texto.replace(/\b(\d+)\s+1\/3\s+(entradas?|innings?|episodios?)\b/gi, '$1.1 $2');
-      texto = texto.replace(/\b(\d+)\s+2\/3\s+(entradas?|innings?|episodios?)\b/gi, '$1.2 $2');
-      texto = texto.replace(/\b(\d+)\s+1\/2\s+(entradas?|innings?|episodios?)\b/gi, '$1.5 $2');
-      texto = texto.replace(/\b(\d+)\s+1\/2\s+(juegos?|partidos?|encuentros?|desaf[ií]os?)\b/gi, '$1.5 $2');
-      texto = texto.replace(/\b(\d+)\s+1\/4\s+(juegos?|partidos?|encuentros?|desaf[ií]os?)\b/gi, '$1.25 $2');
-      texto = texto.replace(/\b(\d+)\s+3\/4\s+(juegos?|partidos?|encuentros?|desaf[ií]os?)\b/gi, '$1.75 $2');
+
+      texto = texto.replace(
+        /\b(\d+)\s+1\/3\s+(entradas?|innings?|episodios?)\b/gi,
+        '$1.1 $2'
+      );
+
+      texto = texto.replace(
+        /\b(\d+)\s+2\/3\s+(entradas?|innings?|episodios?)\b/gi,
+        '$1.2 $2'
+      );
+
+      texto = texto.replace(
+        /\b(\d+)\s+1\/2\s+(entradas?|innings?|episodios?)\b/gi,
+        '$1.5 $2'
+      );
+
+      texto = texto.replace(
+        /\b(\d+)\s+1\/2\s+(juegos?|partidos?|encuentros?|desaf[ií]os?)\b/gi,
+        '$1.5 $2'
+      );
+
+      texto = texto.replace(
+        /\b(\d+)\s+1\/4\s+(juegos?|partidos?|encuentros?|desaf[ií]os?)\b/gi,
+        '$1.25 $2'
+      );
+
+      texto = texto.replace(
+        /\b(\d+)\s+3\/4\s+(juegos?|partidos?|encuentros?|desaf[ií]os?)\b/gi,
+        '$1.75 $2'
+      );
+
       return texto;
     }
 
+
+    // ============================================================
+    // DICCIONARIO PREDETERMINADO
+    // ============================================================
+
     const DEFAULT_DICTIONARY = [
-      { keyword: "Cubs de Chicago", url: "https://www.elnuevodia.com/topicos/cubs-de-chicago/" },
-      { keyword: "Twins de Minnesota", url: "https://www.elnuevodia.com/topicos/twins-de-minnesota/" },
-      { keyword: "White Sox de Chicago", url: "https://www.elnuevodia.com/topicos/white-sox-de-chicago/" },
-      { keyword: "Rays de Tampa Bay", url: "https://www.elnuevodia.com/topicos/rays-de-tampa-bay/" },
-      { keyword: "Yankees de Nueva York", url: "https://www.elnuevodia.com/topicos/yankees-de-nueva-york/" },
-      { keyword: "Red Sox de Boston", url: "https://www.elnuevodia.com/topicos/red-sox-de-boston/" },
-      { keyword: "Orioles de Baltimore", url: "https://www.elnuevodia.com/topicos/orioles-de-baltimore/" },
-      { keyword: "Blue Jays de Toronto", url: "https://www.elnuevodia.com/topicos/blue-jays-de-toronto/" },
-      { keyword: "Guardians de Cleveland", url: "https://www.elnuevodia.com/topicos/guardians-de-cleveland/" },
-      { keyword: "Tigers de Detroit", url: "https://www.elnuevodia.com/topicos/tigers-de-detroit/" },
-      { keyword: "Royals de Kansas City", url: "https://www.elnuevodia.com/topicos/royals-de-kansas-city/" },
-      { keyword: "Astros de Houston", url: "https://www.elnuevodia.com/topicos/astros-de-houston/" },
-      { keyword: "Rangers de Texas", url: "https://www.elnuevodia.com/topicos/rangers-de-texas/" },
-      { keyword: "Mariners de Seattle", url: "https://www.elnuevodia.com/topicos/mariners-de-seattle/" },
-      { keyword: "Athletics", url: "https://www.elnuevodia.com/topicos/athletics-de-oakland/" },
-      { keyword: "Angels de Los Ángeles", url: "https://www.elnuevodia.com/topicos/angels-de-los-angeles/" },
-      { keyword: "Braves de Atlanta", url: "https://www.elnuevodia.com/topicos/braves-de-atlanta/" },
-      { keyword: "Phillies de Filadelfia", url: "https://www.elnuevodia.com/topicos/phillies-de-philadelphia/" },
-      { keyword: "Marlins de Miami", url: "https://www.elnuevodia.com/topicos/marlins-de-miami/" },
-      { keyword: "Nationals de Washington", url: "https://www.elnuevodia.com/topicos/nationals-de-washington/" },
-      { keyword: "Mets de Nueva York", url: "https://www.elnuevodia.com/topicos/mets-de-nueva-york/" },
-      { keyword: "Brewers de Milwaukee", url: "https://www.elnuevodia.com/topicos/brewers-de-milwaukee/" },
-      { keyword: "Pirates de Pittsburgh", url: "https://www.elnuevodia.com/topicos/pirates-de-pittsburgh/" },
-      { keyword: "Cardinals de San Luis", url: "https://www.elnuevodia.com/topicos/cardinals-de-san-luis/" },
-      { keyword: "Dodgers de Los Ángeles", url: "https://www.elnuevodia.com/topicos/dodgers-de-los-angeles/" },
-      { keyword: "Padres de San Diego", url: "https://www.elnuevodia.com/topicos/padres-de-san-diego/" },
-      { keyword: "Diamondbacks de Arizona", url: "https://www.elnuevodia.com/topicos/diamondbacks-de-arizona/" },
-      { keyword: "Giants de San Francisco", url: "https://www.elnuevodia.com/topicos/giants-de-san-francisco/" },
-      { keyword: "Rockies de Colorado", url: "https://www.elnuevodia.com/topicos/rockies-de-colorado/" },
-      { keyword: "Reds de Cincinnati", url: "https://www.elnuevodia.com/topicos/reds-de-cincinnati/" }
+      {
+        keyword: "Cubs de Chicago",
+        url: "https://www.elnuevodia.com/topicos/cubs-de-chicago/"
+      },
+      {
+        keyword: "Twins de Minnesota",
+        url: "https://www.elnuevodia.com/topicos/twins-de-minnesota/"
+      },
+      {
+        keyword: "White Sox de Chicago",
+        url: "https://www.elnuevodia.com/topicos/white-sox-de-chicago/"
+      },
+      {
+        keyword: "Rays de Tampa Bay",
+        url: "https://www.elnuevodia.com/topicos/rays-de-tampa-bay/"
+      },
+      {
+        keyword: "Yankees de Nueva York",
+        url: "https://www.elnuevodia.com/topicos/yankees-de-nueva-york/"
+      },
+      {
+        keyword: "Red Sox de Boston",
+        url: "https://www.elnuevodia.com/topicos/red-sox-de-boston/"
+      },
+      {
+        keyword: "Orioles de Baltimore",
+        url: "https://www.elnuevodia.com/topicos/orioles-de-baltimore/"
+      },
+      {
+        keyword: "Blue Jays de Toronto",
+        url: "https://www.elnuevodia.com/topicos/blue-jays-de-toronto/"
+      },
+      {
+        keyword: "Guardians de Cleveland",
+        url: "https://www.elnuevodia.com/topicos/guardians-de-cleveland/"
+      },
+      {
+        keyword: "Tigers de Detroit",
+        url: "https://www.elnuevodia.com/topicos/tigers-de-detroit/"
+      },
+      {
+        keyword: "Royals de Kansas City",
+        url: "https://www.elnuevodia.com/topicos/royals-de-kansas-city/"
+      },
+      {
+        keyword: "Astros de Houston",
+        url: "https://www.elnuevodia.com/topicos/astros-de-houston/"
+      },
+      {
+        keyword: "Rangers de Texas",
+        url: "https://www.elnuevodia.com/topicos/rangers-de-texas/"
+      },
+      {
+        keyword: "Mariners de Seattle",
+        url: "https://www.elnuevodia.com/topicos/mariners-de-seattle/"
+      },
+      {
+        keyword: "Athletics",
+        url: "https://www.elnuevodia.com/topicos/athletics-de-oakland/"
+      },
+      {
+        keyword: "Angels de Los Ángeles",
+        url: "https://www.elnuevodia.com/topicos/angels-de-los-angeles/"
+      },
+      {
+        keyword: "Braves de Atlanta",
+        url: "https://www.elnuevodia.com/topicos/braves-de-atlanta/"
+      },
+      {
+        keyword: "Phillies de Filadelfia",
+        url: "https://www.elnuevodia.com/topicos/phillies-de-philadelphia/"
+      },
+      {
+        keyword: "Marlins de Miami",
+        url: "https://www.elnuevodia.com/topicos/marlins-de-miami/"
+      },
+      {
+        keyword: "Nationals de Washington",
+        url: "https://www.elnuevodia.com/topicos/nationals-de-washington/"
+      },
+      {
+        keyword: "Mets de Nueva York",
+        url: "https://www.elnuevodia.com/topicos/mets-de-nueva-york/"
+      },
+      {
+        keyword: "Brewers de Milwaukee",
+        url: "https://www.elnuevodia.com/topicos/brewers-de-milwaukee/"
+      },
+      {
+        keyword: "Pirates de Pittsburgh",
+        url: "https://www.elnuevodia.com/topicos/pirates-de-pittsburgh/"
+      },
+      {
+        keyword: "Cardinals de San Luis",
+        url: "https://www.elnuevodia.com/topicos/cardinals-de-san-luis/"
+      },
+      {
+        keyword: "Dodgers de Los Ángeles",
+        url: "https://www.elnuevodia.com/topicos/dodgers-de-los-angeles/"
+      },
+      {
+        keyword: "Padres de San Diego",
+        url: "https://www.elnuevodia.com/topicos/padres-de-san-diego/"
+      },
+      {
+        keyword: "Diamondbacks de Arizona",
+        url: "https://www.elnuevodia.com/topicos/diamondbacks-de-arizona/"
+      },
+      {
+        keyword: "Giants de San Francisco",
+        url: "https://www.elnuevodia.com/topicos/giants-de-san-francisco/"
+      },
+      {
+        keyword: "Rockies de Colorado",
+        url: "https://www.elnuevodia.com/topicos/rockies-de-colorado/"
+      },
+      {
+        keyword: "Reds de Cincinnati",
+        url: "https://www.elnuevodia.com/topicos/reds-de-cincinnati/"
+      }
     ];
 
+
+    // ============================================================
+    // NOMBRES EN INGLÉS -> ESTILO END
+    // ============================================================
+
     const ENGLISH_CITY_TEAM_TRANSLATIONS = [
+
+      // MLB
       { ap: /Cincinnati Reds\b/gi, end: "Reds de Cincinnati" },
       { ap: /New York Yankees\b/gi, end: "Yankees de Nueva York" },
       { ap: /Boston Red Sox\b/gi, end: "Red Sox de Boston" },
@@ -465,6 +1026,7 @@
       { ap: /San Francisco Giants\b/gi, end: "Giants de San Francisco" },
       { ap: /Colorado Rockies\b/gi, end: "Rockies de Colorado" },
 
+      // NBA
       { ap: /Atlanta Hawks\b/gi, end: "Hawks de Atlanta" },
       { ap: /Boston Celtics\b/gi, end: "Celtics de Boston" },
       { ap: /Brooklyn Nets\b/gi, end: "Nets de Brooklyn" },
@@ -496,6 +1058,7 @@
       { ap: /Utah Jazz\b/gi, end: "Jazz de Utah" },
       { ap: /Washington Wizards\b/gi, end: "Wizards de Washington" },
 
+      // NFL
       { ap: /Arizona Cardinals\b/gi, end: "Cardinals de Arizona" },
       { ap: /Atlanta Falcons\b/gi, end: "Falcons de Atlanta" },
       { ap: /Baltimore Ravens\b/gi, end: "Ravens de Baltimore" },
@@ -530,7 +1093,13 @@
       { ap: /Washington Commanders\b/gi, end: "Commanders de Washington" }
     ];
 
+
+    // ============================================================
+    // MLB: ESPAÑOL -> ESTILO END
+    // ============================================================
+
     const MLB_TEAM_TRANSLATIONS = [
+
       { ap: /Medias Rojas de Boston/g, end: "Red Sox de Boston" },
       { ap: /Medias Blancas de Chicago/g, end: "White Sox de Chicago" },
       { ap: /Guardianes de Cleveland/g, end: "Guardians de Cleveland" },
@@ -575,192 +1144,565 @@
       { ap: /\bGigantes\b/g, end: "Giants", standalone: true }
     ];
 
+
+    // ============================================================
+    // CONTEXTO DE BÉISBOL
+    // ============================================================
+
     const BASEBALL_CONTEXT = /\b(?:béisbol|beisbol|MLB|Grandes Ligas|Liga Nacional|Liga Americana|Serie Mundial|jonr[oó]n(?:es)?|cuadrangular(?:es)?|home run(?:s)?|bate(?:ó|aron|aron)|bateador(?:es)?|batea(?:n|ron)|lanzador(?:es)?|lanz[oó]|pitcher(?:s)?|relevista(?:s)?|abridor(?:es)?|receptor(?:es)?|catcher(?:s)?|inning(?:s)?|entrada(?:s)?|carrera(?:s)?|bases?|bullpen|diamante|out(?:s)?|hit(?:s)?|doble(?:s)?|triple(?:s)?|roleta(?:s)?|sencillo(?:s)?|serie(?:s)?|par(?:tido|tidos)|temporada|playoffs|postemporada|clasificaci[oó]n|wild card|wild-card)\b/i;
 
     function hasBaseballTeamContext(text) {
       return MLB_TEAM_TRANSLATIONS.some(item => {
+
         if (item.standalone) return false;
+
         item.ap.lastIndex = 0;
+
         const found = item.ap.test(text);
+
         item.ap.lastIndex = 0;
+
         return found;
+
       }) || BASEBALL_CONTEXT.test(text);
     }
 
-    function shouldTranslateStandaloneNickname(fullText, offset, match, baseballContext) {
+
+    function shouldTranslateStandaloneNickname(
+      fullText,
+      offset,
+      match,
+      baseballContext
+    ) {
+
       if (!baseballContext) return false;
-      if (!match || match[0] !== match[0].toUpperCase()) return false;
-      const before = fullText.slice(Math.max(0, offset - 20), offset);
-      const after = fullText.slice(offset + match.length, offset + match.length + 35);
-      const precededByArticle = /(?:^|\s)(?:el|la|los|las)\s+$/i.test(before);
+
+      if (!match || match[0] !== match[0].toUpperCase()) {
+        return false;
+      }
+
+      const before = fullText.slice(
+        Math.max(0, offset - 20),
+        offset
+      );
+
+      const after = fullText.slice(
+        offset + match.length,
+        offset + match.length + 35
+      );
+
+      const precededByArticle =
+        /(?:^|\s)(?:el|la|los|las)\s+$/i.test(before);
+
       if (!precededByArticle) return false;
+
       if (/^\s+de\s+/i.test(after)) return false;
+
       return true;
     }
 
-    const SUPABASE_URL = "https://ngkygzwqtwxcggukqznj.supabase.co";
-    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_D3k7urSeKP8aR0ypEdrOXw_6-sxarN-";
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
-    });
+
+    // ============================================================
+    // SUPABASE
+    // ============================================================
+
+    const SUPABASE_URL =
+      "https://ngkygzwqtwxcggukqznj.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_D3k7urSeKP8aR0ypEdrOXw_6-sxarN-";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: false
+          }
+        }
+      );
+
 
     let dictionary = [];
     let processedHtml = "";
     let currentUser = null;
 
-    const inputText = document.getElementById('inputText');
-    const previewOutput = document.getElementById('previewOutput');
-    const codeOutput = document.getElementById('codeOutput');
-    const statsMatches = document.getElementById('statsMatches');
-    const toggleBold = document.getElementById('toggleBold');
-    const toggleTargetBlank = document.getElementById('toggleTargetBlank');
-    const toggleDateline = document.getElementById('toggleDateline');
-    const toggleMLBTeams = document.getElementById('toggleMLBTeams');
-    const dictCountBadge = document.getElementById('dictCountBadge');
-    const dictionaryConnectionStatus = document.getElementById('dictionaryConnectionStatus');
 
-    window.addEventListener('DOMContentLoaded', async () => {
-      setupEventListeners();
-      await checkAuthAndLoadDictionary();
-      processText();
-    });
+    const inputText =
+      document.getElementById('inputText');
+
+    const previewOutput =
+      document.getElementById('previewOutput');
+
+    const codeOutput =
+      document.getElementById('codeOutput');
+
+    const statsMatches =
+      document.getElementById('statsMatches');
+
+    const toggleBold =
+      document.getElementById('toggleBold');
+
+    const toggleTargetBlank =
+      document.getElementById('toggleTargetBlank');
+
+    const toggleDateline =
+      document.getElementById('toggleDateline');
+
+    const toggleMLBTeams =
+      document.getElementById('toggleMLBTeams');
+
+    const dictCountBadge =
+      document.getElementById('dictCountBadge');
+
+    const dictionaryConnectionStatus =
+      document.getElementById('dictionaryConnectionStatus');
+
+
+    // ============================================================
+    // INICIO
+    // ============================================================
+
+    window.addEventListener(
+      'DOMContentLoaded',
+      async () => {
+
+        setupEventListeners();
+
+        await checkAuthAndLoadDictionary();
+
+        processText();
+      }
+    );
+
+
+    // ============================================================
+    // CARGAR DICCIONARIO
+    // ============================================================
 
     async function checkAuthAndLoadDictionary() {
+
       try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
+
+        const {
+          data: { session }
+        } = await supabaseClient.auth.getSession();
+
         currentUser = session?.user || null;
+
         updateAdminUI();
 
-        const { data, error } = await supabaseClient
+        const {
+          data,
+          error
+        } = await supabaseClient
           .from('dictionary_terms')
           .select('id, keyword, url')
-          .order('keyword', { ascending: true });
+          .order('keyword', {
+            ascending: true
+          });
 
-        if (error || !Array.isArray(data) || data.length === 0) {
-          dictionary = [...DEFAULT_DICTIONARY];
-          dictionaryConnectionStatus.innerHTML = '<i class="fa-solid fa-circle text-amber-400 text-[8px]"></i> Diccionario local activo';
+        if (
+          error ||
+          !Array.isArray(data) ||
+          data.length === 0
+        ) {
+
+          dictionary = [
+            ...DEFAULT_DICTIONARY
+          ];
+
+          dictionaryConnectionStatus.innerHTML =
+            '<i class="fa-solid fa-circle text-amber-400 text-[8px]"></i> Diccionario local activo';
+
         } else {
-          dictionary = data.map(item => ({ id: item.id, keyword: item.keyword, url: item.url }));
-          dictionaryConnectionStatus.innerHTML = '<i class="fa-solid fa-circle text-emerald-500 text-[8px]"></i> Conectado a Supabase';
+
+          dictionary = data.map(item => ({
+            id: item.id,
+            keyword: item.keyword,
+            url: item.url
+          }));
+
+          dictionaryConnectionStatus.innerHTML =
+            '<i class="fa-solid fa-circle text-emerald-500 text-[8px]"></i> Conectado a Supabase';
         }
+
       } catch (err) {
-        dictionary = [...DEFAULT_DICTIONARY];
-        dictionaryConnectionStatus.innerHTML = '<i class="fa-solid fa-circle text-red-500 text-[8px]"></i> Error de conexión (Local)';
+
+        dictionary = [
+          ...DEFAULT_DICTIONARY
+        ];
+
+        dictionaryConnectionStatus.innerHTML =
+          '<i class="fa-solid fa-circle text-red-500 text-[8px]"></i> Error de conexión (Local)';
       }
-      dictionary.sort((a, b) => b.keyword.length - a.keyword.length);
-      dictCountBadge.textContent = dictionary.length;
+
+      dictionary.sort(
+        (a, b) =>
+          b.keyword.length - a.keyword.length
+      );
+
+      dictCountBadge.textContent =
+        dictionary.length;
     }
 
+
+    // ============================================================
+    // ADMIN UI
+    // ============================================================
+
     function updateAdminUI() {
-      const adminStatus = document.getElementById('adminStatus');
-      const adminLoginPanel = document.getElementById('adminLoginPanel');
-      const adminEditPanel = document.getElementById('adminEditPanel');
+
+      const adminStatus =
+        document.getElementById('adminStatus');
+
+      const adminLoginPanel =
+        document.getElementById('adminLoginPanel');
+
+      const adminEditPanel =
+        document.getElementById('adminEditPanel');
+
 
       if (currentUser) {
-        adminStatus.textContent = `Sesión iniciada: ${currentUser.email}`;
-        adminStatus.className = "text-[11px] text-emerald-600 font-semibold";
+
+        adminStatus.textContent =
+          `Sesión iniciada: ${currentUser.email}`;
+
+        adminStatus.className =
+          "text-[11px] text-emerald-600 font-semibold";
+
         adminLoginPanel.classList.add('hidden');
+
         adminEditPanel.classList.remove('hidden');
+
       } else {
-        adminStatus.textContent = "Solo lectura";
-        adminStatus.className = "text-[11px] text-slate-500";
+
+        adminStatus.textContent =
+          "Solo lectura";
+
+        adminStatus.className =
+          "text-[11px] text-slate-500";
+
         adminLoginPanel.classList.remove('hidden');
+
         adminEditPanel.classList.add('hidden');
       }
     }
 
+
+    // ============================================================
+    // DATELINE
+    // ============================================================
+
     function transformDatelineEND(text) {
-      return text.replace(/^([A-ZÁÉÍÓÚÑ\s,.]+?)\s*(\([A-Z\s]+\))?\s*[\-–—]{1,2}\s*/, (match, city) => {
-        let cleanCity = city.trim().toLowerCase().replace(/(?:^|\s)\S/g, l => l.toUpperCase());
-        return `${cleanCity} - `;
-      });
+
+      return text.replace(
+        /^([A-ZÁÉÍÓÚÑ\s,.]+?)\s*(\([A-Z\s]+\))?\s*[\-–—]{1,2}\s*/,
+        (match, city) => {
+
+          let cleanCity =
+            city
+              .trim()
+              .toLowerCase()
+              .replace(
+                /(?:^|\s)\S/g,
+                l => l.toUpperCase()
+              );
+
+          return `${cleanCity} - `;
+        }
+      );
     }
 
+
+    // ============================================================
+    // TRADUCCIÓN DE EQUIPOS
+    // ============================================================
+
     function translateTeamNamesEND(text) {
+
       let cleanedText = text;
 
-      // Los Angeles es un caso especial: en inglés, "Los" forma parte del
-      // nombre de la ciudad; en el estilo de END, "Los/los" debe convertirse
-      // en el artículo y "Angeles/Ángeles" debe quedar dentro de "de Los Ángeles".
-      // Esto aplica a MLB, NBA y NFL.
+
+      /*
+        Los Angeles es un caso especial.
+
+        En inglés:
+          Los Angeles Dodgers
+
+        En END:
+          Los Dodgers de Los Ángeles
+
+        Y en mitad de oración:
+          los Dodgers de Los Ángeles
+
+        Se aplica a:
+          Angels
+          Dodgers
+          Clippers
+          Lakers
+          Chargers
+          Rams
+
+        También acepta "Los Ángeles" si ya viene con acento.
+      */
+
       const LOS_ANGELES_TEAM_TRANSLATIONS = [
-        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Angels\b/gi, end: "Angels de Los Ángeles" },
-        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Dodgers\b/gi, end: "Dodgers de Los Ángeles" },
-        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Clippers\b/gi, end: "Clippers de Los Ángeles" },
-        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Lakers\b/gi, end: "Lakers de Los Ángeles" },
-        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Chargers\b/gi, end: "Chargers de Los Ángeles" },
-        { ap: /\bLos\s+(?:Angeles|Ángeles)\s+Rams\b/gi, end: "Rams de Los Ángeles" }
+
+        {
+          ap: /\bLos\s+(?:Angeles|Ángeles)\s+Angels\b/gi,
+          end: "Angels de Los Ángeles"
+        },
+
+        {
+          ap: /\bLos\s+(?:Angeles|Ángeles)\s+Dodgers\b/gi,
+          end: "Dodgers de Los Ángeles"
+        },
+
+        {
+          ap: /\bLos\s+(?:Angeles|Ángeles)\s+Clippers\b/gi,
+          end: "Clippers de Los Ángeles"
+        },
+
+        {
+          ap: /\bLos\s+(?:Angeles|Ángeles)\s+Lakers\b/gi,
+          end: "Lakers de Los Ángeles"
+        },
+
+        {
+          ap: /\bLos\s+(?:Angeles|Ángeles)\s+Chargers\b/gi,
+          end: "Chargers de Los Ángeles"
+        },
+
+        {
+          ap: /\bLos\s+(?:Angeles|Ángeles)\s+Rams\b/gi,
+          end: "Rams de Los Ángeles"
+        }
       ];
 
-      function esInicioDeOracion(texto, offset) {
-        const before = texto.slice(0, offset);
-        const beforeSinComillas = before.replace(/[\s"'“”‘’«»¿¡]+$/u, "");
 
-        if (!beforeSinComillas.trim()) return true;
+      function esInicioDeOracion(
+        texto,
+        offset
+      ) {
 
-        // Inicio después de punto, signo de interrogación o exclamación.
-        if (/[.!?][\s"'“”‘’»)]*$/u.test(before)) return true;
+        const before =
+          texto.slice(0, offset);
 
-        // También reconoce el comienzo después del guion de una dateline,
-        // por ejemplo: "Nueva York - Los Angeles Dodgers...".
-        const lineaActual = beforeSinComillas.split(/\n/).pop();
-        if (/^[^.!?\n]{1,100}\s[-–—]\s*$/u.test(lineaActual)) return true;
+        const beforeSinComillas =
+          before.replace(
+            /[\s"'“”‘’«»¿¡]+$/u,
+            ""
+          );
+
+
+        if (!beforeSinComillas.trim()) {
+          return true;
+        }
+
+
+        /*
+          Después de punto, interrogación
+          o exclamación.
+        */
+
+        if (
+          /[.!?][\s"'“”‘’»)]*$/u.test(
+            before
+          )
+        ) {
+          return true;
+        }
+
+
+        /*
+          Después de una dateline:
+
+            Nueva York - Los Angeles Dodgers
+
+          Esto permite que "Los" salga
+          correctamente con mayúscula.
+        */
+
+        const lineaActual =
+          beforeSinComillas
+            .split(/\n/)
+            .pop();
+
+
+        if (
+          /^[^.!?\n]{1,100}\s[-–—]\s*$/u.test(
+            lineaActual
+          )
+        ) {
+          return true;
+        }
+
 
         return false;
       }
 
-      LOS_ANGELES_TEAM_TRANSLATIONS.forEach(item => {
-        item.ap.lastIndex = 0;
-        cleanedText = cleanedText.replace(item.ap, (match, ...args) => {
-          const offset = args[args.length - 2];
-          const article = esInicioDeOracion(cleanedText, offset) ? "Los" : "los";
-          return `${article} ${item.end}`;
-        });
-        item.ap.lastIndex = 0;
-      });
 
-      // El resto de las traducciones de ciudades/equipos se mantiene intacto.
-      // Se excluyen aquí únicamente las seis entradas "Los Angeles ..." para
-      // evitar que vuelvan a consumir el "Los" que acabamos de convertir en
-      // artículo.
-      ENGLISH_CITY_TEAM_TRANSLATIONS.forEach(item => {
-        if (/^Los\s+Angeles\s+/i.test(item.ap.source)) return;
+      // ----------------------------------------------------------
+      // Los Angeles / Los Ángeles
+      // ----------------------------------------------------------
 
-        item.ap.lastIndex = 0;
-        cleanedText = cleanedText.replace(item.ap, item.end);
-        item.ap.lastIndex = 0;
-      });
+      LOS_ANGELES_TEAM_TRANSLATIONS.forEach(
+        item => {
 
-      const baseballContext = hasBaseballTeamContext(cleanedText);
+          item.ap.lastIndex = 0;
+
+          cleanedText =
+            cleanedText.replace(
+              item.ap,
+              (match, ...args) => {
+
+                const offset =
+                  args[args.length - 2];
+
+                const article =
+                  esInicioDeOracion(
+                    cleanedText,
+                    offset
+                  )
+                    ? "Los"
+                    : "los";
+
+                return `${article} ${item.end}`;
+              }
+            );
+
+          item.ap.lastIndex = 0;
+        }
+      );
+
+
+      /*
+        El resto de las traducciones permanece intacto.
+
+        IMPORTANTE:
+        Las entradas "Los Angeles ..." existentes
+        en ENGLISH_CITY_TEAM_TRANSLATIONS se saltan
+        aquí porque ya fueron procesadas arriba.
+
+        Así no vuelven a consumir el "Los" que
+        ahora funciona como artículo.
+      */
+
+      ENGLISH_CITY_TEAM_TRANSLATIONS.forEach(
+        item => {
+
+          if (
+            /^Los\s+Angeles\s+/i.test(
+              item.ap.source
+            )
+          ) {
+            return;
+          }
+
+          item.ap.lastIndex = 0;
+
+          cleanedText =
+            cleanedText.replace(
+              item.ap,
+              item.end
+            );
+
+          item.ap.lastIndex = 0;
+        }
+      );
+
+
+      const baseballContext =
+        hasBaseballTeamContext(
+          cleanedText
+        );
+
+
+      // ----------------------------------------------------------
+      // MLB: nombres completos
+      // ----------------------------------------------------------
 
       MLB_TEAM_TRANSLATIONS
         .filter(item => !item.standalone)
         .forEach(item => {
+
           item.ap.lastIndex = 0;
-          cleanedText = cleanedText.replace(item.ap, item.end);
+
+          cleanedText =
+            cleanedText.replace(
+              item.ap,
+              item.end
+            );
+
           item.ap.lastIndex = 0;
         });
 
+
+      // ----------------------------------------------------------
+      // MLB: sobrenombres solos
+      // ----------------------------------------------------------
+
       if (baseballContext) {
+
         MLB_TEAM_TRANSLATIONS
           .filter(item => item.standalone)
           .forEach(item => {
+
             item.ap.lastIndex = 0;
-            cleanedText = cleanedText.replace(item.ap, (match, ...args) => {
-              const offset = args[args.length - 2];
-              return shouldTranslateStandaloneNickname(cleanedText, offset, match, baseballContext) ? item.end : match;
-            });
+
+            cleanedText =
+              cleanedText.replace(
+                item.ap,
+                (match, ...args) => {
+
+                  const offset =
+                    args[args.length - 2];
+
+                  return shouldTranslateStandaloneNickname(
+                    cleanedText,
+                    offset,
+                    match,
+                    baseballContext
+                  )
+                    ? item.end
+                    : match;
+                }
+              );
+
             item.ap.lastIndex = 0;
           });
       }
+
+
       return cleanedText;
     }
 
+
+    // ============================================================
+    // TEXTO DEL EDITOR
+    // ============================================================
+
     function getEditorText() {
-      return (inputText.textContent || "").replace(/\u00a0/g, " ");
+
+      return (
+        inputText.textContent || ""
+      ).replace(
+        /\u00a0/g,
+        " "
+      );
     }
 
+
+    // ============================================================
+    // ESCAPE HTML
+    // ============================================================
+
     function escapeHtml(text) {
+
       return text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -769,394 +1711,1538 @@
         .replace(/'/g, "&#39;");
     }
 
+
+    // ============================================================
+    // NORMALIZAR HTML DEL EDITOR
+    // ============================================================
+
     function normalizeEditorHtml() {
-      let html = inputText.innerHTML || "";
+
+      let html =
+        inputText.innerHTML || "";
+
 
       html = html
-        .replace(/<br\s*\/?>/gi, "\n")
-        .replace(/<\/(?:div|p|li)>/gi, "\n\n")
-        .replace(/<(?:div|p|li)(?:\s[^>]*)?>/gi, "");
+        .replace(
+          /<br\s*\/?>/gi,
+          "\n"
+        )
+        .replace(
+          /<\/(?:div|p|li)>/gi,
+          "\n\n"
+        )
+        .replace(
+          /<(?:div|p|li)(?:\s[^>]*)?>/gi,
+          ""
+        );
+
 
       html = html
-        .replace(/<(?:b|strong)(?:\s[^>]*)?>/gi, "\uE000B\uE001")
-        .replace(/<\/(?:b|strong)>/gi, "\uE000B\uE002")
-        .replace(/<(?:i|em)(?:\s[^>]*)?>/gi, "\uE000I\uE001")
-        .replace(/<\/(?:i|em)>/gi, "\uE000I\uE002")
-        .replace(/<u(?:\s[^>]*)?>/gi, "\uE000U\uE001")
-        .replace(/<\/u>/gi, "\uE000U\uE002")
-        .replace(/<font\s+[^>]*color=["']?([^"'\s>]+)["']?[^>]*>/gi, (_, color) => `\uE000C${color}\uE001`)
-        .replace(/<\/font>/gi, "\uE000C\uE002");
 
-      html = html.replace(/<[^>]+>/g, "");
+        .replace(
+          /<(?:b|strong)(?:\s[^>]*)?>/gi,
+          "\uE000B\uE001"
+        )
 
-      const decoder = document.createElement("textarea");
+        .replace(
+          /<\/(?:b|strong)>/gi,
+          "\uE000B\uE002"
+        )
+
+        .replace(
+          /<(?:i|em)(?:\s[^>]*)?>/gi,
+          "\uE000I\uE001"
+        )
+
+        .replace(
+          /<\/(?:i|em)>/gi,
+          "\uE000I\uE002"
+        )
+
+        .replace(
+          /<u(?:\s[^>]*)?>/gi,
+          "\uE000U\uE001"
+        )
+
+        .replace(
+          /<\/u>/gi,
+          "\uE000U\uE002"
+        )
+
+        .replace(
+          /<font\s+[^>]*color=["']?([^"'\s>]+)["']?[^>]*>/gi,
+          (_, color) =>
+            `\uE000C${color}\uE001`
+        )
+
+        .replace(
+          /<\/font>/gi,
+          "\uE000C\uE002"
+        );
+
+
+      html =
+        html.replace(
+          /<[^>]+>/g,
+          ""
+        );
+
+
+      const decoder =
+        document.createElement("textarea");
+
       decoder.innerHTML = html;
+
       return decoder.value;
     }
 
+
+    // ============================================================
+    // RESTAURAR FORMATO MANUAL
+    // ============================================================
+
     function restoreManualFormatting(html) {
+
       return html
-        .replace(/\uE000B\uE001/g, "<strong>")
-        .replace(/\uE000B\uE002/g, "</strong>")
-        .replace(/\uE000I\uE001/g, "<em>")
-        .replace(/\uE000I\uE002/g, "</em>")
-        .replace(/\uE000U\uE001/g, "<u>")
-        .replace(/\uE000U\uE002/g, "</u>")
-        .replace(/\uE000C([^]+?)\uE001/g, (_, color) => `<span style="color:${escapeHtml(color)}">`)
-        .replace(/\uE000C\uE002/g, "</span>");
+
+        .replace(
+          /\uE000B\uE001/g,
+          "<strong>"
+        )
+
+        .replace(
+          /\uE000B\uE002/g,
+          "</strong>"
+        )
+
+        .replace(
+          /\uE000I\uE001/g,
+          "<em>"
+        )
+
+        .replace(
+          /\uE000I\uE002/g,
+          "</em>"
+        )
+
+        .replace(
+          /\uE000U\uE001/g,
+          "<u>"
+        )
+
+        .replace(
+          /\uE000U\uE002/g,
+          "</u>"
+        )
+
+        .replace(
+          /\uE000C([^]+?)\uE001/g,
+          (_, color) =>
+            `<span style="color:${escapeHtml(color)}">`
+        )
+
+        .replace(
+          /\uE000C\uE002/g,
+          "</span>"
+        );
     }
 
+
+    // ============================================================
+    // PROCESAMIENTO PRINCIPAL
+    // ============================================================
+
     function processText() {
-      let raw = normalizeEditorHtml();
+
+      let raw =
+        normalizeEditorHtml();
+
 
       if (!raw.trim()) {
+
         processedHtml = "";
-        previewOutput.innerHTML = '<p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>';
+
+        previewOutput.innerHTML =
+          '<p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>';
+
         codeOutput.textContent = "";
-        statsMatches.textContent = "0 términos enlazados";
+
+        statsMatches.textContent =
+          "0 términos enlazados";
+
         return;
       }
 
-      if (toggleDateline.checked) raw = transformDatelineEND(raw);
-      if (toggleMLBTeams.checked) raw = translateTeamNamesEND(raw);
 
-      raw = limpiarPorcentajesAP(raw);
-      raw = limpiarFraccionesDeportivas(raw);
-      raw = aplicarCursivasDeportivas(raw);
+      /*
+        PRIMERO:
 
-      const replaceMode = document.querySelector('input[name="replaceMode"]:checked').value;
-      const useBold = toggleBold.checked;
-      const useBlank = toggleTargetBlank.checked;
+        Normalizamos las comillas.
+
+        Así:
+          Edwin "Sugar" Díaz
+
+        pasa a:
+          Edwin “Sugar” Díaz
+
+        antes de hacer el enlace del diccionario.
+      */
+
+      raw =
+        convertirComillasDobles(raw);
+
+
+      // ----------------------------------------------------------
+      // Dateline
+      // ----------------------------------------------------------
+
+      if (toggleDateline.checked) {
+        raw =
+          transformDatelineEND(raw);
+      }
+
+
+      // ----------------------------------------------------------
+      // Equipos
+      // ----------------------------------------------------------
+
+      if (toggleMLBTeams.checked) {
+        raw =
+          translateTeamNamesEND(raw);
+      }
+
+
+      // ----------------------------------------------------------
+      // Porcentajes
+      // ----------------------------------------------------------
+
+      raw =
+        limpiarPorcentajesAP(raw);
+
+
+      // ----------------------------------------------------------
+      // Fracciones
+      // ----------------------------------------------------------
+
+      raw =
+        limpiarFraccionesDeportivas(raw);
+
+
+      // ----------------------------------------------------------
+      // Cursivas
+      // ----------------------------------------------------------
+
+      raw =
+        aplicarCursivasDeportivas(raw);
+
+
+      // ----------------------------------------------------------
+      // Configuración de enlaces
+      // ----------------------------------------------------------
+
+      const replaceMode =
+        document.querySelector(
+          'input[name="replaceMode"]:checked'
+        ).value;
+
+      const useBold =
+        toggleBold.checked;
+
+      const useBlank =
+        toggleTargetBlank.checked;
+
 
       let matchCount = 0;
-      const foundKeywordsSet = new Set();
-      let paragraphs = raw.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
 
-      let processedParagraphs = paragraphs.map(paragraph => {
-        let textResult = paragraph;
-        dictionary.forEach(item => {
-          const kw = item.keyword;
-          const url = item.url;
-          if (replaceMode === 'first' && foundKeywordsSet.has(kw.toLowerCase())) return;
+      const foundKeywordsSet =
+        new Set();
 
-          const escapedKw = kw.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-          const regex = new RegExp(`\\b(${escapedKw})\\b`, 'gi');
 
-          textResult = textResult.replace(regex, (match) => {
-            if (replaceMode === 'first' && foundKeywordsSet.has(kw.toLowerCase())) return match;
-            foundKeywordsSet.add(kw.toLowerCase());
-            matchCount++;
-            let inner = useBold ? `<strong>${match}</strong>` : match;
-            let targetAttr = useBlank ? ` target="_blank" rel="noopener noreferrer"` : ``;
-            return `<a href="${url}"${targetAttr}>${inner}</a>`;
+      let paragraphs =
+        raw
+          .split(/\n\s*\n/)
+          .map(p => p.trim())
+          .filter(Boolean);
+
+
+      // ----------------------------------------------------------
+      // ENLACES DEL DICCIONARIO
+      // ----------------------------------------------------------
+
+      let processedParagraphs =
+        paragraphs.map(paragraph => {
+
+          let textResult =
+            paragraph;
+
+
+          dictionary.forEach(item => {
+
+            /*
+              IMPORTANTE:
+
+              Normalizamos también el término del diccionario.
+
+              De esta manera funcionan ambas posibilidades:
+
+                Edwin "Sugar" Díaz
+                Edwin “Sugar” Díaz
+
+              aunque el término guardado en Supabase
+              use una u otra.
+            */
+
+            const kw =
+              convertirComillasDobles(
+                item.keyword
+              );
+
+            const url =
+              item.url;
+
+
+            if (
+              replaceMode === 'first' &&
+              foundKeywordsSet.has(
+                kw.toLowerCase()
+              )
+            ) {
+              return;
+            }
+
+
+            const escapedKw =
+              kw.replace(
+                /[-\/\\^$*+?.()|[\]{}]/g,
+                '\\$&'
+              );
+
+
+            const regex =
+              new RegExp(
+                `\\b(${escapedKw})\\b`,
+                'gi'
+              );
+
+
+            textResult =
+              textResult.replace(
+                regex,
+                match => {
+
+                  if (
+                    replaceMode === 'first' &&
+                    foundKeywordsSet.has(
+                      kw.toLowerCase()
+                    )
+                  ) {
+                    return match;
+                  }
+
+
+                  foundKeywordsSet.add(
+                    kw.toLowerCase()
+                  );
+
+
+                  matchCount++;
+
+
+                  let inner =
+                    useBold
+                      ? `<strong>${match}</strong>`
+                      : match;
+
+
+                  let targetAttr =
+                    useBlank
+                      ? ` target="_blank" rel="noopener noreferrer"`
+                      : ``;
+
+
+                  return `<a href="${url}"${targetAttr}>${inner}</a>`;
+                }
+              );
           });
-        });
-        return `<p>${textResult}</p>`;
-      });
 
-      processedHtml = processedParagraphs.join("\n");
-      processedHtml = restoreManualFormatting(processedHtml);
-      previewOutput.innerHTML = processedHtml;
-      codeOutput.textContent = processedHtml;
-      statsMatches.textContent = `${matchCount} término(s) enlazado(s)`;
+
+          return `<p>${textResult}</p>`;
+        });
+
+
+      processedHtml =
+        processedParagraphs.join("\n");
+
+
+      processedHtml =
+        restoreManualFormatting(
+          processedHtml
+        );
+
+
+      previewOutput.innerHTML =
+        processedHtml;
+
+
+      codeOutput.textContent =
+        processedHtml;
+
+
+      statsMatches.textContent =
+        `${matchCount} término(s) enlazado(s)`;
     }
+
+
+    // ============================================================
+    // SELECCIÓN DEL EDITOR
+    // ============================================================
 
     let savedSelectionRange = null;
 
+
     function saveEditorSelection() {
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) return;
 
-      const range = selection.getRangeAt(0);
-      const container = range.commonAncestorContainer;
+      const selection =
+        window.getSelection();
 
-      if (inputText.contains(container) || container === inputText) {
-        savedSelectionRange = range.cloneRange();
+      if (
+        !selection ||
+        selection.rangeCount === 0
+      ) {
+        return;
+      }
+
+
+      const range =
+        selection.getRangeAt(0);
+
+      const container =
+        range.commonAncestorContainer;
+
+
+      if (
+        inputText.contains(container) ||
+        container === inputText
+      ) {
+
+        savedSelectionRange =
+          range.cloneRange();
       }
     }
 
+
     function restoreEditorSelection() {
-      if (!savedSelectionRange) return false;
+
+      if (!savedSelectionRange) {
+        return false;
+      }
+
 
       try {
-        if (!(inputText.contains(savedSelectionRange.commonAncestorContainer) ||
-              savedSelectionRange.commonAncestorContainer === inputText)) {
+
+        if (
+          !(
+            inputText.contains(
+              savedSelectionRange.commonAncestorContainer
+            ) ||
+            savedSelectionRange.commonAncestorContainer === inputText
+          )
+        ) {
           return false;
         }
 
-        const selection = window.getSelection();
+
+        const selection =
+          window.getSelection();
+
         selection.removeAllRanges();
-        selection.addRange(savedSelectionRange);
+
+        selection.addRange(
+          savedSelectionRange
+        );
+
         return true;
+
       } catch (error) {
+
         return false;
       }
     }
 
+
+    // ============================================================
+    // BOTONES DE FORMATO
+    // ============================================================
+
     function updateFormatButtons() {
-      document.querySelectorAll('.format-btn[data-command]').forEach(btn => {
-        try {
-          btn.classList.toggle('active', document.queryCommandState(btn.dataset.command));
-        } catch (error) {
-          btn.classList.remove('active');
-        }
-      });
+
+      document
+        .querySelectorAll(
+          '.format-btn[data-command]'
+        )
+        .forEach(btn => {
+
+          try {
+
+            btn.classList.toggle(
+              'active',
+              document.queryCommandState(
+                btn.dataset.command
+              )
+            );
+
+          } catch (error) {
+
+            btn.classList.remove(
+              'active'
+            );
+          }
+        });
     }
 
+
     function applyManualFormat(command) {
+
       restoreEditorSelection();
+
       inputText.focus();
 
+
       try {
-        document.execCommand(command, false, null);
+
+        document.execCommand(
+          command,
+          false,
+          null
+        );
+
       } catch (error) {
-        console.error(`No se pudo aplicar el formato "${command}":`, error);
+
+        console.error(
+          `No se pudo aplicar el formato "${command}":`,
+          error
+        );
       }
 
+
       saveEditorSelection();
+
       updateFormatButtons();
+
       processText();
     }
 
+
+    // ============================================================
+    // FORMATO MANUAL
+    // ============================================================
+
     function setupManualFormatting() {
-      document.querySelectorAll('.format-btn[data-command]').forEach(btn => {
-        btn.addEventListener('mousedown', event => {
+
+      document
+        .querySelectorAll(
+          '.format-btn[data-command]'
+        )
+        .forEach(btn => {
+
+          btn.addEventListener(
+            'mousedown',
+            event => {
+
+              event.preventDefault();
+
+              saveEditorSelection();
+
+              applyManualFormat(
+                btn.dataset.command
+              );
+            }
+          );
+        });
+
+
+      const clearFormatButton =
+        document.getElementById(
+          'btnClearFormat'
+        );
+
+
+      clearFormatButton.addEventListener(
+        'mousedown',
+        event => {
+
           event.preventDefault();
+
           saveEditorSelection();
-          applyManualFormat(btn.dataset.command);
-        });
-      });
 
-      const clearFormatButton = document.getElementById('btnClearFormat');
-      clearFormatButton.addEventListener('mousedown', event => {
-        event.preventDefault();
-        saveEditorSelection();
-        applyManualFormat('removeFormat');
-      });
-
-      const textColor = document.getElementById('textColor');
-      textColor.addEventListener('mousedown', () => {
-        saveEditorSelection();
-      });
-
-      textColor.addEventListener('input', event => {
-        restoreEditorSelection();
-        inputText.focus();
-
-        try {
-          document.execCommand('foreColor', false, event.target.value);
-        } catch (error) {
-          console.error("No se pudo aplicar el color:", error);
+          applyManualFormat(
+            'removeFormat'
+          );
         }
+      );
 
-        saveEditorSelection();
-        updateFormatButtons();
-        processText();
-      });
 
-      inputText.addEventListener('keyup', saveEditorSelection);
-      inputText.addEventListener('mouseup', saveEditorSelection);
-      inputText.addEventListener('focus', updateFormatButtons);
-      inputText.addEventListener('blur', saveEditorSelection);
+      const textColor =
+        document.getElementById(
+          'textColor'
+        );
 
-      document.addEventListener('selectionchange', () => {
-        const selection = window.getSelection();
-        if (!selection || selection.rangeCount === 0) return;
-        const range = selection.getRangeAt(0);
-        if (inputText.contains(range.commonAncestorContainer) || range.commonAncestorContainer === inputText) {
-          savedSelectionRange = range.cloneRange();
+
+      textColor.addEventListener(
+        'mousedown',
+        () => {
+          saveEditorSelection();
+        }
+      );
+
+
+      textColor.addEventListener(
+        'input',
+        event => {
+
+          restoreEditorSelection();
+
+          inputText.focus();
+
+
+          try {
+
+            document.execCommand(
+              'foreColor',
+              false,
+              event.target.value
+            );
+
+          } catch (error) {
+
+            console.error(
+              "No se pudo aplicar el color:",
+              error
+            );
+          }
+
+
+          saveEditorSelection();
+
           updateFormatButtons();
-        }
-      });
 
-      inputText.addEventListener('paste', event => {
-        event.preventDefault();
-        const text = (event.clipboardData || window.clipboardData).getData('text/plain');
-        const selection = window.getSelection();
-
-        if (!selection || selection.rangeCount === 0) {
-          inputText.textContent += text;
           processText();
-          return;
         }
+      );
 
-        const range = selection.getRangeAt(0);
-        if (!inputText.contains(range.commonAncestorContainer)) return;
 
-        range.deleteContents();
-        const fragment = document.createDocumentFragment();
-        const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+      inputText.addEventListener(
+        'keyup',
+        saveEditorSelection
+      );
 
-        lines.forEach((line, index) => {
-          fragment.appendChild(document.createTextNode(line));
-          if (index < lines.length - 1) fragment.appendChild(document.createElement("br"));
-        });
+      inputText.addEventListener(
+        'mouseup',
+        saveEditorSelection
+      );
 
-        range.insertNode(fragment);
-        range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        saveEditorSelection();
-        processText();
-      });
+      inputText.addEventListener(
+        'focus',
+        updateFormatButtons
+      );
+
+      inputText.addEventListener(
+        'blur',
+        saveEditorSelection
+      );
+
+
+      document.addEventListener(
+        'selectionchange',
+        () => {
+
+          const selection =
+            window.getSelection();
+
+          if (
+            !selection ||
+            selection.rangeCount === 0
+          ) {
+            return;
+          }
+
+
+          const range =
+            selection.getRangeAt(0);
+
+
+          if (
+            inputText.contains(
+              range.commonAncestorContainer
+            ) ||
+            range.commonAncestorContainer === inputText
+          ) {
+
+            savedSelectionRange =
+              range.cloneRange();
+
+            updateFormatButtons();
+          }
+        }
+      );
+
+
+      // ----------------------------------------------------------
+      // PASTE
+      // ----------------------------------------------------------
+
+      inputText.addEventListener(
+        'paste',
+        event => {
+
+          event.preventDefault();
+
+
+          const text =
+            (
+              event.clipboardData ||
+              window.clipboardData
+            ).getData(
+              'text/plain'
+            );
+
+
+          const selection =
+            window.getSelection();
+
+
+          if (
+            !selection ||
+            selection.rangeCount === 0
+          ) {
+
+            inputText.textContent += text;
+
+            processText();
+
+            return;
+          }
+
+
+          const range =
+            selection.getRangeAt(0);
+
+
+          if (
+            !inputText.contains(
+              range.commonAncestorContainer
+            )
+          ) {
+            return;
+          }
+
+
+          range.deleteContents();
+
+
+          const fragment =
+            document.createDocumentFragment();
+
+
+          const lines =
+            text
+              .replace(/\r\n/g, "\n")
+              .replace(/\r/g, "\n")
+              .split("\n");
+
+
+          lines.forEach(
+            (line, index) => {
+
+              fragment.appendChild(
+                document.createTextNode(line)
+              );
+
+
+              if (
+                index <
+                lines.length - 1
+              ) {
+
+                fragment.appendChild(
+                  document.createElement("br")
+                );
+              }
+            }
+          );
+
+
+          range.insertNode(
+            fragment
+          );
+
+          range.collapse(false);
+
+
+          selection.removeAllRanges();
+
+          selection.addRange(
+            range
+          );
+
+
+          saveEditorSelection();
+
+          processText();
+        }
+      );
     }
+
+
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
 
     function setupEventListeners() {
+
       setupManualFormatting();
 
-      inputText.addEventListener('input', () => {
-        saveEditorSelection();
-        processText();
-      });
 
-      document.querySelectorAll('input, select').forEach(el => el.addEventListener('change', processText));
+      inputText.addEventListener(
+        'input',
+        () => {
 
-      document.getElementById('btnClearInput').addEventListener('click', () => {
-        inputText.innerHTML = '';
-        savedSelectionRange = null;
-        processText();
-      });
-      document.getElementById('btnRegenerate').addEventListener('click', processText);
+          saveEditorSelection();
 
-      document.getElementById('tabPreview').addEventListener('click', () => {
-        document.getElementById('viewPreview').classList.remove('hidden');
-        document.getElementById('viewCode').classList.add('hidden');
-        document.getElementById('tabPreview').className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
-        document.getElementById('tabCode').className = "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
-      });
-
-      document.getElementById('tabCode').addEventListener('click', () => {
-        document.getElementById('viewCode').classList.remove('hidden');
-        document.getElementById('viewPreview').classList.add('hidden');
-        document.getElementById('tabCode').className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
-        document.getElementById('tabPreview').className = "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
-      });
-
-      document.getElementById('btnCopyHtml').addEventListener('click', () => {
-        navigator.clipboard.writeText(processedHtml).then(() => showToast("HTML copiado al portapapeles"));
-      });
-
-      document.getElementById('btnCopyRich').addEventListener('click', () => {
-        const blob = new Blob([processedHtml], { type: 'text/html' });
-        const textBlob = new Blob([previewOutput.innerText], { type: 'text/plain' });
-        navigator.clipboard.write([
-          new ClipboardItem({ 'text/html': blob, 'text/plain': textBlob })
-        ]).then(() => showToast("Texto enriquecido copiado")).catch(() => {
-          navigator.clipboard.writeText(previewOutput.innerText).then(() => showToast("Copiado como texto plano"));
-        });
-      });
-
-      // Botón "Administrar" desplegable del formulario de login
-      document.getElementById('btnShowLogin').addEventListener('click', () => {
-        const loginForm = document.getElementById('adminLoginForm');
-        loginForm.classList.toggle('hidden');
-      });
-
-      // Manejo de inicio de sesión de Supabase
-      document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('adminEmail').value.trim();
-        const password = document.getElementById('adminPassword').value;
-
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) {
-          showToast("Error de acceso: " + error.message);
-        } else {
-          currentUser = data.user;
-          updateAdminUI();
-          document.getElementById('adminLoginForm').reset();
-          document.getElementById('adminLoginForm').classList.add('hidden');
-          showToast("Sesión iniciada correctamente");
-        }
-      });
-
-      // Cerrar sesión
-      document.getElementById('btnLogout').addEventListener('click', async () => {
-        await supabaseClient.auth.signOut();
-        currentUser = null;
-        updateAdminUI();
-        showToast("Sesión cerrada");
-      });
-
-      // Añadir nuevo término al diccionario
-      document.getElementById('addKeywordForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!currentUser) {
-          showToast("Debe iniciar sesión como administrador");
-          return;
-        }
-        const keyword = document.getElementById('newKeyword').value.trim();
-        let url = document.getElementById('newUrl').value.trim();
-        if (!url) {
-          url = `https://www.elnuevodia.com/topicos/${keyword.toLowerCase().replace(/[^a-z0-9]+/g, '-')}/`;
-        }
-
-        const { error } = await supabaseClient.from('dictionary_terms').insert([{ keyword, url }]);
-        if (error) {
-          showToast("Error al guardar: " + error.message);
-        } else {
-          showToast("Término añadido con éxito");
-          document.getElementById('newKeyword').value = '';
-          document.getElementById('newUrl').value = '';
-          await checkAuthAndLoadDictionary();
-          renderDictListModal(document.getElementById('dictSearch').value);
           processText();
         }
-      });
+      );
 
-      document.getElementById('btnOpenDictionary').addEventListener('click', () => {
-        document.getElementById('dictModal').classList.remove('hidden');
-        renderDictListModal();
-      });
 
-      const closeModal = () => document.getElementById('dictModal').classList.add('hidden');
-      document.getElementById('btnCloseModal').addEventListener('click', closeModal);
-      document.getElementById('btnCloseModalBottom').addEventListener('click', closeModal);
+      document
+        .querySelectorAll(
+          'input, select'
+        )
+        .forEach(
+          el =>
+            el.addEventListener(
+              'change',
+              processText
+            )
+        );
+
+
+      // ----------------------------------------------------------
+      // Limpiar
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'btnClearInput'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            inputText.innerHTML = '';
+
+            savedSelectionRange = null;
+
+            processText();
+          }
+        );
+
+
+      // ----------------------------------------------------------
+      // Regenerar
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'btnRegenerate'
+        )
+        .addEventListener(
+          'click',
+          processText
+        );
+
+
+      // ----------------------------------------------------------
+      // Vista previa
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'tabPreview'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            document
+              .getElementById(
+                'viewPreview'
+              )
+              .classList.remove(
+                'hidden'
+              );
+
+
+            document
+              .getElementById(
+                'viewCode'
+              )
+              .classList.add(
+                'hidden'
+              );
+
+
+            document
+              .getElementById(
+                'tabPreview'
+              )
+              .className =
+              "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
+
+
+            document
+              .getElementById(
+                'tabCode'
+              )
+              .className =
+              "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
+          }
+        );
+
+
+      // ----------------------------------------------------------
+      // HTML
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'tabCode'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            document
+              .getElementById(
+                'viewCode'
+              )
+              .classList.remove(
+                'hidden'
+              );
+
+
+            document
+              .getElementById(
+                'viewPreview'
+              )
+              .classList.add(
+                'hidden'
+              );
+
+
+            document
+              .getElementById(
+                'tabCode'
+              )
+              .className =
+              "px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition";
+
+
+            document
+              .getElementById(
+                'tabPreview'
+              )
+              .className =
+              "px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition";
+          }
+        );
+
+
+      // ----------------------------------------------------------
+      // Copiar HTML
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'btnCopyHtml'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            navigator.clipboard
+              .writeText(
+                processedHtml
+              )
+              .then(
+                () =>
+                  showToast(
+                    "HTML copiado al portapapeles"
+                  )
+              );
+          }
+        );
+
+
+      // ----------------------------------------------------------
+      // Copiar texto enriquecido
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'btnCopyRich'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            const blob =
+              new Blob(
+                [processedHtml],
+                {
+                  type: 'text/html'
+                }
+              );
+
+
+            const textBlob =
+              new Blob(
+                [previewOutput.innerText],
+                {
+                  type: 'text/plain'
+                }
+              );
+
+
+            navigator.clipboard
+              .write([
+                new ClipboardItem({
+                  'text/html': blob,
+                  'text/plain': textBlob
+                })
+              ])
+              .then(
+                () =>
+                  showToast(
+                    "Texto enriquecido copiado"
+                  )
+              )
+              .catch(
+                () => {
+
+                  navigator.clipboard
+                    .writeText(
+                      previewOutput.innerText
+                    )
+                    .then(
+                      () =>
+                        showToast(
+                          "Copiado como texto plano"
+                        )
+                    );
+                }
+              );
+          }
+        );
+
+
+      // ----------------------------------------------------------
+      // Mostrar login
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'btnShowLogin'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            const loginForm =
+              document.getElementById(
+                'adminLoginForm'
+              );
+
+            loginForm.classList.toggle(
+              'hidden'
+            );
+          }
+        );
+
+
+      // ----------------------------------------------------------
+      // Login Supabase
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'adminLoginForm'
+        )
+        .addEventListener(
+          'submit',
+          async e => {
+
+            e.preventDefault();
+
+
+            const email =
+              document
+                .getElementById(
+                  'adminEmail'
+                )
+                .value
+                .trim();
+
+
+            const password =
+              document
+                .getElementById(
+                  'adminPassword'
+                )
+                .value;
+
+
+            const {
+              data,
+              error
+            } =
+              await supabaseClient.auth
+                .signInWithPassword({
+                  email,
+                  password
+                });
+
+
+            if (error) {
+
+              showToast(
+                "Error de acceso: " +
+                error.message
+              );
+
+            } else {
+
+              currentUser =
+                data.user;
+
+              updateAdminUI();
+
+              document
+                .getElementById(
+                  'adminLoginForm'
+                )
+                .reset();
+
+              document
+                .getElementById(
+                  'adminLoginForm'
+                )
+                .classList.add(
+                  'hidden'
+                );
+
+              showToast(
+                "Sesión iniciada correctamente"
+              );
+            }
+          }
+        );
+
+
+      // ----------------------------------------------------------
+      // Logout
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'btnLogout'
+        )
+        .addEventListener(
+          'click',
+          async () => {
+
+            await supabaseClient.auth
+              .signOut();
+
+            currentUser = null;
+
+            updateAdminUI();
+
+            showToast(
+              "Sesión cerrada"
+            );
+          }
+        );
+
+
+      // ----------------------------------------------------------
+      // Añadir término
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'addKeywordForm'
+        )
+        .addEventListener(
+          'submit',
+          async e => {
+
+            e.preventDefault();
+
+
+            if (!currentUser) {
+
+              showToast(
+                "Debe iniciar sesión como administrador"
+              );
+
+              return;
+            }
+
+
+            const keyword =
+              document
+                .getElementById(
+                  'newKeyword'
+                )
+                .value
+                .trim();
+
+
+            let url =
+              document
+                .getElementById(
+                  'newUrl'
+                )
+                .value
+                .trim();
+
+
+            if (!url) {
+
+              url =
+                `https://www.elnuevodia.com/topicos/${keyword
+                  .toLowerCase()
+                  .replace(
+                    /[^a-z0-9]+/g,
+                    '-'
+                  )}/`;
+            }
+
+
+            const {
+              error
+            } =
+              await supabaseClient
+                .from(
+                  'dictionary_terms'
+                )
+                .insert([
+                  {
+                    keyword,
+                    url
+                  }
+                ]);
+
+
+            if (error) {
+
+              showToast(
+                "Error al guardar: " +
+                error.message
+              );
+
+            } else {
+
+              showToast(
+                "Término añadido con éxito"
+              );
+
+
+              document
+                .getElementById(
+                  'newKeyword'
+                )
+                .value = '';
+
+
+              document
+                .getElementById(
+                  'newUrl'
+                )
+                .value = '';
+
+
+              await checkAuthAndLoadDictionary();
+
+
+              renderDictListModal(
+                document
+                  .getElementById(
+                    'dictSearch'
+                  )
+                  .value
+              );
+
+
+              processText();
+            }
+          }
+        );
+
+
+      // ----------------------------------------------------------
+      // Abrir diccionario
+      // ----------------------------------------------------------
+
+      document
+        .getElementById(
+          'btnOpenDictionary'
+        )
+        .addEventListener(
+          'click',
+          () => {
+
+            document
+              .getElementById(
+                'dictModal'
+              )
+              .classList.remove(
+                'hidden'
+              );
+
+            renderDictListModal();
+          }
+        );
+
+
+      // ----------------------------------------------------------
+      // Cerrar diccionario
+      // ----------------------------------------------------------
+
+      const closeModal =
+        () =>
+          document
+            .getElementById(
+              'dictModal'
+            )
+            .classList.add(
+              'hidden'
+            );
+
+
+      document
+        .getElementById(
+          'btnCloseModal'
+        )
+        .addEventListener(
+          'click',
+          closeModal
+        );
+
+
+      document
+        .getElementById(
+          'btnCloseModalBottom'
+        )
+        .addEventListener(
+          'click',
+          closeModal
+        );
     }
 
-    function renderDictListModal(filter = '') {
-      const container = document.getElementById('dictListContainer');
-      const filtered = dictionary.filter(item => item.keyword.toLowerCase().includes(filter.toLowerCase()));
+
+    // ============================================================
+    // LISTA DEL DICCIONARIO
+    // ============================================================
+
+    function renderDictListModal(
+      filter = ''
+    ) {
+
+      const container =
+        document.getElementById(
+          'dictListContainer'
+        );
+
+
+      const filtered =
+        dictionary.filter(
+          item =>
+            item.keyword
+              .toLowerCase()
+              .includes(
+                filter.toLowerCase()
+              )
+        );
+
+
       if (filtered.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No se encontraron términos.</p>`;
+
+        container.innerHTML =
+          `<p class="text-xs text-slate-400 text-center py-4">No se encontraron términos.</p>`;
+
         return;
       }
-      container.innerHTML = filtered.map(item => `
+
+
+      container.innerHTML =
+        filtered
+          .map(
+            item => `
+
         <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+
           <div>
-            <span class="font-semibold text-slate-800">${item.keyword}</span>
-            <a href="${item.url}" target="_blank" class="block text-[10px] text-brand-600 truncate max-w-md">${item.url}</a>
+
+            <span class="font-semibold text-slate-800">
+              ${item.keyword}
+            </span>
+
+            <a
+              href="${item.url}"
+              target="_blank"
+              class="block text-[10px] text-brand-600 truncate max-w-md"
+            >
+              ${item.url}
+            </a>
+
           </div>
-          ${currentUser ? `<button onclick="deleteDictionaryTerm('${item.id}')" class="text-slate-400 hover:text-red-600 px-2 py-1 transition"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+
+          ${
+            currentUser
+              ? `
+                <button
+                  onclick="deleteDictionaryTerm('${item.id}')"
+                  class="text-slate-400 hover:text-red-600 px-2 py-1 transition"
+                >
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              `
+              : ''
+          }
+
         </div>
-      `).join('');
+
+      `
+          )
+          .join('');
     }
 
-    async function deleteDictionaryTerm(id) {
-      if (!currentUser) return;
-      if (!confirm("¿Seguro que deseas eliminar este término?")) return;
 
-      const { error } = await supabaseClient.from('dictionary_terms').delete().eq('id', id);
+    // ============================================================
+    // ELIMINAR TÉRMINO
+    // ============================================================
+
+    async function deleteDictionaryTerm(id) {
+
+      if (!currentUser) return;
+
+
+      if (
+        !confirm(
+          "¿Seguro que deseas eliminar este término?"
+        )
+      ) {
+        return;
+      }
+
+
+      const {
+        error
+      } =
+        await supabaseClient
+          .from('dictionary_terms')
+          .delete()
+          .eq('id', id);
+
+
       if (error) {
-        showToast("Error al eliminar: " + error.message);
+
+        showToast(
+          "Error al eliminar: " +
+          error.message
+        );
+
       } else {
-        showToast("Término eliminado");
+
+        showToast(
+          "Término eliminado"
+        );
+
+
         await checkAuthAndLoadDictionary();
-        renderDictListModal(document.getElementById('dictSearch').value);
+
+
+        renderDictListModal(
+          document
+            .getElementById(
+              'dictSearch'
+            )
+            .value
+        );
+
+
         processText();
       }
     }
 
-    document.getElementById('dictSearch').addEventListener('input', (e) => {
-      renderDictListModal(e.target.value);
-    });
+
+    // ============================================================
+    // BÚSQUEDA DEL DICCIONARIO
+    // ============================================================
+
+    document
+      .getElementById(
+        'dictSearch'
+      )
+      .addEventListener(
+        'input',
+        e => {
+
+          renderDictListModal(
+            e.target.value
+          );
+        }
+      );
+
+
+    // ============================================================
+    // TOAST
+    // ============================================================
 
     function showToast(msg) {
-      const toast = document.getElementById('toast');
-      document.getElementById('toastMsg').textContent = msg;
-      toast.classList.remove('translate-y-20', 'opacity-0');
-      setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
+
+      const toast =
+        document.getElementById(
+          'toast'
+        );
+
+
+      document
+        .getElementById(
+          'toastMsg'
+        )
+        .textContent = msg;
+
+
+      toast.classList.remove(
+        'translate-y-20',
+        'opacity-0'
+      );
+
+
+      setTimeout(
+        () =>
+          toast.classList.add(
+            'translate-y-20',
+            'opacity-0'
+          ),
+        2500
+      );
     }
+
   </script>
+
 </body>
 </html>
