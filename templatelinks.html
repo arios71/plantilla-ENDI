@@ -49,6 +49,37 @@
       text-decoration: underline;
       font-weight: 600;
     }
+    #inputText:empty::before {
+      content: attr(data-placeholder);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    #formatToolbar .format-btn {
+      width: 2rem;
+      height: 2rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.375rem;
+      color: #475569;
+      transition: background-color 0.15s, color 0.15s;
+    }
+
+    #formatToolbar .format-btn:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    #formatToolbar .format-btn.active {
+      background: #dbeafe;
+      color: #0056b3;
+    }
+
+    #formatToolbar .format-color:hover {
+      background: #e2e8f0;
+    }
+
     .preview-content a:hover {
       color: #002f67;
     }
@@ -95,7 +126,29 @@
           </button>
         </div>
         <div class="p-3">
-          <textarea id="inputText" rows="12" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent resize-y text-sm leading-relaxed font-sans placeholder-slate-400" placeholder="Pega aquí el texto de AP (ej: 'NUEVA YORK (AP) — Los Cachorros de Chicago...')..."></textarea>
+          <div id="formatToolbar" class="flex flex-wrap items-center gap-1 p-2 mb-2 bg-slate-50 border border-slate-200 rounded-lg" aria-label="Herramientas de formato manual">
+            <button type="button" class="format-btn" data-command="bold" title="Negrita" aria-label="Negrita">
+              <i class="fa-solid fa-bold"></i>
+            </button>
+            <button type="button" class="format-btn" data-command="italic" title="Cursiva" aria-label="Cursiva">
+              <i class="fa-solid fa-italic"></i>
+            </button>
+            <button type="button" class="format-btn" data-command="underline" title="Subrayado" aria-label="Subrayado">
+              <i class="fa-solid fa-underline"></i>
+            </button>
+            <span class="w-px h-5 bg-slate-300 mx-1" aria-hidden="true"></span>
+            <label class="format-color flex items-center justify-center w-8 h-8 rounded-md cursor-pointer text-slate-600 hover:bg-slate-200 transition" title="Color del texto" aria-label="Color del texto">
+              <i class="fa-solid fa-palette"></i>
+              <input id="textColor" type="color" value="#000000" class="sr-only">
+            </label>
+            <button type="button" id="btnClearFormat" class="format-btn" title="Quitar formato" aria-label="Quitar formato">
+              <i class="fa-solid fa-eraser"></i>
+            </button>
+          </div>
+          <div id="inputText" contenteditable="true" role="textbox" aria-multiline="true"
+            class="w-full min-h-[288px] p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent resize-y overflow-y-auto text-sm leading-relaxed font-sans text-slate-800"
+            data-placeholder="Pega aquí el texto de AP (ej: 'NUEVA YORK (AP) — Los Cachorros de Chicago...')..."
+            spellcheck="false"></div>
         </div>
       </div>
 
@@ -330,9 +383,11 @@
     }
 
     function limpiarPorcentajesAP(texto) {
-      if (!texto) return "";
-      return texto.replace(/\b(\d+),(\d+)\s*(%|por ciento|por 100)\b/gi, '$1.$2 $3');
-    }
+  if (!texto) return "";
+  return texto
+    .replace(/\u00A0/g, " ")
+    .replace(/\b(\d+),(\d+)(\s*)(%|por ciento|por 100)(?!\w)/gi, '$1.$2$3$4');
+}
 
     function limpiarFraccionesDeportivas(texto) {
       if (!texto) return "";
@@ -551,9 +606,61 @@
       return cleanedText;
     }
 
+    function getEditorText() {
+      return (inputText.textContent || "").replace(/\u00a0/g, " ");
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function normalizeEditorHtml() {
+      let html = inputText.innerHTML || "";
+
+      html = html
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/(?:div|p|li)>/gi, "\n\n")
+        .replace(/<(?:div|p|li)(?:\s[^>]*)?>/gi, "");
+
+      html = html
+        .replace(/<(?:b|strong)(?:\s[^>]*)?>/gi, "\uE000B\uE001")
+        .replace(/<\/(?:b|strong)>/gi, "\uE000B\uE002")
+        .replace(/<(?:i|em)(?:\s[^>]*)?>/gi, "\uE000I\uE001")
+        .replace(/<\/(?:i|em)>/gi, "\uE000I\uE002")
+        .replace(/<u(?:\s[^>]*)?>/gi, "\uE000U\uE001")
+        .replace(/<\/u>/gi, "\uE000U\uE002")
+        .replace(/<font\s+[^>]*color=["']?([^"'\s>]+)["']?[^>]*>/gi, (_, color) => `\uE000C${color}\uE001`)
+        .replace(/<\/font>/gi, "\uE000C\uE002");
+
+      html = html.replace(/<[^>]+>/g, "");
+
+      const decoder = document.createElement("textarea");
+      decoder.innerHTML = html;
+      return decoder.value;
+    }
+
+    function restoreManualFormatting(html) {
+      return html
+        .replace(/\uE000B\uE001/g, "<strong>")
+        .replace(/\uE000B\uE002/g, "</strong>")
+        .replace(/\uE000I\uE001/g, "<em>")
+        .replace(/\uE000I\uE002/g, "</em>")
+        .replace(/\uE000U\uE001/g, "<u>")
+        .replace(/\uE000U\uE002/g, "</u>")
+        .replace(/\uE000C([^]+?)\uE001/g, (_, color) => `<span style="color:${escapeHtml(color)}">`)
+        .replace(/\uE000C\uE002/g, "</span>");
+    }
+
     function processText() {
-      let raw = inputText.value || "";
+      let raw = normalizeEditorHtml();
+
       if (!raw.trim()) {
+        processedHtml = "";
         previewOutput.innerHTML = '<p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>';
         codeOutput.textContent = "";
         statsMatches.textContent = "0 términos enlazados";
@@ -585,10 +692,8 @@
           const escapedKw = kw.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
           const regex = new RegExp(`\\b(${escapedKw})\\b`, 'gi');
 
-          let replacedThisTerm = false;
           textResult = textResult.replace(regex, (match) => {
             if (replaceMode === 'first' && foundKeywordsSet.has(kw.toLowerCase())) return match;
-            replacedThisTerm = true;
             foundKeywordsSet.add(kw.toLowerCase());
             matchCount++;
             let inner = useBold ? `<strong>${match}</strong>` : match;
@@ -599,17 +704,166 @@
         return `<p>${textResult}</p>`;
       });
 
-      processedHtml = processedParagraphs.join('\n');
+      processedHtml = processedParagraphs.join("\n");
+      processedHtml = restoreManualFormatting(processedHtml);
       previewOutput.innerHTML = processedHtml;
       codeOutput.textContent = processedHtml;
       statsMatches.textContent = `${matchCount} término(s) enlazado(s)`;
     }
 
+    let savedSelectionRange = null;
+
+    function saveEditorSelection() {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+
+      if (inputText.contains(container) || container === inputText) {
+        savedSelectionRange = range.cloneRange();
+      }
+    }
+
+    function restoreEditorSelection() {
+      if (!savedSelectionRange) return false;
+
+      try {
+        if (!(inputText.contains(savedSelectionRange.commonAncestorContainer) ||
+              savedSelectionRange.commonAncestorContainer === inputText)) {
+          return false;
+        }
+
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(savedSelectionRange);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function updateFormatButtons() {
+      document.querySelectorAll('.format-btn[data-command]').forEach(btn => {
+        try {
+          btn.classList.toggle('active', document.queryCommandState(btn.dataset.command));
+        } catch (error) {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    function applyManualFormat(command) {
+      restoreEditorSelection();
+      inputText.focus();
+
+      try {
+        document.execCommand(command, false, null);
+      } catch (error) {
+        console.error(`No se pudo aplicar el formato "${command}":`, error);
+      }
+
+      saveEditorSelection();
+      updateFormatButtons();
+      processText();
+    }
+
+    function setupManualFormatting() {
+      document.querySelectorAll('.format-btn[data-command]').forEach(btn => {
+        btn.addEventListener('mousedown', event => {
+          event.preventDefault();
+          saveEditorSelection();
+          applyManualFormat(btn.dataset.command);
+        });
+      });
+
+      const clearFormatButton = document.getElementById('btnClearFormat');
+      clearFormatButton.addEventListener('mousedown', event => {
+        event.preventDefault();
+        saveEditorSelection();
+        applyManualFormat('removeFormat');
+      });
+
+      const textColor = document.getElementById('textColor');
+      textColor.addEventListener('mousedown', () => {
+        saveEditorSelection();
+      });
+
+      textColor.addEventListener('input', event => {
+        restoreEditorSelection();
+        inputText.focus();
+
+        try {
+          document.execCommand('foreColor', false, event.target.value);
+        } catch (error) {
+          console.error("No se pudo aplicar el color:", error);
+        }
+
+        saveEditorSelection();
+        updateFormatButtons();
+        processText();
+      });
+
+      inputText.addEventListener('keyup', saveEditorSelection);
+      inputText.addEventListener('mouseup', saveEditorSelection);
+      inputText.addEventListener('focus', updateFormatButtons);
+      inputText.addEventListener('blur', saveEditorSelection);
+
+      document.addEventListener('selectionchange', () => {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+        const range = selection.getRangeAt(0);
+        if (inputText.contains(range.commonAncestorContainer) || range.commonAncestorContainer === inputText) {
+          savedSelectionRange = range.cloneRange();
+          updateFormatButtons();
+        }
+      });
+
+      inputText.addEventListener('paste', event => {
+        event.preventDefault();
+        const text = (event.clipboardData || window.clipboardData).getData('text/plain');
+        const selection = window.getSelection();
+
+        if (!selection || selection.rangeCount === 0) {
+          inputText.textContent += text;
+          processText();
+          return;
+        }
+
+        const range = selection.getRangeAt(0);
+        if (!inputText.contains(range.commonAncestorContainer)) return;
+
+        range.deleteContents();
+        const fragment = document.createDocumentFragment();
+        const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+
+        lines.forEach((line, index) => {
+          fragment.appendChild(document.createTextNode(line));
+          if (index < lines.length - 1) fragment.appendChild(document.createElement("br"));
+        });
+
+        range.insertNode(fragment);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        saveEditorSelection();
+        processText();
+      });
+    }
+
     function setupEventListeners() {
-      inputText.addEventListener('input', processText);
+      setupManualFormatting();
+
+      inputText.addEventListener('input', () => {
+        saveEditorSelection();
+        processText();
+      });
+
       document.querySelectorAll('input, select').forEach(el => el.addEventListener('change', processText));
+
       document.getElementById('btnClearInput').addEventListener('click', () => {
-        inputText.value = '';
+        inputText.innerHTML = '';
+        savedSelectionRange = null;
         processText();
       });
       document.getElementById('btnRegenerate').addEventListener('click', processText);
