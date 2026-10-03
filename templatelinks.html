@@ -1357,16 +1357,22 @@ function forEachTextNode(root, callback) {
       const totalMatches = linkDictionaryTerms(root, replaceMode, isBold, isBlank);
 
       // Las itálicas automáticas se aplican al HTML final, pero nunca dentro
-      // de enlaces ni sobre una <em> que ya haya sido aplicada manualmente.
-      autoItalicizeEnglishSportsTerms(root);
+// de enlaces ni sobre una <em> que ya haya sido aplicada manualmente.
+autoItalicizeEnglishSportsTerms(root);
 
-      processedHtml = Array.from(root.childNodes)
-        .map(node => node.outerHTML || node.textContent || '')
-        .join('\n\n');
+root.querySelectorAll('div').forEach(div => {
+  if (div.innerHTML.trim().toLowerCase() === '<br>') {
+    div.remove();
+  }
+});
 
-      previewOutput.innerHTML = processedHtml;
-      codeOutput.textContent = processedHtml;
-      statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
+processedHtml = Array.from(root.childNodes)
+  .map(node => node.outerHTML || node.textContent || '')
+  .join('\n\n');
+
+previewOutput.innerHTML = processedHtml;
+codeOutput.textContent = processedHtml;
+statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
     }
 
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
