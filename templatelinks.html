@@ -659,6 +659,48 @@
       return cleanedText;
     }
 
+    // NUEVA FUNCIÓN: Formateo automático de expresiones de dinero según reglas de El Nuevo Día
+    function formatCurrencyExpressions(text) {
+      let formatted = text;
+
+      // 1. Corrección del error común de AP: "billón/billones de dólares" (incorrecto en español) -> "$X,000 millones"
+      formatted = formatted.replace(/\b(?:un|1)\s+bill[oó]n(?:\s+de\s+d[oó]lares)?\b/gi, '$1,000 millones');
+      formatted = formatted.replace(/\b(\d+)\s+bill[oó]nes(?:\s+de\s+d[oó]lares)?\b/gi, (match, num) => {
+        return `$${parseInt(num) * 1000} millones`;
+      });
+
+      // 2. Traducción de montos textuales específicos a cifras con signo ($100, $250)
+      formatted = formatted.replace(/\bcien\s+d[oó]lares\b/gi, '$100');
+      formatted = formatted.replace(/\bdoscientos\s+cincuenta\s+d[oó]lares\b/gi, '$250');
+
+      // 3. Millones en dinero: "1 millón de dólares", "tres millones de dólares", etc. -> "$X millones"
+      const wordNumbersToDigits = {
+        'un': '1', 'uno': '1', 'dos': '2', 'tres': '3', 'cuatro': '4', 'cinco': '5',
+        'seis': '6', 'siete': '7', 'ocho': '8', 'nueve': '9', 'diez': '10'
+      };
+
+      formatted = formatted.replace(/\b(un|\d+|tres|dos|cuatro|cinco|seis|siete|ocho|nueve|diez)\s+mill[oó]n(?:es)?\s+de\s+d[oó]lares\b/gi, (match, numWord) => {
+        let digit = wordNumbersToDigits[numWord.toLowerCase()] || numWord;
+        return `$${digit} millón${Number(digit) > 1 ? 'es' : ''}`;
+      });
+
+      // 4. Singular: "un dólar" o "1 dólar" -> "$1"
+      formatted = formatted.replace(/\b(?:un|1)\s+d[oó]lar\b/gi, '$1');
+
+      // 5. Cifras directas numéricas seguidas de dólares: "10 dólares", "1,000 dólares" -> "$10", "$1,000"
+      formatted = formatted.replace(/\b(\d{1,3}(?:,\d{3})*|\d+)\s+d[oó]lares\b/gi, '$$$1');
+
+      // 6. Cantidades textuales menores directas: "diez dólares", "mil dólares" -> "$10", "$1,000"
+      const directNumberWords = {
+        'diez': '10', 'mil': '1,000', 'cien': '100'
+      };
+      formatted = formatted.replace(/\b(diez|mil)\s+d[oó]lares\b/gi, (match, word) => {
+        return `$${directNumberWords[word.toLowerCase()]}`;
+      });
+
+      return formatted;
+    }
+
     async function loadDictionary() {
       setDictionaryConnectionStatus('loading');
 
@@ -1285,6 +1327,7 @@
         }
 
         value = applyNumericFormatting(value);
+        value = formatCurrencyExpressions(value); // <--- APLICACIÓN AUTOMÁTICA DE MONEDA
 
         if (value !== original) {
           node.nodeValue = value;
