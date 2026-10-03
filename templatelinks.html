@@ -57,13 +57,14 @@
     .format-btn.active { background:#dbeafe;color:#0056b3; }
     #inputText:empty:before { content:attr(data-placeholder);color:#94a3b8;pointer-events:none; }
     .text-pane-scroll {
-      height: min(520px, 55vh);
-      max-height: 520px;
-      overflow-y: auto;
+      max-height: 75vh;
+      overflow-y: scroll;
       scrollbar-gutter: stable;
     }
     #inputText.text-pane-scroll {
-      min-height: 280px;
+      min-height: 400px;
+      max-height: 75vh;
+      overflow-y: scroll;
     }
   </style>
 </head>
@@ -227,13 +228,13 @@
           </div>
         </div>
 
-        <div id="viewPreview" class="p-5 flex-1 min-h-[300px] overflow-y-auto">
+        <div id="viewPreview" class="p-5 flex-1 text-pane-scroll">
           <div id="previewOutput" class="preview-content text-slate-800 text-base leading-relaxed space-y-4">
             <p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>
           </div>
         </div>
 
-        <div id="viewCode" class="hidden p-4 bg-slate-900 flex-1 min-h-[300px] overflow-y-auto">
+        <div id="viewCode" class="hidden p-4 bg-slate-900 flex-1 text-pane-scroll">
           <pre><code id="codeOutput" class="text-xs font-mono text-amber-300 whitespace-pre-wrap break-words"></code></pre>
         </div>
 
@@ -415,13 +416,6 @@
     ];
 
     // Reglas de traducción para cables de AP -> Estilo END en inglés
-    //
-    // IMPORTANTE:
-    // Los nombres completos ("Nacionales de Washington", "Gigantes de San
-    // Francisco", etc.) se traducen siempre. Los apodos solos NO se traducen
-    // automáticamente: requieren contexto de béisbol/equipo para evitar falsos
-    // positivos como "leyes nacionales", "corporaciones nacionales" o
-    // "gigantes de la industria".
     const MLB_TEAM_TRANSLATIONS = [
       { ap: /New York Yankees/g, end: "Yankees de Nueva York" },
       { ap: /Los Angeles Dodgers/g, end: "Dodgers de Los Ángeles" },
@@ -539,16 +533,9 @@
       ...NFL_TEAM_TRANSLATIONS
     ];
 
-    
-// Palabras y expresiones que identifican razonablemente un texto de béisbol.
-    // No basta con que exista alguna de estas palabras: para un apodo aislado
-    // también se exige una construcción que parezca referirse al equipo.
     const BASEBALL_CONTEXT = /\b(?:béisbol|beisbol|MLB|Grandes Ligas|Liga Nacional|Liga Americana|Serie Mundial|jonr[oó]n(?:es)?|cuadrangular(?:es)?|home run(?:s)?|bate(?:ó|aron|aron)|bateador(?:es)?|batea(?:n|ron)|lanzador(?:es)?|lanz[oó]|pitcher(?:s)?|relevista(?:s)?|abridor(?:es)?|receptor(?:es)?|catcher(?:s)?|inning(?:s)?|entrada(?:s)?|carrera(?:s)?|bases?|bullpen|diamante|out(?:s)?|hit(?:s)?|doble(?:s)?|triple(?:s)?|roleta(?:s)?|sencillo(?:s)?|serie(?:s)?|par(?:tido|tidos)|temporada|playoffs|postemporada|clasificaci[oó]n|wild card|wild-card)\b/i;
 
     function hasBaseballTeamContext(text) {
-      // Si aparece el nombre completo de cualquiera de los equipos que esta
-      // plantilla traduce, el resto de apariciones de su apodo se consideran
-      // referencias al equipo.
       return MLB_TEAM_TRANSLATIONS.some(item => {
         if (item.standalone) return false;
         item.ap.lastIndex = 0;
@@ -560,35 +547,15 @@
 
     function shouldTranslateStandaloneNickname(fullText, offset, match, baseballContext) {
       if (!baseballContext) return false;
-
-      // Los nombres propios de los equipos vienen capitalizados en los cables.
-      // Esta comprobación evita transformar usos comunes en minúscula:
-      // "leyes nacionales", "gigantes de la industria", etc.
       if (!match || match[0] !== match[0].toUpperCase()) return false;
-
       const before = fullText.slice(Math.max(0, offset - 20), offset);
       const after = fullText.slice(offset + match.length, offset + match.length + 35);
-
-      // En el uso normal de un equipo, el apodo aparece como sustantivo:
-      // "los Nacionales", "los Gigantes", "los Tigres", etc.
-      // Esto evita casos como "leyes nacionales" o "gigantes de la industria".
       const precededByArticle = /(?:^|\s)(?:el|la|los|las)\s+$/i.test(before);
-
       if (!precededByArticle) return false;
-
-      // "los nacionales de Puerto Rico", "los gigantes de la industria", etc.
-      // no deben convertirse. Los nombres completos de los equipos ya fueron
-      // procesados antes de llegar a esta regla.
       if (/^\s+de\s+/i.test(after)) return false;
-
       return true;
     }
 
-    // ============================================================
-    // SUPABASE — Diccionario central
-    // La Publishable key puede estar en el frontend. La seguridad real
-    // de escritura está en RLS, configurado en Supabase.
-    // ============================================================
     const SUPABASE_URL = "https://ngkygzwqtwxcggukqznj.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_D3k7urSeKP8aR0ypEdrOXw_6-sxarN-";
     const supabaseClient = window.supabase.createClient(
@@ -692,8 +659,6 @@
       return cleanedText;
     }
 
-    
-
     async function loadDictionary() {
       setDictionaryConnectionStatus('loading');
 
@@ -718,8 +683,6 @@
         dictionaryFromSupabase = true;
         setDictionaryConnectionStatus('connected');
       } else {
-        // La tabla está vacía: usamos los valores predeterminados solo como
-        // respaldo temporal. El administrador podrá cargarlos al iniciar sesión.
         dictionary = [...DEFAULT_DICTIONARY];
         dictionaryFromSupabase = false;
         setDictionaryConnectionStatus('empty');
@@ -780,7 +743,7 @@
       }
     }
 
-      const DEFAULT_ANGLICISM_REGEX = /\b(?:inning|innings|playoff|playoffs|wild\s+card|wild\s+cards|home\s+run|home\s+runs|pitcher|pitchers|catcher|catchers|bullpen|closer|closers|reliever|relievers|starter|starters|out|outs|hit|hits|strike|strikes|walk|walks|double|doubles|triple|triples|slider|sliders|changeup|changeups|curveball|curveballs|fastball|fastballs|sinker|sinkers|sweeper|sweepers|splitter|splitters|lineup|lineups|batting\s+order|designated\s+hitter|designated\s+hitters|draft|passed\s+ball|passed\s+balls|wild\s+pitch|wild\s+pitches|balk|balks|walk[-\s]?off|sacrifice\s+fly|sacrifice\s+flies|sacrifice\s+bunt|sacrifice\s+bunts|stolen\s+base|stolen\s+bases|caught\s+stealing|pickoff|pickoffs|double\s+play|double\s+plays|triple\s+play|triple\s+plays|force\s+out|force\s+outs|tag\s+out|tag\s+outs|groundout|groundouts|flyout|flyouts|strikeout|strikeouts|grand\s+slam|grand\s+slams|shutout|shutouts|no[-\s]?hitter|no[-\s]?hitters|perfect\s+game|perfect\s+games|lead[-\s]?off|leadoff|pinch\s+hitter|pinch\s+hitters|pinch\s+runner|pinch\s+runners|utility\s+player|utility\s+players|prospect|prospects|rookie|rookies|spring\s+training|trade\s+deadline|waiver|waivers|all[-\s]?star|all[-\s]?stars|home\s+run\s+derby|home\s+plate|home|plate|plates|cutter|cutters|derby|batter|batters|batting|bat|bats|shortstop|shortstops|third\s+baseman|third\s+basemen|second\s+baseman|second\s+basemen|first\s+baseman|first\s+basemen|outfielder|outfielders|infielder|infielders|outfield|infield|dugout|dugouts|on[-\s]?deck|on[-\s]?base|on[-\s]?deck|batting\s+practice|batting\s+coach|base\s+coach|first\s+base|second\s+base|third\s+base|home\s+run|grand\s+slam|inside[-\s]?the[-\s]?park|sac\s+fly|sacrifice\s+fly|sac\s+bunt|sacrifice\s+bunt|hit[-\s]?by[-\s]?pitch|hit\s+by\s+pitch|intentional\s+walk|walk\s+off|walk[-\s]?off|run[-\s]?batted[-\s]?in|runs[-\s]?batted[-\s]?in|RBI|ERA|WHIP|OPS|OBP|SLG|BABIP|WAR|FIP|QS|save|saves|hold|holds|blown\s+save|blown\s+saves|setup\s+man|setup\s+men|middle\s+reliever|middle\s+relievers|long\s+reliever|long\s+relievers|left[-\s]?hander|right[-\s]?hander|lefty|lefties|righty|righties|switch[-\s]?hitter|switch[-\s]?hitters|utility\s+man|utility\s+men|utility\s+infielder|utility\s+infielders|utility\s+outfielder|utility\s+outfielders|catcher\s+interference|pitch\s+clock|pitch\s+com|ghost\s+runner|runner\s+on\s+second|bases[-\s]?loaded|loaded\s+bases|inside\s+corner|outside\s+corner|inside\s+pitch|outside\s+pitch|high\s+fastball|low\s+fastball|breaking\s+ball|breaking\s+balls|off[-\s]?speed|off[-\s]?speed\s+pitch|two[-\s]?seamer|four[-\s]?seamer|four[-\s]?seam|two[-\s]?seam|curve|curves|knuckleball|knuckleballs|knuckle[-\s]?curve|knuckle[-\s]?curves|forkball|forkballs|splitter|splitters|sinker|sinkers|sweeper|sweepers|slider|sliders|changeup|changeups|fastball|fastballs|cutter|cutters|slugging|slugger|sluggers|batting\s+average|on[-\s]?base\s+percentage|slugging\s+percentage|fastbreak|fast\s+break|half\s+court|full\s+court|frontcourt|backcourt|point\s+guard|shooting\s+guard|small\s+forward|power\s+forward|center|centers|forward|forwards|guard|guards|sixth\s+man|sixth\s+woman|pick\s+and\s+roll|pick\s+and\s+pop|pick\s+and\s+rolls|alley[-\s]?oop|slam\s+dunk|dunk|dunks|layup|layups|tip[-\s]?in|tip[-\s]?ins|jump\s+shot|jumpers|jumper|fadeaway|fadeaway\s+jumper|hook\s+shot|bank\s+shot|three[-\s]?pointer|three[-\s]?pointers|two[-\s]?pointer|two[-\s]?pointers|free\s+throw|free\s+throws|turnover|turnovers|steal|steals|block|blocks|assist|assists|rebound|rebounds|box\s+out|box\s+outs|double[-\s]?double|triple[-\s]?double|quadruple[-\s]?double|buzzer[-\s]?beater|game[-\s]?winner|game[-\s]?winning|shot\s+clock|shot\s+creator|rim\s+protector|stretch\s+four|two[-\s]?way|two[-\s]?way\s+player|playmaker|playmakers|ball\s+handler|ball\s+handlers|spacing|switch|switches|switching|mismatch|mismatches|screen|screens|screening|closeout|closeouts|rotation|rotations|transition|pace|pick\s+and\s+roll|NBA\s+draft|lottery\s+pick|lottery\s+picks|undrafted|rookie\s+scale|salary\s+cap|hard\s+cap|luxury\s+tax|trade\s+exception|two[-\s]?way\s+contract|buyout|buyouts|waiver\s+wire|free\s+agency|free\s+agent|free\s+agents|play[-\s]?in|home\s+court|road\s+game|road\s+games|clutch|clutch\s+time|overtime|shot|shots|par|birdie|birdies|eagle|eagles|albatross|albatrosses|bogey|bogeys|double\s+bogey|double\s+bogeys|tee|tees|tee\s+box|fairway|fairways|rough|green|greens|putt|putts|putter|putters|putting|drive|drives|driver|drivers|approach|approaches|approach\s+shot|approach\s+shots|chip|chips|chipping|pitch|pitches|pitching|bunker|bunkers|sand\s+trap|sand\s+traps|hazard|hazards|water\s+hazard|water\s+hazards|golf\s+cart|caddie|caddies|clubhouse|links|links\s+course|stroke|strokes|stroke\s+play|match\s+play|medal\s+play|cut|cuts|made\s+the\s+cut|missed\s+the\s+cut|leaderboard|leaderboards|major|majors|round|rounds|final\s+round|opening\s+round|back\s+nine|front\s+nine|nine\s+holes|18\s+holes|par[-\s]?3|par[-\s]?4|par[-\s]?5|one[-\s]?under|two[-\s]?under|three[-\s]?under|one[-\s]?over|two[-\s]?over|three[-\s]?over|under\s+par|over\s+par|tee\s+time|gimme|gimme\s+putt|boxing|boxer|boxers|fight|fights|fighter|fighters|bout|bouts|title\s+fight|title\s+fights|championship\s+bout|contender|contenders|challenger|challengers|undisputed|unified|unification|knockout|knockouts|knockout\s+artist|TKO|KO|technical\s+knockout|technical\s+knockouts|knockdown|knockdowns|count|counts|standing\s+eight|corner|cornermen|cutman|cutmen|ring|ringside|ring\s+walk|weigh[-\s]?in|weigh[-\s]?ins|weight\s+class|weight\s+classes|heavyweight|lightweight|welterweight|middleweight|bantamweight|featherweight|flyweight|super\s+heavyweight|super\s+middleweight|super\s+welterweight|super\s+lightweight|super\s+featherweight|super\s+bantamweight|southpaw|orthodox|jab|jabs|cross|crosses|hook|hooks|uppercut|uppercuts|body\s+shot|body\s+shots|combination|combinations|counterpunch|counterpunches|head\s+shot|head\s+shots|punch|punches|power\s+punch|power\s+punches|clean\s+shot|clean\s+shots|decision|decisions|split\s+decision|majority\s+decision|unanimous\s+decision|draw|draws|technical\s+decision|referee|referees|judges|judge|scorecard|scorecards|rounds|bell|bells|NFL|football|quarterback|quarterbacks|QB|running\s+back|running\s+backs|wide\s+receiver|wide\s+receivers|tight\s+end|tight\s+ends|offensive\s+line|defensive\s+line|lineman|linemen|defensive\s+back|defensive\s+backs|cornerback|cornerbacks|safety|safeties|linebacker|linebackers|fullback|fullbacks|slot\s+receiver|slot\s+receivers|pass\s+rusher|pass\s+rushers|edge\s+rusher|edge\s+rushers|special\s+teams|placekicker|placekickers|kicker|kickers|punter|punters|long\s+snapper|long\s+snappers|kickoff|kickoffs|punt|punts|fair\s+catch|fair\s+catches|touchdown|touchdowns|extra\s+point|extra\s+points|field\s+goal|field\s+goals|two[-\s]?point\s+conversion|two[-\s]?point\s+conversions|conversion|conversions|safety|safeties|fumble|fumbles|fumble\s+recovery|fumble\s+recoveries|interception|interceptions|pick[-\s]?six|pass\s+interference|defensive\s+pass\s+interference|offensive\s+pass\s+interference|holding|false\s+start|offsides|offside|encroachment|neutral\s+zone\s+infraction|delay\s+of\s+game|roughing\s+the\s+passer|roughing\s+the\s+kicker|illegal\s+contact|personal\s+foul|face\s+mask|facemask|taunting|unsportsmanlike\s+conduct|horse[-\s]?collar|tackle|tackles|tackling|sack|sacks|blitz|blitzes|blitzing|coverage|man\s+coverage|zone\s+coverage|press\s+coverage|red\s+zone|end\s+zone|goal\s+line|first\s+down|first\s+downs|third\s+down|fourth\s+down|two[-\s]?minute\s+warning|hurry[-\s]?up|no[-\s]?huddle|shotgun|shotgun\s+formation|wildcat|play\s+action|play[-\s]?action|read\s+option|option\s+play|screen\s+pass|deep\s+ball|deep\s+pass|pass\s+rush|run\s+game|passing\s+game|running\s+game|turnover\s+margin|time\s+of\s+possession|drive|drives|three[-\s]?and[-\s]?out|two[-\s]?minute\s+drill|game\s+clock|playoff\s+berth|wild\s+card|bye|bye\s+week|home\s+field|road\s+game|franchise\s+tag|salary\s+cap|free\s+agency|free\s+agent|trade\s+deadline|waiver\s+wire|practice\s+squad|active\s+roster|depth\s+chart|roster|rosters|starter|starters|head\s+coach|offensive\s+coordinator|defensive\s+coordinator|special\s+teams\s+coordinator|play\s+caller|play\s+calling|snap|snaps|line\s+of\s+scrimmage|preseason|regular\s+season|Super\s+Bowl|Pro\s+Bowl)\b/gi;
+    const DEFAULT_ANGLICISM_REGEX = /\b(?:inning|innings|playoff|playoffs|wild\s+card|wild\s+cards|home\s+run|home\s+runs|pitcher|pitchers|catcher|catchers|bullpen|closer|closers|reliever|relievers|starter|starters|out|outs|hit|hits|strike|strikes|walk|walks|double|doubles|triple|triples|slider|sliders|changeup|changeups|curveball|curveballs|fastball|fastballs|sinker|sinkers|sweeper|sweepers|splitter|splitters|lineup|lineups|batting\s+order|designated\s+hitter|designated\s+hitters|draft|passed\s+ball|passed\s+balls|wild\s+pitch|wild\s+pitches|balk|balks|walk[-\s]?off|sacrifice\s+fly|sacrifice\s+flies|sacrifice\s+bunt|sacrifice\s+bunts|stolen\s+base|stolen\s+bases|caught\s+stealing|pickoff|pickoffs|double\s+play|double\s+plays|triple\s+play|triple\s+plays|force\s+out|force\s+outs|tag\s+out|tag\s+outs|groundout|groundouts|flyout|flyouts|strikeout|strikeouts|grand\s+slam|grand\s+slams|shutout|shutouts|no[-\s]?hitter|no[-\s]?hitters|perfect\s+game|perfect\s+games|lead[-\s]?off|leadoff|pinch\s+hitter|pinch\s+hitters|pinch\s+runner|pinch\s+runners|utility\s+player|utility\s+players|prospect|prospects|rookie|rookies|spring\s+training|trade\s+deadline|waiver|waivers|all[-\s]?star|all[-\s]?stars|home\s+run\s+derby|home\s+plate|home|plate|plates|cutter|cutters|derby|batter|batters|batting|bat|bats|shortstop|shortstops|third\s+baseman|third\s+basemen|second\s+baseman|second\s+basemen|first\s+baseman|first\s+basemen|outfielder|outfielders|infielder|infielders|outfield|infield|dugout|dugouts|on[-\s]?deck|on[-\s]?base|on[-\s]?deck|batting\s+practice|batting\s+coach|base\s+coach|first\s+base|second\s+base|third\s+base|home\s+run|grand\s+slam|inside[-\s]?the[-\s]?park|sac\s+fly|sacrifice\s+fly|sac\s+bunt|sacrifice\s+bunt|hit[-\s]?by[-\s]?pitch|hit\s+by\s+pitch|intentional\s+walk|walk\s+off|walk[-\s]?off|run[-\s]?batted[-\s]?in|runs[-\s]?batted[-\s]?in|RBI|ERA|WHIP|OPS|OBP|SLG|BABIP|WAR|FIP|QS|save|saves|hold|holds|blown\s+save|blown\s+saves|setup\s+man|setup\s+men|middle\s+reliever|middle\s+relievers|long\s+reliever|long\s+relievers|left[-\s]?hander|right[-\s]?hander|lefty|lefties|righty|righties|switch[-\s]?hitter|switch[-\s]?hitters|utility\s+man|utility\s+men|utility\s+infielder|utility\s+infielders|utility\s+outfielder|utility\s+outfielders|catcher\s+interference|pitch\s+clock|pitch\s+com|ghost\s+runner|runner\s+on\s+second|bases[-\s]?loaded|loaded\s+bases|inside\s+corner|outside\s+corner|inside\s+pitch|outside\s+pitch|high\s+fastball|low\s+fastball|breaking\s+ball|breaking\s+balls|off[-\s]?speed|off[-\s]?speed\s+pitch|two[-\s]?seamer|four[-\s]?seamer|four[-\s]?seam|two[-\s]?seam|curve|curves|knuckleball|knuckleballs|knuckle[-\s]?curve|knuckle[-\s]?curves|forkball|forkballs|splitter|splitters|sinker|sinkers|sweeper|sweepers|slider|sliders|changeup|changeups|fastball|fastballs|cutter|cutters|slugging|slugger|sluggers|batting\s+average|on[-\s]?base\s+percentage|slugging\s+percentage|fastbreak|fast\s+break|half\s+court|full\s+court|frontcourt|backcourt|point\s+guard|shooting\s+guard|small\s+forward|power\s+forward|center|centers|forward|forwards|guard|guards|sixth\s+man|sixth\s+woman|pick\s+and\s+roll|pick\s+and\s+pop|pick\s+and\s+rolls|alley[-\s]?oop|slam\s+dunk|dunk|dunks|layup|layups|tip[-\s]?in|tip[-\s]?ins|jump\s+shot|jumpers|jumper|fadeaway|fadeaway\s+jumper|hook\s+shot|bank\s+shot|three[-\s]?pointer|three[-\s]?pointers|two[-\s]?pointer|two[-\s]?pointers|free\s+throw|free\s+throws|turnover|turnovers|steal|steals|block|blocks|assist|assists|rebound|rebounds|box\s+out|box\s+outs|double[-\s]?double|triple[-\s]?double|quadruple[-\s]?double|buzzer[-\s]?beater|game[-\s]?winner|game[-\s]?winning|shot\s+clock|shot\s+creator|rim\s+protector|stretch\s+four|two[-\s]?way|two[-\s]?way\s+player|playmaker|playmakers|ball\s+handler|ball\s+handlers|spacing|switch|switches|switching|mismatch|mismatches|screen|screens|screening|closeout|closeouts|rotation|rotations|transition|pace|pick\s+and\s+roll|NBA\s+draft|lottery\s+pick|lottery\s+picks|undrafted|rookie\s+scale|salary\s+cap|hard\s+cap|luxury\s+tax|trade\s+exception|two[-\s]?way\s+contract|buyout|buyouts|waiver\s+wire|free\s+agency|free\s+agent|free\s+agents|play[-\s]?in|home\s+court|road\s+game|road\s+games|clutch|clutch\s+time|overtime|shot|shots|par|birdie|birdies|eagle|eagles|albatross|albatrosses|bogey|bogeys|double\s+bogey|double\s+bogeys|tee|tees|tee\s+box|fairway|fairways|rough|green|greens|putt|putts|putter|putters|putting|drive|drives|driver|drivers|approach|approaches|approach\s+shot|approach\s+shots|chip|chips|chipping|pitch|pitches|pitching|bunker|bunkers|sand\s+trap|sand\s+traps|hazard|hazards|water\s+hazard|water\s+hazards|golf\s+cart|caddie|caddies|clubhouse|links|links\s+course|stroke|strokes|stroke\s+play|match\s+play|medal\s+play|cut|cuts|made\s+the\s+cut|missed\s+the\s+cut|leaderboard|leaderboards|major|majors|round|rounds|final\s+round|opening\s+round|back\s+nine|front\s+nine|nine\s+holes|18\s+holes|par[-\s]?3|par[-\s]?4|par[-\s]?5|one[-\s]?under|two[-\s]?under|three[-\s]?under|one[-\s]?over|two[-\s]?over|three[-\s]?over|under\s+par|over\s+par|tee\s+time|gimme|gimme\s+putt|boxing|boxer|boxers|fight|fights|fighter|fighters|bout|bouts|title\s+fight|title\s+fights|championship\s+bout|contender|contenders|challenger|challengers|undisputed|unified|unification|knockout|knockouts|knockout\s+artist|TKO|KO|technical\s+knockout|technical\s+knockouts|knockdown|knockdowns|count|counts|standing\s+eight|corner|cornermen|cutman|cutmen|ring|ringside|ring\s+walk|weigh[-\s]?in|weigh[-\s]?ins|weight\s+class|weight\s+classes|heavyweight|lightweight|welterweight|middleweight|bantamweight|featherweight|flyweight|super\s+heavyweight|super\s+middleweight|super\s+welterweight|super\s+lightweight|super\s+featherweight|super\s+bantamweight|southpaw|orthodox|jab|jabs|cross|crosses|hook|hooks|uppercut|uppercuts|body\s+shot|body\s+shots|combination|combinations|counterpunch|counterpunches|head\s+shot|head\s+shots|punch|punches|power\s+punch|power\s+punches|clean\s+shot|clean\s+shots|decision|decisions|split\s+decision|majority\s+decision|unanimous\s+decision|draw|draws|technical\s+decision|referee|referees|judges|judge|scorecard|scorecards|rounds|bell|bells|NFL|football|quarterback|quarterbacks|QB|running\s+back|running\s+backs|wide\s+receiver|wide\s+receivers|tight\s+end|tight\s+ends|offensive\s+line|defensive\s+line|lineman|linemen|defensive\s+back|defensive\s+backs|cornerback|cornerbacks|safety|safeties|linebacker|linebackers|fullback|fullbacks|slot\s+receiver|slot\s+receivers|pass\s+rusher|pass\s+rushers|edge\s+rusher|edge\s+rushers|special\s+teams|placekicker|placekickers|kicker|kickers|punter|punters|long\s+snapper|long\s+snappers|kickoff|kickoffs|punt|punts|fair\s+catch|fair\s+catches|touchdown|touchdowns|extra\s+point|extra\s+points|field\s+goal|field\s+goals|two[-\s]?point\s+conversion|two[-\s]?point\s+conversions|conversion|conversions|safety|safeties|fumble|fumbles|fumble\s+recovery|fumble\s+recoveries|interception|interceptions|pick[-\s]?six|pass\s+interference|defensive\s+pass\s+interference|offensive\s+pass\s+interference|holding|false\s+start|offsides|offside|encroachment|neutral\s+zone\s+infraction|delay\s+of\s+game|roughing\s+the\s+passer|roughing\s+the\s+kicker|illegal\s+contact|personal\s+foul|face\s+mask|facemask|taunting|unsportsmanlike\s+conduct|horse[-\s]?collar|tackle|tackles|tackling|sack|sacks|blitz|blitzes|blitzing|coverage|man\s+coverage|zone\s+coverage|press\s+coverage|red\s+zone|end\s+zone|goal\s+line|first\s+down|first\s+downs|third\s+down|fourth\s+down|two[-\s]?minute\s+warning|hurry[-\s]?up|no[-\s]?huddle|shotgun|shotgun\s+formation|wildcat|play\s+action|play[-\s]?action|read\s+option|option\s+play|screen\s+pass|deep\s+ball|deep\s+pass|pass\s+rush|run\s+game|passing\s+game|running\s+game|turnover\s+margin|time\s+of\s+possession|drive|drives|three[-\s]?and[-\s]?out|two[-\s]?minute\s+drill|game\s+clock|playoff\s+berth|wild\s+card|bye|bye\s+week|home\s+field|road\s+game|franchise\s+tag|salary\s+cap|free\s+agency|free\s+agent|trade\s+deadline|waiver\s+wire|practice\s+squad|active\s+roster|depth\s+chart|roster|rosters|starter|starters|head\s+coach|offensive\s+coordinator|defensive\s+coordinator|special\s+teams\s+coordinator|play\s+caller|play\s+calling|snap|snaps|line\s+of\s+scrimmage|preseason|regular\s+season|Super\s+Bowl|Pro\s+Bowl)\b/gi;
 
     function getDefaultAnglicismTerms() {
       const source = DEFAULT_ANGLICISM_REGEX.source;
@@ -799,10 +762,6 @@
             .replace(/\\/g, ''),
           pattern
         }))
-        // Algunos términos aparecen más de una vez en la regex original
-        // (por ejemplo, "wild card", "home run" y "slider"). Como la tabla
-        // de Supabase tiene "term" como UNIQUE, eliminamos los duplicados por
-        // término, no por patrón, antes de cargar la lista.
         .filter(item => {
           const key = item.term.trim().toLocaleLowerCase('es');
           if (!key || key === 'par' || seen.has(key)) return false;
@@ -863,8 +822,6 @@
       const defaults = getDefaultAnglicismTerms();
       if (!defaults.length) return false;
 
-      // Cargamos los términos uno por uno para que un término problemático no
-      // impida que toda la lista quede en Supabase. La columna term es UNIQUE.
       let inserted = 0;
       let skipped = 0;
       let firstInsertError = null;
@@ -1009,9 +966,6 @@
         return;
       }
 
-      // Si no existe todavía un diccionario local, cargamos los valores
-      // predeterminados. Si sí existe, usamos ese diccionario completo para
-      // conservar también los términos NBA y cualquier otro añadido previo.
       const source = localDictionary || [...DEFAULT_DICTIONARY];
       const centralMap = new Map(
         (centralData || []).map(item => [item.keyword.trim().toLocaleLowerCase('es'), item])
@@ -1054,7 +1008,6 @@
       }
 
       await loadDictionary();
-
       migrationInProgress = false;
 
       if (inserted || updated) {
@@ -1135,55 +1088,46 @@
     }
 
     function applyNumericFormatting(text) {
-  let formatted = text;
+      let formatted = text;
+      formatted = formatted.replace(/\b\d{1,3}(?:\.\d{3})+\b/g, match =>
+        match.replace(/\./g, ',')
+      );
+      formatted = formatted.replace(/\b\d+,\d{1,2}\b/g, match =>
+        match.replace(',', '.')
+      );
 
-  // AP: miles con punto -> coma (47.084 -> 47,084)
-  formatted = formatted.replace(/\b\d{1,3}(?:\.\d{3})+\b/g, match =>
-    match.replace(/\./g, ',')
-  );
+      const pitchingUnits = '(?:entrada|entradas|episodio|episodios|inning|innings)';
+      formatted = formatted.replace(
+        new RegExp('\\b(\\d+)\\s+1\\/3(?=\\s+' + pitchingUnits + '\\b)', 'gi'),
+        '$1.1'
+      );
+      formatted = formatted.replace(
+        new RegExp('\\b(\\d+)\\s+2\\/3(?=\\s+' + pitchingUnits + '\\b)', 'gi'),
+        '$1.2'
+      );
 
-  // AP: decimal con coma -> punto solo con 1-2 dígitos decimales.
-  formatted = formatted.replace(/\b\d+,\d{1,2}\b/g, match =>
-    match.replace(',', '.')
-  );
+      formatted = formatted.replace(
+        /\b(\d+)\s+1\/2(?=\s+(?:juego|juegos|partido|partidos|encuentro|encuentros|desafío|desafíos)(?=\s|[.,;:!?]|$))/gi,
+        '$1.5'
+      );
 
-  // Béisbol: 2 1/3 o 2 2/3 se convierten a decimal cuando se trata de entradas,
-  // episodios o innings, en singular o plural.
-  const pitchingUnits = '(?:entrada|entradas|episodio|episodios|inning|innings)';
-  formatted = formatted.replace(
-    new RegExp('\\b(\\d+)\\s+1\\/3(?=\\s+' + pitchingUnits + '\\b)', 'gi'),
-    '$1.1'
-  );
-  formatted = formatted.replace(
-    new RegExp('\\b(\\d+)\\s+2\\/3(?=\\s+' + pitchingUnits + '\\b)', 'gi'),
-    '$1.2'
-  );
+      const gameNumbers = {
+        '1': 'primer',
+        '2': 'segundo',
+        '3': 'tercer',
+        '4': 'cuarto',
+        '5': 'quinto',
+        '6': 'sexto',
+        '7': 'séptimo'
+      };
+      formatted = formatted.replace(/\bJuego\s+([1-7])\b/gi, (match, number) =>
+        `${gameNumbers[number]} juego`
+      );
 
-  // Fracciones de medio juego/partido: la conversión no depende de una sola palabra.
-  // Acepta juegos, partidos, encuentros y desafíos, en singular o plural.
-  formatted = formatted.replace(
-    /\b(\d+)\s+1\/2(?=\s+(?:juego|juegos|partido|partidos|encuentro|encuentros|desafío|desafíos)(?=\s|[.,;:!?]|$))/gi,
-    '$1.5'
-  );
+      return formatted;
+    }
 
-  // Juego 1, Juego 2, etc. -> primer juego, segundo juego...
-  const gameNumbers = {
-    '1': 'primer',
-    '2': 'segundo',
-    '3': 'tercer',
-    '4': 'cuarto',
-    '5': 'quinto',
-    '6': 'sexto',
-    '7': 'séptimo'
-  };
-  formatted = formatted.replace(/\bJuego\s+([1-7])\b/gi, (match, number) =>
-    `${gameNumbers[number]} juego`
-  );
-
-  return formatted;
-}
-
-function forEachTextNode(root, callback) {
+    function forEachTextNode(root, callback) {
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
       const nodes = [];
       let node;
@@ -1196,8 +1140,6 @@ function forEachTextNode(root, callback) {
     }
 
     function autoItalicizeEnglishSportsTerms(root) {
-      // Términos deportivos en inglés que se dejan en inglés en las notas.
-      // Se excluyen enlaces y texto ya dentro de <em> para no alterar el HTML.
       const regex = getAnglicismRegex();
 
       forEachTextNode(root, node => {
@@ -1319,15 +1261,12 @@ function forEachTextNode(root, callback) {
       const root = document.createElement('div');
       root.innerHTML = inputText.innerHTML;
 
-      // Si el contenido no tiene elementos de bloque, lo envolvemos para que
-      // la salida conserve una estructura HTML limpia.
       if (!root.children.length && root.textContent.trim()) {
         const p = document.createElement('p');
         while (root.firstChild) p.appendChild(root.firstChild);
         root.appendChild(p);
       }
 
-      // Formato de procedencia únicamente en el primer bloque.
       const firstBlock = root.firstElementChild;
       if (isDatelineFormatted && firstBlock) {
         const original = firstBlock.textContent;
@@ -1337,8 +1276,6 @@ function forEachTextNode(root, callback) {
         }
       }
 
-      // Reglas automáticas sobre nodos de texto, conservando <strong>, <em>,
-      // <u>, colores y demás formato manual aplicado por el redactor.
       forEachTextNode(root, node => {
         let value = node.nodeValue;
         const original = value;
@@ -1356,23 +1293,21 @@ function forEachTextNode(root, callback) {
 
       const totalMatches = linkDictionaryTerms(root, replaceMode, isBold, isBlank);
 
-      // Las itálicas automáticas se aplican al HTML final, pero nunca dentro
-// de enlaces ni sobre una <em> que ya haya sido aplicada manualmente.
-autoItalicizeEnglishSportsTerms(root);
+      autoItalicizeEnglishSportsTerms(root);
 
-root.querySelectorAll('div').forEach(div => {
-  if (div.innerHTML.trim().toLowerCase() === '<br>') {
-    div.remove();
-  }
-});
+      root.querySelectorAll('div').forEach(div => {
+        if (div.innerHTML.trim().toLowerCase() === '<br>') {
+          div.remove();
+        }
+      });
 
-processedHtml = Array.from(root.childNodes)
-  .map(node => node.outerHTML || node.textContent || '')
-  .join('\n\n');
+      processedHtml = Array.from(root.childNodes)
+        .map(node => node.outerHTML || node.textContent || '')
+        .join('\n\n');
 
-previewOutput.innerHTML = processedHtml;
-codeOutput.textContent = processedHtml;
-statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
+      previewOutput.innerHTML = processedHtml;
+      codeOutput.textContent = processedHtml;
+      statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
     }
 
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
@@ -1388,7 +1323,6 @@ statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado
       if (toggleDateline) toggleDateline.addEventListener('change', processText);
       if (toggleMLBTeams) toggleMLBTeams.addEventListener('change', processText);
 
-      // Formato manual del borrador: negrita, cursiva, subrayado, color y goma.
       document.querySelectorAll('.format-btn[data-command]').forEach(btn => {
         btn.addEventListener('mousedown', event => event.preventDefault());
         btn.addEventListener('click', () => {
@@ -1763,19 +1697,14 @@ statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado
       const toastIcon = document.getElementById('toastIcon');
 
       toastMsg.textContent = msg;
-      if (type === 'error') {
-        toastIcon.className = "fa-solid fa-circle-exclamation text-red-400";
-      } else {
-        toastIcon.className = "fa-solid fa-check text-emerald-400";
-      }
+      toastIcon.className = type === 'error'
+        ? 'fa-solid fa-circle-exclamation text-red-400'
+        : 'fa-solid fa-check text-emerald-400';
 
       toast.classList.remove('translate-y-20', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-
       setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
         toast.classList.add('translate-y-20', 'opacity-0');
-      }, 3000);
+      }, 3500);
     }
   </script>
 </body>
