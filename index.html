@@ -266,7 +266,10 @@
                 width: 100% !important;
             }
         }
+            .btn-local { background-color: #287a4b; color: #fff; }
+        .btn-share { background-color: #34495e; color: #fff; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -297,8 +300,10 @@
                     <button class="btn-export btn-word" onclick="exportarWord()" title="Guardar como documento Word">Word</button>
                     <button class="btn-export btn-pdf" onclick="exportarPDF()" title="Guardar como PDF formateado">PDF</button>
                     <button class="btn-export btn-txt" onclick="exportarTXT()" title="Respaldo seguro en texto plano">TXT</button>
-                    <button class="btn-export btn-drive" onclick="subirGoogleDrive()" title="Descargar documento y abrir Google Drive">Drive</button>
-                    <button class="btn-export btn-wa" onclick="compartirWhatsApp()" title="Enviar resumen por WhatsApp">WhatsApp</button>
+                    <button class="btn-export btn-local" id="btnSaveLocalDraft" title="Guardar una copia recuperable en tu computadora">Guardar borrador</button>
+                    <button class="btn-export btn-local" id="btnLoadLocalDraft" title="Recuperar un borrador guardado en tu computadora">Recuperar borrador</button>
+                    <button class="btn-export btn-share" onclick="compartirTexto()" title="Compartir el artículo">Compartir</button>
+                    <input type="file" id="localDraftFileInput" accept=".html,.htm,text/html" style="display:none">
                     <button class="btn-export btn-link" onclick="crearEnlace()" title="Convertir texto seleccionado en hipervínculo">Enlace</button>
                     <a href="biblioteca.html" target="_blank" class="btn-export" style="background-color: #2c3e50; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;" title="Ver estantería de artículos guardados">Biblioteca</a>
                     <button class="btn-export btn-github" onclick="abrirModalGitHub()" title="Publicar directamente en GitHub Pages">Publicar</button>
@@ -407,7 +412,8 @@
                     <p style="font-family: Arial, sans-serif; font-size: 10pt; color: #555;"><b>Autor:</b> ${autor}</p>
                     <hr style="border: none; border-top: 1px solid #ccc; margin: 15px 0;"/>
                     ${contenidoTexto}
-                </body>
+                    <script src="index-autolinks.js"></script>
+</body>
                 </html>
             `;
 
