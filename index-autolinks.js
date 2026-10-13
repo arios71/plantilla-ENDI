@@ -161,86 +161,80 @@ function autoItalicizeEnglishSportsTerms(root) {
     }
 function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {
       let total = 0;
-      const matchedTopicsSet = new Set();
 
-      // El editor se procesa directamente: conserva como ya enlazados los tópicos
-      // que se procesaron en una ejecución anterior para no enlazar la segunda mención.
+      // Antes de procesar, deshacer los enlaces automáticos de tópicos que ya existan.
+      // Así se corrigen también los duplicados creados por versiones anteriores del script.
+      const topicUrls = new Set(
+        dictionary
+          .filter(item => item.keyword && item.url)
+          .map(item => item.url.toLowerCase().replace(/\\/$/, ''))
+      );
+
       root.querySelectorAll('a[href]').forEach(anchor => {
-        const anchorUrl = (anchor.href || '').toLowerCase().replace(/\/$/, '');
-        const anchorText = (anchor.textContent || '').trim().toLocaleLowerCase('es');
-        dictionary.forEach(item => {
-          if (!item.keyword || !item.url) return;
-          const topicKey = item.url.toLowerCase().replace(/\/$/, '');
-          if (anchorUrl === topicKey && anchorText === item.keyword.trim().toLocaleLowerCase('es')) {
-            matchedTopicsSet.add(topicKey);
-          }
-        });
+        const href = (anchor.href || '').toLowerCase().replace(/\\/$/, '');
+        if (!topicUrls.has(href)) return;
+
+        const parent = anchor.parentElement;
+        anchor.replaceWith(document.createTextNode(anchor.textContent || ''));
+
+        // Quitar el bold automático anterior junto al enlace para volver a aplicar
+        // el formato únicamente en la primera mención del tópico.
+        if (parent && parent.tagName === 'STRONG' && !parent.querySelector('a') &&
+            parent.childNodes.length === 1) {
+          parent.replaceWith(document.createTextNode(parent.textContent || ''));
+        }
       });
 
+      const matchedTopicsSet = new Set();
+
       dictionary.forEach(item => {
-        if (!item.keyword || !item.keyword.trim()) return;
+        if (!item.keyword || !item.keyword.trim() || !item.url) return;
 
-        const topicKey = (item.url || item.keyword).toLowerCase().replace(/\/$/, '');
-        if (replaceMode === 'first' && matchedTopicsSet.has(topicKey)) return;
+        const topicKey = item.url.toLowerCase().replace(/\\/$/, '');
+        if (matchedTopicsSet.has(topicKey)) return;
 
-        const escapedKw = item.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const boundaryEnd = /\.$/.test(item.keyword) ? '' : '\\b';
-        const regex = new RegExp(`\\b(${escapedKw})${boundaryEnd}`, replaceMode === 'all' ? 'gi' : 'i');
+        const escapedKw = item.keyword.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&');
+        const boundaryEnd = /\\.$/.test(item.keyword) ? '' : '\\b';
+        const regex = new RegExp(`\\\\b(${escapedKw})${boundaryEnd}`, 'i');
 
         let linkedForTopic = false;
 
         forEachTextNode(root, node => {
-          if (replaceMode === 'first' && matchedTopicsSet.has(topicKey)) return;
+          if (matchedTopicsSet.has(topicKey) || linkedForTopic) return;
           if (!node.nodeValue || !node.nodeValue.trim()) return;
 
           regex.lastIndex = 0;
-          if (!regex.test(node.nodeValue)) return;
-          regex.lastIndex = 0;
+          const match = regex.exec(node.nodeValue);
+          if (!match) return;
 
           const value = node.nodeValue;
           const frag = document.createDocumentFragment();
-          let last = 0;
-          let match;
-          let changed = false;
+          const before = value.slice(0, match.index);
+          const after = value.slice(match.index + match[0].length);
+          if (before) frag.appendChild(document.createTextNode(before));
 
-          while ((match = regex.exec(value))) {
-            if (replaceMode === 'first' && linkedForTopic) break;
-
-            if (match.index > last) {
-              frag.appendChild(document.createTextNode(value.slice(last, match.index)));
-            }
-
-            const a = document.createElement('a');
-            a.href = item.url;
-            a.textContent = match[0];
-            if (isBlank) {
-              a.target = '_blank';
-              a.rel = 'noopener';
-            }
-
-            if (isBold) {
-              const strong = document.createElement('strong');
-              strong.appendChild(a);
-              frag.appendChild(strong);
-            } else {
-              frag.appendChild(a);
-            }
-
-            last = match.index + match[0].length;
-            linkedForTopic = true;
-            matchedTopicsSet.add(topicKey);
-            total++;
-            changed = true;
-
-            if (replaceMode === 'first') break;
+          const a = document.createElement('a');
+          a.href = item.url;
+          a.textContent = match[0];
+          if (isBlank) {
+            a.target = '_blank';
+            a.rel = 'noopener';
           }
 
-          if (changed) {
-            if (last < value.length) {
-              frag.appendChild(document.createTextNode(value.slice(last)));
-            }
-            node.parentNode.replaceChild(frag, node);
+          if (isBold) {
+            const strong = document.createElement('strong');
+            strong.appendChild(a);
+            frag.appendChild(strong);
+          } else {
+            frag.appendChild(a);
           }
+
+          if (after) frag.appendChild(document.createTextNode(after));
+          node.parentNode.replaceChild(frag, node);
+
+          linkedForTopic = true;
+          matchedTopicsSet.add(topicKey);
+          total++;
         });
       });
 
