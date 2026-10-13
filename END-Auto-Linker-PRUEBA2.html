@@ -1547,14 +1547,12 @@
         .replace(/</g, '\\u003c')
         .replace(/>/g, '\\u003e')
         .replace(/&/g, '\\u0026');
-      const originalText = inputText.innerText || inputText.textContent || '';
-      const processedText = previewOutput.innerText || previewOutput.textContent || '';
+      const processedHtml = previewOutput.innerHTML || '';
       const savedDate = new Date(snapshot.savedAt).toLocaleString('es-PR');
       return '<!doctype html>\n<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
-        '<title>Borrador de El Nuevo Día</title><style>body{font:16px/1.6 Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 20px;color:#222}h1{font-size:24px}h2{font-size:18px;margin-top:28px;border-bottom:1px solid #ddd;padding-bottom:6px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}</style></head><body>' +
-        '<h1>Borrador de El Nuevo Día</h1><p>Guardado desde Auto-Linker el ' + escapeLocalDraftHtml(savedDate) + '.</p>' +
-        '<h2>Texto original</h2><pre>' + escapeLocalDraftHtml(originalText) + '</pre>' +
-        '<h2>Texto procesado</h2><pre>' + escapeLocalDraftHtml(processedText) + '</pre>' +
+        '<title>Borrador de El Nuevo Día</title><style>body{font:16px/1.6 Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 20px;color:#222}h1{font-size:24px;margin-bottom:8px}.saved-date{color:#666;font-size:13px;margin-bottom:24px}.draft-content{overflow-wrap:anywhere}.draft-content p{margin:0 0 1em}.draft-content a{color:#075985;text-decoration:underline}.draft-content strong,.draft-content b{font-weight:700}.draft-content em,.draft-content i{font-style:italic}.draft-content u{text-decoration:underline}</style></head><body>' +
+        '<h1>Borrador de El Nuevo Día</h1><p class="saved-date">Guardado desde Auto-Linker el ' + escapeLocalDraftHtml(savedDate) + '.</p>' +
+        '<main class="draft-content">' + processedHtml + '</main>' +
         '<script type="application/json" id="end-auto-linker-snapshot">' + snapshotJson + '</scr' + 'ipt></body></html>';
     }
 
