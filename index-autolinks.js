@@ -287,7 +287,7 @@ function processEditorContent() {
   const sel=window.getSelection(); let caret=null;
   if(sel&&sel.rangeCount&&editor.contains(sel.anchorNode)) caret=getCaretTextOffset(editor,sel.getRangeAt(0));
   forEachTextNode(editor,node=>{const changed=applyNumericFormatting(node.nodeValue);if(changed!==node.nodeValue)node.nodeValue=changed;});
-  linkDictionaryTerms(editor,'all',false,true);
+  linkDictionaryTerms(editor,'all',true,true);
   autoItalicizeEnglishSportsTerms(editor);
   if(caret!==null&&document.activeElement===editor) restoreCaretTextOffset(editor,caret);
   actualizarContador();
