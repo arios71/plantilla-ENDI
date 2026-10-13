@@ -239,7 +239,7 @@
             </button>
           </div>
 
-          <div class="flex items-center space-x-2">
+          <div class="flex flex-wrap items-center gap-2">
             <button id="btnCopyRich" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
               <i class="fa-solid fa-paste"></i>
               <span>Copiar Texto Enriquecido</span>
@@ -247,6 +247,14 @@
             <button id="btnCopyHtml" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
               <i class="fa-solid fa-copy"></i>
               <span>Copiar HTML</span>
+            </button>
+            <button id="btnShareText" type="button" class="bg-slate-700 hover:bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-share-nodes"></i>
+              <span>Compartir</span>
+            </button>
+            <button id="btnShareWhatsApp" type="button" class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-brands fa-whatsapp"></i>
+              <span>WhatsApp</span>
             </button>
           </div>
         </div>
@@ -1746,6 +1754,46 @@
         } catch (err) {
           copyToClipboard(processedHtml);
           showToast("Copiado al portapapeles");
+        }
+      });
+
+      function getProcessedShareText() {
+        return (previewOutput.innerText || previewOutput.textContent || '').trim();
+      }
+
+      document.getElementById('btnShareText').addEventListener('click', async () => {
+        const text = getProcessedShareText();
+        if (!processedHtml || !text) {
+          showToast("No hay texto procesado para compartir.", "error");
+          return;
+        }
+
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: 'Borrador de El Nuevo Día', text });
+          } catch (error) {
+            if (error && error.name !== 'AbortError') {
+              showToast("No se pudo abrir el menú para compartir. Copia el texto e inténtalo de nuevo.", "error");
+            }
+          }
+        } else {
+          copyToClipboard(text);
+          showToast("Tu navegador no ofrece el menú para compartir. El texto se copió para que puedas pegarlo donde quieras.");
+        }
+      });
+
+      document.getElementById('btnShareWhatsApp').addEventListener('click', () => {
+        const text = getProcessedShareText();
+        if (!processedHtml || !text) {
+          showToast("No hay texto procesado para compartir.", "error");
+          return;
+        }
+
+        const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(text);
+        const whatsappWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        if (!whatsappWindow) {
+          copyToClipboard(text);
+          showToast("El navegador bloqueó la ventana de WhatsApp. El texto se copió para que puedas pegarlo.");
         }
       });
 
