@@ -300,8 +300,6 @@
                     <button class="btn-export btn-word" onclick="exportarWord()" title="Guardar como documento Word">Word</button>
                     <button class="btn-export btn-pdf" onclick="exportarPDF()" title="Guardar como PDF formateado">PDF</button>
                     <button class="btn-export btn-txt" onclick="exportarTXT()" title="Respaldo seguro en texto plano">TXT</button>
-                    <button class="btn-export btn-drive" onclick="subirGoogleDrive()" title="Descargar documento y abrir Google Drive">Drive</button>
-                    <button class="btn-export btn-wa" onclick="compartirWhatsApp()" title="Enviar resumen por WhatsApp">WhatsApp</button>
                     <button class="btn-export btn-local" id="btnSaveLocalDraft" title="Guardar una copia recuperable en tu computadora">Guardar borrador</button>
                     <button class="btn-export btn-local" id="btnLoadLocalDraft" title="Recuperar un borrador guardado en tu computadora">Recuperar borrador</button>
                     <button class="btn-export btn-share" onclick="compartirTexto()" title="Compartir el artículo">Compartir</button>
@@ -446,23 +444,7 @@
             downloadLink.click();
             document.body.removeChild(downloadLink);
         }
-
-        // 4. Descargar y abrir Google Drive
-        function subirGoogleDrive() {
-            exportarWord();
-            setTimeout(() => {
-                window.open('https://drive.google.com/drive/my-drive', '_blank');
-            }, 600);
-        }
-
-        // 5. Compartir por WhatsApp
-        function compartirWhatsApp() {
-            const mensaje = `*DEPORTES - El Nuevo Día*\nPor: Antolín Maldonado Ríos\n\n` + editor.innerText;
-            const urlWhatsApp = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
-            window.open(urlWhatsApp, '_blank');
-        }
-
-        // 6. Funciones para publicar en GitHub mediante API
+        // Funciones para publicar en GitHub mediante API
         function abrirModalGitHub() {
             // Sincronizar el nombre del archivo de la barra superior al modal automáticamente
             document.getElementById('ghFilename').value = globalFilenameInput.value.trim() || "articulo-deportes.html";
