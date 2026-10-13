@@ -280,7 +280,7 @@
         <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between text-xs text-slate-500">
           <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span id="statsMatches">0 términos enlazados</span>
-            <span id="wordCount" class="font-semibold text-slate-600">0 palabras</span>
+            <span id="wordCount" class="font-bold text-black">0 palabras</span>
           </div>
           <span id="dictionaryConnectionStatus" class="flex items-center gap-1"><i class="fa-solid fa-circle text-amber-400 text-[8px]"></i> Conectando diccionario central...</span>
         </div>
@@ -1457,7 +1457,9 @@
         previewOutput.innerHTML = `<p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>`;
         codeOutput.textContent = '';
         statsMatches.textContent = '0 términos enlazados';
-        document.getElementById('wordCount').textContent = '0 palabras';
+        const wordCountElement = document.getElementById('wordCount');
+        wordCountElement.textContent = '0 palabras';
+        wordCountElement.style.color = '#000000';
         processedHtml = '';
         return;
       }
@@ -1520,7 +1522,9 @@
       codeOutput.textContent = processedHtml;
       statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
       const wordTotal = (previewOutput.innerText || previewOutput.textContent || '').trim().match(/\S+/g)?.length || 0;
-      document.getElementById('wordCount').textContent = wordTotal + (wordTotal === 1 ? ' palabra' : ' palabras');
+      const wordCountElement = document.getElementById('wordCount');
+      wordCountElement.textContent = wordTotal + (wordTotal === 1 ? ' palabra' : ' palabras');
+      wordCountElement.style.color = wordTotal >= 1200 ? '#dc2626' : wordTotal >= 600 ? '#f97316' : '#000000';
     }
 
     // COPIAS LOCALES: independiente de Supabase y del autoguardado del navegador.
