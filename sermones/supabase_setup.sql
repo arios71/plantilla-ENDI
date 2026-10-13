@@ -10,10 +10,12 @@ create table if not exists public.sermon_notes (
   series text not null default '',
   passage text not null default '',
   content_html text not null default '<p></p>',
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  deleted_at timestamptz
 );
 
 alter table public.sermon_notes enable row level security;
+alter table public.sermon_notes add column if not exists deleted_at timestamptz;
 
 grant select, insert, update, delete on public.sermon_notes to authenticated;
 revoke all on public.sermon_notes from anon;
