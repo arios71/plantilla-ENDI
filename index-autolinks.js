@@ -256,6 +256,29 @@ async function loadSharedDictionaries() {
 function getCaretTextOffset(root, range) {
   const before=range.cloneRange(); before.selectNodeContents(root); before.setEnd(range.startContainer,range.startOffset); return before.toString().length;
 }
+function getCaretBookmark(root, range) {
+  let node = range.startContainer;
+
+  // Conservar la posición dentro del párrafo actual, no solo el total de caracteres
+  // del artículo. Así, al procesar el texto, el cursor no regresa al párrafo anterior.
+  if (node === root) {
+    const child = root.childNodes[range.startOffset] || root.childNodes[range.startOffset - 1];
+    if (child && child.nodeType === Node.ELEMENT_NODE) {
+      return {
+        block: child,
+        offset: range.startOffset < root.childNodes.length ? 0 : child.textContent.length
+      };
+    }
+    return { block: root, offset: getCaretTextOffset(root, range) };
+  }
+
+  while (node && node.parentNode !== root) node = node.parentNode;
+  if (node && node.nodeType === Node.ELEMENT_NODE) {
+    return { block: node, offset: getCaretTextOffset(node, range) };
+  }
+
+  return { block: root, offset: getCaretTextOffset(root, range) };
+}
 function restoreCaretTextOffset(root, offset) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   let node, remaining = Math.max(0, offset);
@@ -285,12 +308,15 @@ function restoreCaretTextOffset(root, offset) {
 function processEditorContent() {
   clearTimeout(autoProcessTimer); autoProcessTimer=null;
   if(!editor.innerText.trim()) return;
-  const sel=window.getSelection(); let caret=null;
-  if(sel&&sel.rangeCount&&editor.contains(sel.anchorNode)) caret=getCaretTextOffset(editor,sel.getRangeAt(0));
+  const sel=window.getSelection(); let caretBookmark=null;
+  if(sel&&sel.rangeCount&&editor.contains(sel.anchorNode)) caretBookmark=getCaretBookmark(editor,sel.getRangeAt(0));
   forEachTextNode(editor,node=>{const changed=applyNumericFormatting(node.nodeValue);if(changed!==node.nodeValue)node.nodeValue=changed;});
   linkDictionaryTerms(editor,'first',true,true);
   autoItalicizeEnglishSportsTerms(editor);
-  if(caret!==null&&document.activeElement===editor) restoreCaretTextOffset(editor,caret);
+  if(caretBookmark&&document.activeElement===editor) {
+    const block=caretBookmark.block;
+    if(block===editor || editor.contains(block)) restoreCaretTextOffset(block,caretBookmark.offset);
+  }
   actualizarContador();
   try { localStorage.setItem('articulo_fijo_borrador',editor.innerHTML); } catch(e) {}
 }
