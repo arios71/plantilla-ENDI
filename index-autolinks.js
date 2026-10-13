@@ -166,11 +166,11 @@ function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {
       // El editor se procesa directamente: conserva como ya enlazados los tópicos
       // que se procesaron en una ejecución anterior para no enlazar la segunda mención.
       root.querySelectorAll('a[href]').forEach(anchor => {
-        const anchorUrl = (anchor.href || '').toLowerCase().replace(/\\/$/, '');
+        const anchorUrl = (anchor.href || '').toLowerCase().replace(/\/$/, '');
         const anchorText = (anchor.textContent || '').trim().toLocaleLowerCase('es');
         dictionary.forEach(item => {
           if (!item.keyword || !item.url) return;
-          const topicKey = item.url.toLowerCase().replace(/\\/$/, '');
+          const topicKey = item.url.toLowerCase().replace(/\/$/, '');
           if (anchorUrl === topicKey && anchorText === item.keyword.trim().toLocaleLowerCase('es')) {
             matchedTopicsSet.add(topicKey);
           }
