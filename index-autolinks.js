@@ -256,16 +256,30 @@ function getCaretTextOffset(root, range) {
   const before=range.cloneRange(); before.selectNodeContents(root); before.setEnd(range.startContainer,range.startOffset); return before.toString().length;
 }
 function restoreCaretTextOffset(root, offset) {
-  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let node,remaining=Math.max(0,offset);
-  while((node=walker.nextNode())) {
-    if(remaining<=node.nodeValue.length) {
-      const range=document.createRange(); range.setStart(node,remaining); range.collapse(true);
-      const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range); return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let node, remaining = Math.max(0, offset);
+  while ((node = walker.nextNode())) {
+    if (remaining <= node.nodeValue.length) {
+      const range = document.createRange();
+      const wrapper = node.parentElement && node.parentElement.closest('a, em');
+      // Si el cursor quedó al final de un tópico enlazado o anglicismo en cursiva,
+      // colócalo después del formato para que la próxima tecla no quede dentro del enlace/cursiva.
+      if (wrapper && remaining === node.nodeValue.length) range.setStartAfter(wrapper);
+      else range.setStart(node, remaining);
+      range.collapse(true);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      return;
     }
-    remaining-=node.nodeValue.length;
+    remaining -= node.nodeValue.length;
   }
-  const range=document.createRange(); range.selectNodeContents(root); range.collapse(false);
-  const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+  const range = document.createRange();
+  range.selectNodeContents(root);
+  range.collapse(false);
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
 }
 function processEditorContent() {
   clearTimeout(autoProcessTimer); autoProcessTimer=null;
