@@ -95,7 +95,7 @@
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
     <!-- LEFT COLUMN: Input & Settings -->
-    <section class="lg:col-span-4 flex flex-col gap-5">
+    <section class="lg:col-span-8 flex flex-col gap-5">
       
       <!-- Input Card -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
@@ -105,6 +105,7 @@
             1. Borrador Original (AP)
           </label>
           <div class="flex items-center gap-3">
+            <span id="wordCount" class="font-bold text-black text-xs">0 palabras</span>
             <span id="autoSaveStatus" class="text-[10px] text-slate-400" role="status" aria-live="polite">Autoguardado listo</span>
             <button id="btnClearInput" class="text-xs text-slate-500 hover:text-red-600 transition flex items-center gap-1">
               <i class="fa-solid fa-trash-can"></i> Limpiar
@@ -218,7 +219,7 @@
     </section>
 
     <!-- RIGHT COLUMN: Output & Preview -->
-    <section class="lg:col-span-8 xl:col-span-8 flex flex-col gap-5">
+    <section class="lg:col-span-4 xl:col-span-4 flex flex-col gap-5">
       
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col flex-1 overflow-hidden">
         
@@ -239,7 +240,7 @@
             </button>
           </div>
 
-          <div class="flex items-center space-x-2">
+          <div class="flex flex-wrap items-center gap-2">
             <button id="btnCopyRich" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
               <i class="fa-solid fa-paste"></i>
               <span>Copiar Texto Enriquecido</span>
@@ -247,6 +248,22 @@
             <button id="btnCopyHtml" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
               <i class="fa-solid fa-copy"></i>
               <span>Copiar HTML</span>
+            </button>
+            <button id="btnShareText" type="button" class="bg-slate-700 hover:bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-share-nodes"></i>
+              <span>Compartir</span>
+            </button>
+            <button id="btnExportWord" type="button" class="bg-blue-700 hover:bg-blue-800 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-file-word"></i>
+              <span>Word</span>
+            </button>
+            <button id="btnExportPdf" type="button" class="bg-red-700 hover:bg-red-800 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span>PDF</span>
+            </button>
+            <button id="btnExportTxt" type="button" class="border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-file-lines"></i>
+              <span>TXT</span>
             </button>
           </div>
         </div>
@@ -262,7 +279,9 @@
         </div>
 
         <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between text-xs text-slate-500">
-          <span id="statsMatches">0 términos enlazados</span>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span id="statsMatches">0 términos enlazados</span>
+          </div>
           <span id="dictionaryConnectionStatus" class="flex items-center gap-1"><i class="fa-solid fa-circle text-amber-400 text-[8px]"></i> Conectando diccionario central...</span>
         </div>
 
@@ -1438,6 +1457,9 @@
         previewOutput.innerHTML = `<p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>`;
         codeOutput.textContent = '';
         statsMatches.textContent = '0 términos enlazados';
+        const wordCountElement = document.getElementById('wordCount');
+        wordCountElement.textContent = '0 palabras';
+        wordCountElement.style.color = '#000000';
         processedHtml = '';
         return;
       }
@@ -1499,6 +1521,10 @@
       previewOutput.innerHTML = processedHtml;
       codeOutput.textContent = processedHtml;
       statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
+      const wordTotal = (previewOutput.innerText || previewOutput.textContent || '').trim().match(/\S+/g)?.length || 0;
+      const wordCountElement = document.getElementById('wordCount');
+      wordCountElement.textContent = wordTotal + (wordTotal === 1 ? ' palabra' : ' palabras');
+      wordCountElement.style.color = wordTotal >= 1200 ? '#dc2626' : wordTotal >= 600 ? '#f97316' : '#000000';
     }
 
     // COPIAS LOCALES: independiente de Supabase y del autoguardado del navegador.
@@ -1521,14 +1547,12 @@
         .replace(/</g, '\\u003c')
         .replace(/>/g, '\\u003e')
         .replace(/&/g, '\\u0026');
-      const originalText = inputText.innerText || inputText.textContent || '';
-      const processedText = previewOutput.innerText || previewOutput.textContent || '';
+      const processedHtml = previewOutput.innerHTML || '';
       const savedDate = new Date(snapshot.savedAt).toLocaleString('es-PR');
       return '<!doctype html>\n<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
-        '<title>Borrador de El Nuevo Día</title><style>body{font:16px/1.6 Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 20px;color:#222}h1{font-size:24px}h2{font-size:18px;margin-top:28px;border-bottom:1px solid #ddd;padding-bottom:6px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}</style></head><body>' +
-        '<h1>Borrador de El Nuevo Día</h1><p>Guardado desde Auto-Linker el ' + escapeLocalDraftHtml(savedDate) + '.</p>' +
-        '<h2>Texto original</h2><pre>' + escapeLocalDraftHtml(originalText) + '</pre>' +
-        '<h2>Texto procesado</h2><pre>' + escapeLocalDraftHtml(processedText) + '</pre>' +
+        '<title>Borrador de El Nuevo Día</title><style>body{font:16px/1.6 Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 20px;color:#222}h1{font-size:24px;margin-bottom:8px}.saved-date{color:#666;font-size:13px;margin-bottom:24px}.draft-content{overflow-wrap:anywhere}.draft-content p{margin:0 0 1em}.draft-content a{color:#075985;text-decoration:underline}.draft-content strong,.draft-content b{font-weight:700}.draft-content em,.draft-content i{font-style:italic}.draft-content u{text-decoration:underline}</style></head><body>' +
+        '<h1>Borrador de El Nuevo Día</h1><p class="saved-date">Guardado desde Auto-Linker el ' + escapeLocalDraftHtml(savedDate) + '.</p>' +
+        '<main class="draft-content">' + processedHtml + '</main>' +
         '<script type="application/json" id="end-auto-linker-snapshot">' + snapshotJson + '</scr' + 'ipt></body></html>';
     }
 
@@ -1748,6 +1772,108 @@
           showToast("Copiado al portapapeles");
         }
       });
+
+      function getProcessedShareText() {
+        return (previewOutput.innerText || previewOutput.textContent || '').trim();
+      }
+
+      document.getElementById('btnShareText').addEventListener('click', async () => {
+        const text = getProcessedShareText();
+        if (!processedHtml || !text) {
+          showToast("No hay texto procesado para compartir.", "error");
+          return;
+        }
+
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: 'Borrador de El Nuevo Día', text });
+          } catch (error) {
+            if (error && error.name !== 'AbortError') {
+              copyToClipboard(text);
+              showToast("No se pudo abrir el menú para compartir. El texto se copió para que puedas pegarlo.", "error");
+            }
+          }
+        } else {
+          copyToClipboard(text);
+          showToast("Tu navegador no ofrece el menú para compartir. El texto se copió para que puedas pegarlo donde quieras.");
+        }
+      });
+      function getExportFilename(extension) {
+        const entered = window.prompt('Nombre del archivo:', 'Borrador-END');
+        if (entered === null) return null;
+        const safe = entered.trim().replace(/[\\/:*?"<>|]/g, '-').replace(/\.+$/, '');
+        return (safe || 'Borrador-END') + '.' + extension;
+      }
+
+      function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function getExportDocumentStyles() {
+        return 'body{font-family:Arial,sans-serif;font-size:11pt;line-height:1.5;color:#111;margin:2cm}' +
+          'p{margin:0 0 12pt}a{color:#0056b3;text-decoration:underline}' +
+          'strong,b{font-weight:bold}em,i{font-style:italic}u{text-decoration:underline}';
+      }
+
+      document.getElementById('btnExportWord').addEventListener('click', () => {
+        if (!processedHtml || !getProcessedShareText()) {
+          showToast('No hay texto procesado para exportar.', 'error');
+          return;
+        }
+        const filename = getExportFilename('doc');
+        if (!filename) return;
+        const wordHtml = '<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" lang="es"><head><meta charset="utf-8"><title>Borrador de El Nuevo Día</title><style>' +
+          getExportDocumentStyles() +
+          '</style></head><body>' + processedHtml + '</body></html>';
+        downloadBlob(new Blob(['\ufeff', wordHtml], { type: 'application/msword;charset=utf-8' }), filename);
+        showToast('Documento compatible con Word descargado. Puedes abrirlo y seguir editándolo.');
+      });
+
+      document.getElementById('btnExportPdf').addEventListener('click', () => {
+        if (!processedHtml || !getProcessedShareText()) {
+          showToast('No hay texto procesado para exportar.', 'error');
+          return;
+        }
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+          showToast('El navegador bloqueó la ventana de impresión. Permite las ventanas emergentes e inténtalo de nuevo.', 'error');
+          return;
+        }
+        const printHtml = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Borrador de El Nuevo Día</title><style>@page{margin:2cm}body{' +
+          'font-family:Arial,sans-serif;font-size:11pt;line-height:1.5;color:#111}' +
+          'p{margin:0 0 12pt;break-inside:avoid}a{color:#111;text-decoration:underline}strong,b{font-weight:bold}em,i{font-style:italic}u{text-decoration:underline}' +
+          '</style></head><body>' + processedHtml + '</body></html>';
+        printWindow.document.open();
+        printWindow.document.write(printHtml);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          try { printWindow.print(); }
+          catch (error) { showToast('No se pudo abrir la impresión.', 'error'); }
+        }, 300);
+      });
+
+      document.getElementById('btnExportTxt').addEventListener('click', () => {
+        const text = getProcessedShareText();
+        if (!processedHtml || !text) {
+          showToast('No hay texto procesado para exportar.', 'error');
+          return;
+        }
+        const filename = getExportFilename('txt');
+        if (!filename) return;
+        downloadBlob(new Blob(['\ufeff', text], { type: 'text/plain;charset=utf-8' }), filename);
+        showToast('Archivo de texto descargado.');
+      });
+
+
+
 
       const dictModal = document.getElementById('dictModal');
       document.getElementById('btnOpenDictionary').addEventListener('click', async () => {
