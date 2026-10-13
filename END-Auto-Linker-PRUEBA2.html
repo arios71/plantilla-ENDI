@@ -1773,7 +1773,8 @@
             await navigator.share({ title: 'Borrador de El Nuevo Día', text });
           } catch (error) {
             if (error && error.name !== 'AbortError') {
-              showToast("No se pudo abrir el menú para compartir. Copia el texto e inténtalo de nuevo.", "error");
+              copyToClipboard(text);
+              showToast("No se pudo abrir el menú para compartir. El texto se copió para que puedas pegarlo.", "error");
             }
           }
         } else {
@@ -1790,8 +1791,10 @@
         }
 
         const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(text);
-        const whatsappWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-        if (!whatsappWindow) {
+        const whatsappWindow = window.open(whatsappUrl, '_blank');
+        if (whatsappWindow) {
+          whatsappWindow.opener = null;
+        } else {
           copyToClipboard(text);
           showToast("El navegador bloqueó la ventana de WhatsApp. El texto se copió para que puedas pegarlo.");
         }
