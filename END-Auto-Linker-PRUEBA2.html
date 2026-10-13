@@ -252,9 +252,17 @@
               <i class="fa-solid fa-share-nodes"></i>
               <span>Compartir</span>
             </button>
-            <button id="btnShareWhatsApp" type="button" class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
-              <i class="fa-brands fa-whatsapp"></i>
-              <span>WhatsApp</span>
+            <button id="btnExportWord" type="button" class="bg-blue-700 hover:bg-blue-800 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-file-word"></i>
+              <span>Word</span>
+            </button>
+            <button id="btnExportPdf" type="button" class="bg-red-700 hover:bg-red-800 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span>PDF</span>
+            </button>
+            <button id="btnExportTxt" type="button" class="border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-file-lines"></i>
+              <span>TXT</span>
             </button>
           </div>
         </div>
@@ -270,7 +278,10 @@
         </div>
 
         <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between text-xs text-slate-500">
-          <span id="statsMatches">0 términos enlazados</span>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span id="statsMatches">0 términos enlazados</span>
+            <span id="wordCount" class="font-semibold text-slate-600">0 palabras</span>
+          </div>
           <span id="dictionaryConnectionStatus" class="flex items-center gap-1"><i class="fa-solid fa-circle text-amber-400 text-[8px]"></i> Conectando diccionario central...</span>
         </div>
 
@@ -1446,6 +1457,7 @@
         previewOutput.innerHTML = `<p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>`;
         codeOutput.textContent = '';
         statsMatches.textContent = '0 términos enlazados';
+        document.getElementById('wordCount').textContent = '0 palabras';
         processedHtml = '';
         return;
       }
@@ -1507,6 +1519,8 @@
       previewOutput.innerHTML = processedHtml;
       codeOutput.textContent = processedHtml;
       statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
+      const wordTotal = (previewOutput.innerText || previewOutput.textContent || '').trim().match(/\S+/g)?.length || 0;
+      document.getElementById('wordCount').textContent = wordTotal + (wordTotal === 1 ? ' palabra' : ' palabras');
     }
 
     // COPIAS LOCALES: independiente de Supabase y del autoguardado del navegador.
@@ -1782,23 +1796,82 @@
           showToast("Tu navegador no ofrece el menú para compartir. El texto se copió para que puedas pegarlo donde quieras.");
         }
       });
+      function getExportFilename(extension) {
+        const entered = window.prompt('Nombre del archivo:', 'Borrador-END');
+        if (entered === null) return null;
+        const safe = entered.trim().replace(/[\\/:*?"<>|]/g, '-').replace(/\\.+$/, '');
+        return (safe || 'Borrador-END') + '.' + extension;
+      }
 
-      document.getElementById('btnShareWhatsApp').addEventListener('click', () => {
-        const text = getProcessedShareText();
-        if (!processedHtml || !text) {
-          showToast("No hay texto procesado para compartir.", "error");
+      function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function getExportDocumentStyles() {
+        return 'body{font-family:Arial,sans-serif;font-size:11pt;line-height:1.5;color:#111;margin:2cm}' +
+          'p{margin:0 0 12pt}a{color:#0056b3;text-decoration:underline}' +
+          'strong,b{font-weight:bold}em,i{font-style:italic}u{text-decoration:underline}';
+      }
+
+      document.getElementById('btnExportWord').addEventListener('click', () => {
+        if (!processedHtml || !getProcessedShareText()) {
+          showToast('No hay texto procesado para exportar.', 'error');
           return;
         }
-
-        const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(text);
-        const whatsappWindow = window.open(whatsappUrl, '_blank');
-        if (whatsappWindow) {
-          whatsappWindow.opener = null;
-        } else {
-          copyToClipboard(text);
-          showToast("El navegador bloqueó la ventana de WhatsApp. El texto se copió para que puedas pegarlo.");
-        }
+        const filename = getExportFilename('doc');
+        if (!filename) return;
+        const wordHtml = '<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" lang="es"><head><meta charset="utf-8"><title>Borrador de El Nuevo Día</title><style>' +
+          getExportDocumentStyles() +
+          '</style></head><body>' + processedHtml + '</body></html>';
+        downloadBlob(new Blob(['\ufeff', wordHtml], { type: 'application/msword;charset=utf-8' }), filename);
+        showToast('Documento compatible con Word descargado. Puedes abrirlo y seguir editándolo.');
       });
+
+      document.getElementById('btnExportPdf').addEventListener('click', () => {
+        if (!processedHtml || !getProcessedShareText()) {
+          showToast('No hay texto procesado para exportar.', 'error');
+          return;
+        }
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+          showToast('El navegador bloqueó la ventana de impresión. Permite las ventanas emergentes e inténtalo de nuevo.', 'error');
+          return;
+        }
+        const printHtml = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Borrador de El Nuevo Día</title><style>@page{margin:2cm}body{' +
+          'font-family:Arial,sans-serif;font-size:11pt;line-height:1.5;color:#111}' +
+          'p{margin:0 0 12pt;break-inside:avoid}a{color:#111;text-decoration:underline}strong,b{font-weight:bold}em,i{font-style:italic}u{text-decoration:underline}' +
+          '</style></head><body>' + processedHtml + '</body></html>';
+        printWindow.document.open();
+        printWindow.document.write(printHtml);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          try { printWindow.print(); }
+          catch (error) { showToast('No se pudo abrir la impresión.', 'error'); }
+        }, 300);
+      });
+
+      document.getElementById('btnExportTxt').addEventListener('click', () => {
+        const text = getProcessedShareText();
+        if (!processedHtml || !text) {
+          showToast('No hay texto procesado para exportar.', 'error');
+          return;
+        }
+        const filename = getExportFilename('txt');
+        if (!filename) return;
+        downloadBlob(new Blob(['\ufeff', text], { type: 'text/plain;charset=utf-8' }), filename);
+        showToast('Archivo de texto descargado.');
+      });
+
+
+
 
       const dictModal = document.getElementById('dictModal');
       document.getElementById('btnOpenDictionary').addEventListener('click', async () => {
