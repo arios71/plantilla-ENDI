@@ -1799,7 +1799,7 @@
       function getExportFilename(extension) {
         const entered = window.prompt('Nombre del archivo:', 'Borrador-END');
         if (entered === null) return null;
-        const safe = entered.trim().replace(/[\\/:*?"<>|]/g, '-').replace(/\\.+$/, '');
+        const safe = entered.trim().replace(/[\\/:*?"<>|]/g, '-').replace(/\.+$/, '');
         return (safe || 'Borrador-END') + '.' + extension;
       }
 
