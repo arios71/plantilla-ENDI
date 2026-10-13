@@ -162,23 +162,21 @@ function autoItalicizeEnglishSportsTerms(root) {
 function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {
       let total = 0;
 
-      // Antes de procesar, deshacer los enlaces automáticos de tópicos que ya existan.
-      // Así se corrigen también los duplicados creados por versiones anteriores del script.
+      // Deshacer enlaces automáticos previos de tópicos para corregir duplicados antiguos.
       const topicUrls = new Set(
         dictionary
           .filter(item => item.keyword && item.url)
-          .map(item => item.url.toLowerCase().replace(/\\/$/, ''))
+          .map(item => item.url.toLowerCase().replace(/\/$/, ''))
       );
 
       root.querySelectorAll('a[href]').forEach(anchor => {
-        const href = (anchor.href || '').toLowerCase().replace(/\\/$/, '');
+        const href = (anchor.href || '').toLowerCase().replace(/\/$/, '');
         if (!topicUrls.has(href)) return;
 
         const parent = anchor.parentElement;
         anchor.replaceWith(document.createTextNode(anchor.textContent || ''));
 
-        // Quitar el bold automático anterior junto al enlace para volver a aplicar
-        // el formato únicamente en la primera mención del tópico.
+        // Quitar el bold automático anterior para aplicarlo solo a la primera mención.
         if (parent && parent.tagName === 'STRONG' && !parent.querySelector('a') &&
             parent.childNodes.length === 1) {
           parent.replaceWith(document.createTextNode(parent.textContent || ''));
@@ -190,20 +188,17 @@ function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {
       dictionary.forEach(item => {
         if (!item.keyword || !item.keyword.trim() || !item.url) return;
 
-        const topicKey = item.url.toLowerCase().replace(/\\/$/, '');
+        const topicKey = item.url.toLowerCase().replace(/\/$/, '');
         if (matchedTopicsSet.has(topicKey)) return;
 
-        const escapedKw = item.keyword.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&');
-        const boundaryEnd = /\\.$/.test(item.keyword) ? '' : '\\b';
-        const regex = new RegExp(`\\\\b(${escapedKw})${boundaryEnd}`, 'i');
-
-        let linkedForTopic = false;
+        const escapedKw = item.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const boundaryEnd = /\.$/.test(item.keyword) ? '' : '\\b';
+        const regex = new RegExp('\\b(' + escapedKw + ')' + boundaryEnd, 'i');
 
         forEachTextNode(root, node => {
-          if (matchedTopicsSet.has(topicKey) || linkedForTopic) return;
+          if (matchedTopicsSet.has(topicKey)) return;
           if (!node.nodeValue || !node.nodeValue.trim()) return;
 
-          regex.lastIndex = 0;
           const match = regex.exec(node.nodeValue);
           if (!match) return;
 
@@ -231,8 +226,6 @@ function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {
 
           if (after) frag.appendChild(document.createTextNode(after));
           node.parentNode.replaceChild(frag, node);
-
-          linkedForTopic = true;
           matchedTopicsSet.add(topicKey);
           total++;
         });
