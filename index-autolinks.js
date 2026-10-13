@@ -115,9 +115,9 @@ function applyNumericFormatting(text) {
       );
 
       // Regla ampliada: tercios con cualquier unidad o palabra posterior.
-      formatted = formatted.replace(/\\b(\\d+)\\s+1\\/3(?=\\s+[A-Za-zÁÉÍÓÚÜÑáéíóúüñ])/gi, '$1.1');
-      formatted = formatted.replace(/\\b(\\d+)\\s+2\\/3(?=\\s+[A-Za-zÁÉÍÓÚÜÑáéíóúüñ])/gi, '$1.2');
-      formatted = formatted.replace(/\\b(\\d+)\\s+1\\/2(?=\\s+(?:juego|juegos|partido|partidos|encuentro|encuentros|desafío|desafíos)(?=\\s|[.,;:!?]|$))/gi, '$1.5');
+      formatted = formatted.replace(/\b(\d+)\s+1\/3(?=\s+[A-Za-zÁÉÍÓÚÜÑáéíóúüñ])/gi, '$1.1');
+      formatted = formatted.replace(/\b(\d+)\s+2\/3(?=\s+[A-Za-zÁÉÍÓÚÜÑáéíóúüñ])/gi, '$1.2');
+
       return formatted;
     }
 function forEachTextNode(root, callback) {
