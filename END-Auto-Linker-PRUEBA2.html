@@ -1524,7 +1524,7 @@
       const originalText = inputText.innerText || inputText.textContent || '';
       const processedText = previewOutput.innerText || previewOutput.textContent || '';
       const savedDate = new Date(snapshot.savedAt).toLocaleString('es-PR');
-      return '<!doctype html>\\n<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+      return '<!doctype html>\n<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
         '<title>Borrador de El Nuevo Día</title><style>body{font:16px/1.6 Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 20px;color:#222}h1{font-size:24px}h2{font-size:18px;margin-top:28px;border-bottom:1px solid #ddd;padding-bottom:6px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}</style></head><body>' +
         '<h1>Borrador de El Nuevo Día</h1><p>Guardado desde Auto-Linker el ' + escapeLocalDraftHtml(savedDate) + '.</p>' +
         '<h2>Texto original</h2><pre>' + escapeLocalDraftHtml(originalText) + '</pre>' +
@@ -1549,7 +1549,7 @@
         return;
       }
       filename = filename.replace(/[\\/:*?"<>|]/g, '-');
-      if (!/\\.html?$/i.test(filename)) filename += '.html';
+      if (!/\.html?$/i.test(filename)) filename += '.html';
 
       try {
         const snapshot = getAutoSaveSnapshot();
