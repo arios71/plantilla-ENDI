@@ -445,21 +445,6 @@
             document.body.removeChild(downloadLink);
         }
 
-        // 4. Descargar y abrir Google Drive
-        function subirGoogleDrive() {
-            exportarWord();
-            setTimeout(() => {
-                window.open('https://drive.google.com/drive/my-drive', '_blank');
-            }, 600);
-        }
-
-        // 5. Compartir por WhatsApp
-        function compartirWhatsApp() {
-            const mensaje = `*DEPORTES - El Nuevo Día*\nPor: Antolín Maldonado Ríos\n\n` + editor.innerText;
-            const urlWhatsApp = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
-            window.open(urlWhatsApp, '_blank');
-        }
-
         // 6. Funciones para publicar en GitHub mediante API
         function abrirModalGitHub() {
             // Sincronizar el nombre del archivo de la barra superior al modal automáticamente
