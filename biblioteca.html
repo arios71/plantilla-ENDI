@@ -147,7 +147,7 @@
                     // Capitalizar primera letra de cada palabra de forma sencilla
                     nombreLimpio = nombreLimpio.charAt(0).toUpperCase() + nombreLimpio.slice(1);
 
-                    const rutaRelativa = `articulos/${archivo.name}`;
+                    const rutaRelativa = `https://arios71.github.io/plantilla-ENDI/articulos/${encodeURIComponent(archivo.name)}`;
 
                     const li = document.createElement('li');
                     li.className = 'article-item';
