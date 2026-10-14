@@ -78,7 +78,7 @@
         </div>
         <div>
           <h1 class="text-lg font-bold leading-none flex items-center gap-2">
-            Auto-Linker & Formateador SEO
+            Auto-Linker & Formateador Editorial
           </h1>
           <p class="text-xs text-slate-400 mt-0.5">Optimizado para la redacción de El Nuevo Día</p>
         </div>
@@ -587,16 +587,18 @@
       }) || BASEBALL_CONTEXT.test(text);
     }
 
-    function shouldTranslateStandaloneNickname(fullText, offset, match, baseballContext) {
-      if (!baseballContext) return false;
-      if (!match || match[0] !== match[0].toUpperCase()) return false;
-      const before = fullText.slice(Math.max(0, offset - 20), offset);
-      const after = fullText.slice(offset + match.length, offset + match.length + 35);
-      const precededByArticle = /(?:^|\s)(?:el|la|los|las)\s+$/i.test(before);
-      if (!precededByArticle) return false;
-      if (/^\s+de\s+/i.test(after)) return false;
-      return true;
-    }
+    
+function shouldTranslateStandaloneNickname(fullText, offset, match, baseballContext) {
+  if (!baseballContext) return false;
+  if (!match) return false;
+
+  const after = fullText.slice(offset + match.length, offset + match.length + 35);
+
+  if (/^\s+de\s+/i.test(after)) return false;
+
+  return true;
+}
+
 
     const SUPABASE_URL = "https://ngkygzwqtwxcggukqznj.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_D3k7urSeKP8aR0ypEdrOXw_6-sxarN-";
@@ -782,14 +784,11 @@
       });
     }
 
-    function addSpanishTeamArticle(fullText, offset, endName) {
-      const before = fullText.slice(0, offset);
-      if (/(?:^|\s)(?:el|la|los|las)\s*$/i.test(before)) return endName;
-      const trimmed = before.trimEnd();
-      const atSentenceStart = !trimmed || /[.!?¡¿:;—]$/.test(trimmed);
-      const article = atSentenceStart ? 'Los' : 'los';
-      return `${article} ${endName}`;
-    }
+    
+function addSpanishTeamArticle(fullText, offset, endName) {
+  return endName;
+}
+
 
     function translateTeamNamesEND(text) {
       let cleanedText = text;
