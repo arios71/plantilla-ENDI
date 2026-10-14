@@ -1351,14 +1351,23 @@ function convertStraightDoubleQuotesInRoot(root) {
   while ((node = walker.nextNode())) {
     if (node.parentElement && !node.parentElement.closest('script, style')) nodes.push(node);
   }
+
+  // Conserva el contexto entre nodos, por ejemplo cuando un enlace divide la frase.
+  let previousChar = '';
   nodes.forEach(textNode => {
-    textNode.nodeValue = textNode.nodeValue.replace(/"/g, (quote, index, value) => {
-      const before = value.slice(0, index).trimEnd().slice(-1);
-      const after = value.slice(index + 1).trimStart().charAt(0);
-      const previousChar = value[index - 1] || '';
-      const opening = !before || /[([{—–:;!?¿¡]/.test(before) || /\s/.test(previousChar);
-      return opening ? '“' : '”';
-    });
+    const value = textNode.nodeValue;
+    let converted = '';
+    for (const char of value) {
+      if (char === '"') {
+        const opening = !previousChar || /\s/.test(previousChar) || /[([{—–:;!?¿¡]/.test(previousChar);
+        converted += opening ? '“' : '”';
+        previousChar = opening ? '“' : '”';
+      } else {
+        converted += char;
+        previousChar = char;
+      }
+    }
+    textNode.nodeValue = converted;
   });
 }
 
