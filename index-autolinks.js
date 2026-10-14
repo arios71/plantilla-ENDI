@@ -235,6 +235,25 @@ function forEachTextNode(root, callback) {
       }
       nodes.forEach(callback);
     }
+
+function convertStraightDoubleQuotesInRoot(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    if (node.parentElement && !node.parentElement.closest('script, style')) nodes.push(node);
+  }
+  nodes.forEach(textNode => {
+    textNode.nodeValue = textNode.nodeValue.replace(/"/g, (quote, index, value) => {
+      const before = value.slice(0, index).trimEnd().slice(-1);
+      const after = value.slice(index + 1).trimStart().charAt(0);
+      const previousChar = value[index - 1] || '';
+      const opening = !before || /[([{—–:;!?¿¡]/.test(before) || /\s/.test(previousChar);
+      return opening ? '“' : '”';
+    });
+  });
+}
+
 function autoItalicizeEnglishSportsTerms(root) {
       const regex = getAnglicismRegex();
 
@@ -418,6 +437,7 @@ function processEditorContent() {
   addMLBNicknameLinkAliases();
   linkDictionaryTerms(editor,'first',true,true);
   autoItalicizeEnglishSportsTerms(editor);
+  convertStraightDoubleQuotesInRoot(editor);
   if(caretBookmark&&document.activeElement===editor) {
     const block=caretBookmark.block;
     if(block===editor || editor.contains(block)) restoreCaretTextOffset(block,caretBookmark.offset);
