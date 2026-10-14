@@ -267,7 +267,7 @@ function normalizeNicknameQuotes(text) {
   // En nombres con apodo entre comillas, aplicar el estilo editorial de El Nuevo Día.
   // Ejemplo: Juan "Igor" González → Juan “Igor” González.
   return text.replace(
-    /(\\p{L}[\\p{L}\\p{M}'’.-]*)(\\s+)"([^"\\r\\n]+)"(\\s+)(\\p{L}[\\p{L}\\p{M}'’.-]*)/gu,
+    /(\p{L}[\p{L}\p{M}'’.-]*)(\s+)"([^"\r\n]+)"(\s+)(\p{L}[\p{L}\p{M}'’.-]*)/gu,
     '$1$2“$3”$4$5'
   );
 }
@@ -277,7 +277,11 @@ function escapeDictionaryKeyword(keyword) {
   return Array.from(keyword).map(char => {
     if (char === '"' || char === '“' || char === '”') return '["“”]';
     if (char === "'" || char === '‘' || char === '’') return "['‘’]";
-    return char.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {');
+    return char.replace(/[.*+?^$()|[\]\\{}]/g, '\\$&');
+  }).join('');
+}
+
+function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {');
   }).join('');
 }
 
