@@ -37,6 +37,110 @@ const DEFAULT_DICTIONARY = [
       { keyword: "Rockies de Colorado", url: "https://www.elnuevodia.com/topicos/rockies-de-colorado/" },
       { keyword: "Reds de Cincinnati", url: "https://www.elnuevodia.com/topicos/reds-de-cincinnati/" }
     ];
+
+/*
+ * Traducción de apodos MLB para la plantilla Endi.
+ * Se mantiene el artículo original: nunca se añade "Los/los" automáticamente.
+ */
+const MLB_TRANSLATION_RULES = [
+  { pattern: /Medias Rojas de Boston/gi, replacement: 'Red Sox de Boston', nickname: 'Medias Rojas', english: 'Red Sox', topic: 'Red Sox de Boston' },
+  { pattern: /Medias Blancas de Chicago/gi, replacement: 'White Sox de Chicago', nickname: 'Medias Blancas', english: 'White Sox', topic: 'White Sox de Chicago' },
+  { pattern: /Guardianes de Cleveland/gi, replacement: 'Guardians de Cleveland', nickname: 'Guardianes', english: 'Guardians', topic: 'Guardians de Cleveland' },
+  { pattern: /Tigres de Detroit/gi, replacement: 'Tigers de Detroit', nickname: 'Tigres', english: 'Tigers', topic: 'Tigers de Detroit' },
+  { pattern: /Reales de Kansas City/gi, replacement: 'Royals de Kansas City', nickname: 'Reales', english: 'Royals', topic: 'Royals de Kansas City' },
+  { pattern: /Mellizos de Minnesota/gi, replacement: 'Twins de Minnesota', nickname: 'Mellizos', english: 'Twins', topic: 'Twins de Minnesota' },
+  { pattern: /Ángeles de Los Ángeles|Angelinos de Los Ángeles/gi, replacement: 'Angels de Los Ángeles', nickname: 'Angelinos', english: 'Angels', topic: 'Angels de Los Ángeles' },
+  { pattern: /Atléticos de Oakland|Athletics de Oakland/gi, replacement: 'Athletics', nickname: 'Atléticos', english: 'Athletics', topic: 'Athletics' },
+  { pattern: /Marineros de Seattle/gi, replacement: 'Mariners de Seattle', nickname: 'Marineros', english: 'Mariners', topic: 'Mariners de Seattle' },
+  { pattern: /Vigilantes de Texas/gi, replacement: 'Rangers de Texas', nickname: 'Vigilantes', english: 'Rangers', topic: 'Rangers de Texas' },
+  { pattern: /Azulejos de Toronto/gi, replacement: 'Blue Jays de Toronto', nickname: 'Azulejos', english: 'Blue Jays', topic: 'Blue Jays de Toronto' },
+  { pattern: /Mantarrayas de Tampa Bay|Rayos de Tampa Bay/gi, replacement: 'Rays de Tampa Bay', nickname: 'Rayos', english: 'Rays', topic: 'Rays de Tampa Bay' },
+  { pattern: /Bravos de Atlanta/gi, replacement: 'Braves de Atlanta', nickname: 'Bravos', english: 'Braves', topic: 'Braves de Atlanta' },
+  { pattern: /Filis de Filadelfia|Filies de Filadelfia/gi, replacement: 'Phillies de Filadelfia', nickname: 'Filis', english: 'Phillies', topic: 'Phillies de Filadelfia' },
+  { pattern: /Nacionales de Washington/gi, replacement: 'Nationals de Washington', nickname: 'Nacionales', english: 'Nationals', topic: 'Nationals de Washington' },
+  { pattern: /Cachorros de Chicago/gi, replacement: 'Cubs de Chicago', nickname: 'Cachorros', english: 'Cubs', topic: 'Cubs de Chicago' },
+  { pattern: /Rojos de Cincinnati/gi, replacement: 'Reds de Cincinnati', nickname: 'Rojos', english: 'Reds', topic: 'Reds de Cincinnati' },
+  { pattern: /Cerveceros de Milwaukee/gi, replacement: 'Brewers de Milwaukee', nickname: 'Cerveceros', english: 'Brewers', topic: 'Brewers de Milwaukee' },
+  { pattern: /Piratas de Pittsburgh/gi, replacement: 'Pirates de Pittsburgh', nickname: 'Piratas', english: 'Pirates', topic: 'Pirates de Pittsburgh' },
+  { pattern: /Cardenales de San Luis/gi, replacement: 'Cardinals de San Luis', nickname: 'Cardenales', english: 'Cardinals', topic: 'Cardinals de San Luis' },
+  { pattern: /Gigantes de San Francisco/gi, replacement: 'Giants de San Francisco', nickname: 'Gigantes', english: 'Giants', topic: 'Giants de San Francisco' }
+];
+
+const MLB_STANDALONE_RULES = [
+  { pattern: /\bMedias Rojas\b/gi, replacement: 'Red Sox', topic: 'Red Sox de Boston' },
+  { pattern: /\bMedias Blancas\b/gi, replacement: 'White Sox', topic: 'White Sox de Chicago' },
+  { pattern: /\bGuardianes\b/gi, replacement: 'Guardians', topic: 'Guardians de Cleveland' },
+  { pattern: /\bTigres\b/gi, replacement: 'Tigers', topic: 'Tigers de Detroit' },
+  { pattern: /\bReales\b/gi, replacement: 'Royals', topic: 'Royals de Kansas City' },
+  { pattern: /\bMellizos\b/gi, replacement: 'Twins', topic: 'Twins de Minnesota' },
+  { pattern: /\bAngelinos\b|\bÁngeles\b/gi, replacement: 'Angels', topic: 'Angels de Los Ángeles' },
+  { pattern: /\bAtléticos\b/gi, replacement: 'Athletics', topic: 'Athletics' },
+  { pattern: /\bMarineros\b/gi, replacement: 'Mariners', topic: 'Mariners de Seattle' },
+  { pattern: /\bVigilantes\b/gi, replacement: 'Rangers', topic: 'Rangers de Texas' },
+  { pattern: /\bAzulejos\b/gi, replacement: 'Blue Jays', topic: 'Blue Jays de Toronto' },
+  { pattern: /\bRayos\b|\bMantarrayas\b/gi, replacement: 'Rays', topic: 'Rays de Tampa Bay' },
+  { pattern: /\bBravos\b/gi, replacement: 'Braves', topic: 'Braves de Atlanta' },
+  { pattern: /\bFilis\b|\bFilies\b/gi, replacement: 'Phillies', topic: 'Phillies de Filadelfia' },
+  { pattern: /\bNacionales\b/gi, replacement: 'Nationals', topic: 'Nationals de Washington' },
+  { pattern: /\bCachorros\b/gi, replacement: 'Cubs', topic: 'Cubs de Chicago' },
+  { pattern: /\bRojos\b/gi, replacement: 'Reds', topic: 'Reds de Cincinnati' },
+  { pattern: /\bCerveceros\b/gi, replacement: 'Brewers', topic: 'Brewers de Milwaukee' },
+  { pattern: /\bPiratas\b/gi, replacement: 'Pirates', topic: 'Pirates de Pittsburgh' },
+  { pattern: /\bCardenales\b/gi, replacement: 'Cardinals', topic: 'Cardinals de San Luis' },
+  { pattern: /\bGigantes\b/gi, replacement: 'Giants', topic: 'Giants de San Francisco' }
+];
+
+const MLB_BASEBALL_CONTEXT = /\b(?:béisbol|beisbol|MLB|Grandes Ligas|Liga Nacional|Liga Americana|Serie Mundial|jonr[oó]n(?:es)?|cuadrangular(?:es)?|home run(?:s)?|bate(?:ó|aron)|bateador(?:es)?|lanzador(?:es)?|lanz[oó]|pitcher(?:s)?|relevista(?:s)?|abridor(?:es)?|inning(?:s)?|entrada(?:s)?|carrera(?:s)?|bases?|bullpen|diamante|hit(?:s)?|doble(?:s)?|triple(?:s)?|roleta(?:s)?|sencillo(?:s)?|temporada|playoffs|postemporada|wild card)\b/i;
+
+function hasMLBContext(text) {
+  if (MLB_BASEBALL_CONTEXT.test(text)) return true;
+  return MLB_STANDALONE_RULES.some(rule => {
+    rule.pattern.lastIndex = 0;
+    const match = rule.pattern.exec(text);
+    rule.pattern.lastIndex = 0;
+    if (!match) return false;
+    return /^[A-ZÁÉÍÓÚÑ]/.test(match[0]) || /\b(?:los|las)\s+$/i.test(text.slice(0, match.index));
+  });
+}
+
+function translateMLBTeamNames(text) {
+  let result = text;
+  MLB_TRANSLATION_RULES.forEach(rule => {
+    rule.pattern.lastIndex = 0;
+    result = result.replace(rule.pattern, rule.replacement);
+  });
+  if (hasMLBContext(text)) {
+    MLB_STANDALONE_RULES.forEach(rule => {
+      rule.pattern.lastIndex = 0;
+      result = result.replace(rule.pattern, (match, offset, full) => {
+        const before = full.slice(0, offset);
+        const after = full.slice(offset + match.length, offset + match.length + 35);
+        // Evita cambiar un apodo si forma parte de "Cerveceros de Milwaukee":
+        // el nombre completo ya se procesa con la regla anterior.
+        if (/^\s+de\s+/i.test(after)) return match;
+        // En contexto de béisbol, el apodo aislado sí se traduce.
+        return rule.replacement;
+      });
+    });
+  }
+  return result;
+}
+
+function addMLBNicknameLinkAliases() {
+  const aliases = [];
+  MLB_STANDALONE_RULES.forEach(rule => {
+    const canonical = dictionary.find(item =>
+      item.keyword.toLocaleLowerCase('es') === rule.topic.toLocaleLowerCase('es')
+    );
+    if (!canonical) return;
+    const englishNickname = rule.replacement;
+    if (!dictionary.some(item => item.keyword.toLocaleLowerCase('es') === englishNickname.toLocaleLowerCase('es'))) {
+      aliases.push({ keyword: englishNickname, url: canonical.url });
+    }
+  });
+  dictionary = [...dictionary, ...aliases].sort((a, b) => b.keyword.length - a.keyword.length);
+}
+
 const DEFAULT_ANGLICISM_REGEX = /\b(?:inning|innings|playoff|playoffs|wild\s+card|wild\s+cards|home\s+run|home\s+runs|pitcher|pitchers|catcher|catchers|bullpen|closer|closers|reliever|relievers|starter|starters|out|outs|hit|hits|strike|strikes|walk|walks|double|doubles|triple|triples|slider|sliders|changeup|changeups|curveball|curveballs|fastball|fastballs|sinker|sinkers|sweeper|sweepers|splitter|splitters|lineup|lineups|batting\s+order|designated\s+hitter|designated\s+hitters|draft|passed\s+ball|passed\s+balls|wild\s+pitch|wild\s+pitches|balk|balks|walk[-\s]?off|sacrifice\s+fly|sacrifice\s+flies|sacrifice\s+bunt|sacrifice\s+bunts|stolen\s+base|stolen\s+bases|caught\s+stealing|pickoff|pickoffs|double\s+play|double\s+plays|triple\s+play|triple\s+plays|force\s+out|force\s+outs|tag\s+out|tag\s+outs|groundout|groundouts|flyout|flyouts|strikeout|strikeouts|grand\s+slam|grand\s+slams|shutout|shutouts|no[-\s]?hitter|no[-\s]?hitters|perfect\s+game|perfect\s+games|lead[-\s]?off|leadoff|pinch\s+hitter|pinch\s+hitters|pinch\s+runner|pinch\s+runners|utility\s+player|utility\s+players|prospect|prospects|rookie|rookies|spring\s+training|trade\s+deadline|waiver|waivers|all[-\s]?star|all[-\s]?stars|home\s+run\s+derby|home\s+plate|home|plate|plates|cutter|cutters|derby|batter|batters|batting|bat|bats|shortstop|shortstops|third\s+baseman|third\s+basemen|second\s+baseman|second\s+basemen|first\s+baseman|first\s+basemen|outfielder|outfielders|infielder|infielders|outfield|infield|dugout|dugouts|on[-\s]?deck|on[-\s]?base|on[-\s]?deck|batting\s+practice|batting\s+coach|base\s+coach|first\s+base|second\s+base|third\s+base|home\s+run|grand\s+slam|inside[-\s]?the[-\s]?park|sac\s+fly|sacrifice\s+fly|sac\s+bunt|sacrifice\s+bunt|hit[-\s]?by[-\s]?pitch|hit\s+by\s+pitch|intentional\s+walk|walk\s+off|walk[-\s]?off|run[-\s]?batted[-\s]?in|runs[-\s]?batted[-\s]?in|RBI|ERA|WHIP|OPS|OBP|SLG|BABIP|WAR|FIP|QS|save|saves|hold|holds|blown\s+save|blown\s+saves|setup\s+man|setup\s+men|middle\s+reliever|middle\s+relievers|long\s+reliever|long\s+relievers|left[-\s]?hander|right[-\s]?hander|lefty|lefties|righty|righties|switch[-\s]?hitter|switch[-\s]?hitters|utility\s+man|utility\s+men|utility\s+infielder|utility\s+infielders|utility\s+outfielder|utility\s+outfielders|catcher\s+interference|pitch\s+clock|pitch\s+com|ghost\s+runner|runner\s+on\s+second|bases[-\s]?loaded|loaded\s+bases|inside\s+corner|outside\s+corner|inside\s+pitch|outside\s+pitch|high\s+fastball|low\s+fastball|breaking\s+ball|breaking\s+balls|off[-\s]?speed|off[-\s]?speed\s+pitch|two[-\s]?seamer|four[-\s]?seamer|four[-\s]?seam|two[-\s]?seam|curve|curves|knuckleball|knuckleballs|knuckle[-\s]?curve|knuckle[-\s]?curves|forkball|forkballs|splitter|splitters|sinker|sinkers|sweeper|sweepers|slider|sliders|changeup|changeups|fastball|fastballs|cutter|cutters|slugging|slugger|sluggers|batting\s+average|on[-\s]?base\s+percentage|slugging\s+percentage|fastbreak|fast\s+break|half\s+court|full\s+court|frontcourt|backcourt|point\s+guard|shooting\s+guard|small\s+forward|power\s+forward|center|centers|forward|forwards|guard|guards|sixth\s+man|sixth\s+woman|pick\s+and\s+roll|pick\s+and\s+pop|pick\s+and\s+rolls|alley[-\s]?oop|slam\s+dunk|dunk|dunks|layup|layups|tip[-\s]?in|tip[-\s]?ins|jump\s+shot|jumpers|jumper|fadeaway|fadeaway\s+jumper|hook\s+shot|bank\s+shot|three[-\s]?pointer|three[-\s]?pointers|two[-\s]?pointer|two[-\s]?pointers|free\s+throw|free\s+throws|turnover|turnovers|steal|steals|block|blocks|assist|assists|rebound|rebounds|box\s+out|box\s+outs|double[-\s]?double|triple[-\s]?double|quadruple[-\s]?double|buzzer[-\s]?beater|game[-\s]?winner|game[-\s]?winning|shot\s+clock|shot\s+creator|rim\s+protector|stretch\s+four|two[-\s]?way|two[-\s]?way\s+player|playmaker|playmakers|ball\s+handler|ball\s+handlers|spacing|switch|switches|switching|mismatch|mismatches|screen|screens|screening|closeout|closeouts|rotation|rotations|transition|pace|pick\s+and\s+roll|NBA\s+draft|lottery\s+pick|lottery\s+picks|undrafted|rookie\s+scale|salary\s+cap|hard\s+cap|luxury\s+tax|trade\s+exception|two[-\s]?way\s+contract|buyout|buyouts|waiver\s+wire|free\s+agency|free\s+agent|free\s+agents|play[-\s]?in|home\s+court|road\s+game|road\s+games|clutch|clutch\s+time|overtime|shot|shots|par|birdie|birdies|eagle|eagles|albatross|albatrosses|bogey|bogeys|double\s+bogey|double\s+bogeys|tee|tees|tee\s+box|fairway|fairways|rough|green|greens|putt|putts|putter|putters|putting|drive|drives|driver|drivers|approach|approaches|approach\s+shot|approach\s+shots|chip|chips|chipping|pitch|pitches|pitching|bunker|bunkers|sand\s+trap|sand\s+traps|hazard|hazards|water\s+hazard|water\s+hazards|golf\s+cart|caddie|caddies|clubhouse|links|links\s+course|stroke|strokes|stroke\s+play|match\s+play|medal\s+play|cut|cuts|made\s+the\s+cut|missed\s+the\s+cut|leaderboard|leaderboards|major|majors|round|rounds|final\s+round|opening\s+round|back\s+nine|front\s+nine|nine\s+holes|18\s+holes|par[-\s]?3|par[-\s]?4|par[-\s]?5|one[-\s]?under|two[-\s]?under|three[-\s]?under|one[-\s]?over|two[-\s]?over|three[-\s]?over|under\s+par|over\s+par|tee\s+time|gimme|gimme\s+putt|boxing|boxer|boxers|fight|fights|fighter|fighters|bout|bouts|title\s+fight|title\s+fights|championship\s+bout|contender|contenders|challenger|challengers|undisputed|unified|unification|knockout|knockouts|knockout\s+artist|TKO|KO|technical\s+knockout|technical\s+knockouts|knockdown|knockdowns|count|counts|standing\s+eight|corner|cornermen|cutman|cutmen|ring|ringside|ring\s+walk|weigh[-\s]?in|weigh[-\s]?ins|weight\s+class|weight\s+classes|heavyweight|lightweight|welterweight|middleweight|bantamweight|featherweight|flyweight|super\s+heavyweight|super\s+middleweight|super\s+welterweight|super\s+lightweight|super\s+featherweight|super\s+bantamweight|southpaw|orthodox|jab|jabs|cross|crosses|hook|hooks|uppercut|uppercuts|body\s+shot|body\s+shots|combination|combinations|counterpunch|counterpunches|head\s+shot|head\s+shots|punch|punches|power\s+punch|power\s+punches|clean\s+shot|clean\s+shots|decision|decisions|split\s+decision|majority\s+decision|unanimous\s+decision|draw|draws|technical\s+decision|referee|referees|judges|judge|scorecard|scorecards|rounds|bell|bells|NFL|football|quarterback|quarterbacks|QB|running\s+back|running\s+backs|wide\s+receiver|wide\s+receivers|tight\s+end|tight\s+ends|offensive\s+line|defensive\s+line|lineman|linemen|defensive\s+back|defensive\s+backs|cornerback|cornerbacks|safety|safeties|linebacker|linebackers|fullback|fullbacks|slot\s+receiver|slot\s+receivers|pass\s+rusher|pass\s+rushers|edge\s+rusher|edge\s+rushers|special\s+teams|placekicker|placekickers|kicker|kickers|punter|punters|long\s+snapper|long\s+snappers|kickoff|kickoffs|punt|punts|fair\s+catch|fair\s+catches|touchdown|touchdowns|extra\s+point|extra\s+points|field\s+goal|field\s+goals|two[-\s]?point\s+conversion|two[-\s]?point\s+conversions|conversion|conversions|safety|safeties|fumble|fumbles|fumble\s+recovery|fumble\s+recoveries|interception|interceptions|pick[-\s]?six|pass\s+interference|defensive\s+pass\s+interference|offensive\s+pass\s+interference|holding|false\s+start|offsides|offside|encroachment|neutral\s+zone\s+infraction|delay\s+of\s+game|roughing\s+the\s+passer|roughing\s+the\s+kicker|illegal\s+contact|personal\s+foul|face\s+mask|facemask|taunting|unsportsmanlike\s+conduct|horse[-\s]?collar|tackle|tackles|tackling|sack|sacks|blitz|blitzes|blitzing|coverage|man\s+coverage|zone\s+coverage|press\s+coverage|red\s+zone|end\s+zone|goal\s+line|first\s+down|first\s+downs|third\s+down|fourth\s+down|two[-\s]?minute\s+warning|hurry[-\s]?up|no[-\s]?huddle|shotgun|shotgun\s+formation|wildcat|play\s+action|play[-\s]?action|read\s+option|option\s+play|screen\s+pass|deep\s+ball|deep\s+pass|pass\s+rush|run\s+game|passing\s+game|running\s+game|turnover\s+margin|time\s+of\s+possession|drive|drives|three[-\s]?and[-\s]?out|two[-\s]?minute\s+drill|game\s+clock|playoff\s+berth|wild\s+card|bye|bye\s+week|home\s+field|road\s+game|franchise\s+tag|salary\s+cap|free\s+agency|free\s+agent|trade\s+deadline|waiver\s+wire|practice\s+squad|active\s+roster|depth\s+chart|roster|rosters|starter|starters|head\s+coach|offensive\s+coordinator|defensive\s+coordinator|special\s+teams\s+coordinator|play\s+caller|play\s+calling|snap|snaps|line\s+of\s+scrimmage|preseason|regular\s+season|Super\s+Bowl|Pro\s+Bowl)\b/gi;
 let dictionary = [...DEFAULT_DICTIONARY].sort((a, b) => b.keyword.length - a.keyword.length);
 let anglicismTerms = [];
@@ -310,7 +414,8 @@ function processEditorContent() {
   if(!editor.innerText.trim()) return;
   const sel=window.getSelection(); let caretBookmark=null;
   if(sel&&sel.rangeCount&&editor.contains(sel.anchorNode)) caretBookmark=getCaretBookmark(editor,sel.getRangeAt(0));
-  forEachTextNode(editor,node=>{const changed=applyNumericFormatting(node.nodeValue);if(changed!==node.nodeValue)node.nodeValue=changed;});
+  forEachTextNode(editor,node=>{let changed=translateMLBTeamNames(node.nodeValue);changed=applyNumericFormatting(changed);if(changed!==node.nodeValue)node.nodeValue=changed;});
+  addMLBNicknameLinkAliases();
   linkDictionaryTerms(editor,'first',true,true);
   autoItalicizeEnglishSportsTerms(editor);
   if(caretBookmark&&document.activeElement===editor) {
