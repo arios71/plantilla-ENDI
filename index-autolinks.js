@@ -263,6 +263,24 @@ function autoItalicizeEnglishSportsTerms(root) {
         node.parentNode.replaceChild(frag, node);
       });
     }
+function normalizeNicknameQuotes(text) {
+  // En nombres con apodo entre comillas, aplicar el estilo editorial de El Nuevo Día.
+  // Ejemplo: Juan "Igor" González → Juan “Igor” González.
+  return text.replace(
+    /(\\p{L}[\\p{L}\\p{M}'’.-]*)(\\s+)"([^"\\r\\n]+)"(\\s+)(\\p{L}[\\p{L}\\p{M}'’.-]*)/gu,
+    '$1$2“$3”$4$5'
+  );
+}
+
+function escapeDictionaryKeyword(keyword) {
+  // Las comillas rectas y curvas se consideran equivalentes al buscar en el diccionario.
+  return Array.from(keyword).map(char => {
+    if (char === '"' || char === '“' || char === '”') return '["“”]';
+    if (char === "'" || char === '‘' || char === '’') return "['‘’]";
+    return char.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {');
+  }).join('');
+}
+
 function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {
       let total = 0;
 
@@ -295,7 +313,7 @@ function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {
         const topicKey = item.url.toLowerCase().replace(/\/$/, '');
         if (matchedTopicsSet.has(topicKey)) return;
 
-        const escapedKw = item.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escapedKw = escapeDictionaryKeyword(item.keyword);
         const boundaryEnd = /\.$/.test(item.keyword) ? '' : '\\b';
         const regex = new RegExp('\\b(' + escapedKw + ')' + boundaryEnd, 'i');
 
@@ -414,7 +432,7 @@ function processEditorContent() {
   if(!editor.innerText.trim()) return;
   const sel=window.getSelection(); let caretBookmark=null;
   if(sel&&sel.rangeCount&&editor.contains(sel.anchorNode)) caretBookmark=getCaretBookmark(editor,sel.getRangeAt(0));
-  forEachTextNode(editor,node=>{let changed=translateMLBTeamNames(node.nodeValue);changed=applyNumericFormatting(changed);if(changed!==node.nodeValue)node.nodeValue=changed;});
+  forEachTextNode(editor,node=>{let changed=normalizeNicknameQuotes(node.nodeValue);changed=translateMLBTeamNames(changed);changed=applyNumericFormatting(changed);if(changed!==node.nodeValue)node.nodeValue=changed;});
   addMLBNicknameLinkAliases();
   linkDictionaryTerms(editor,'first',true,true);
   autoItalicizeEnglishSportsTerms(editor);
