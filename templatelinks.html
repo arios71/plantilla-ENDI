@@ -78,7 +78,7 @@
         </div>
         <div>
           <h1 class="text-lg font-bold leading-none flex items-center gap-2">
-            Auto-Linker & Formateador SEO
+            Auto-Linker & Formateador Editorial
           </h1>
           <p class="text-xs text-slate-400 mt-0.5">Optimizado para la redacción de El Nuevo Día</p>
         </div>
@@ -510,26 +510,26 @@
       { ap: /Piratas de Pittsburgh/g, end: "Pirates de Pittsburgh" },
       { ap: /Cardenales de San Luis/g, end: "Cardinals de San Luis" },
       { ap: /Gigantes de San Francisco/g, end: "Giants de San Francisco" },
-      { ap: /\bMedias Rojas\b/g, end: "Red Sox", standalone: true },
-      { ap: /\bMedias Blancas\b/g, end: "White Sox", standalone: true },
-      { ap: /\bGuardianes\b/g, end: "Guardians", standalone: true },
-      { ap: /\bTigres\b/g, end: "Tigers", standalone: true },
-      { ap: /\bReales\b/g, end: "Royals", standalone: true },
-      { ap: /\bMellizos\b/g, end: "Twins", standalone: true },
-      { ap: /\bAngelinos\b/g, end: "Angels", standalone: true },
-      { ap: /\bAtléticos\b/g, end: "Athletics", standalone: true },
-      { ap: /\bMarineros\b/g, end: "Mariners", standalone: true },
-      { ap: /\bVigilantes\b/g, end: "Rangers", standalone: true },
-      { ap: /\bAzulejos\b/g, end: "Blue Jays", standalone: true },
-      { ap: /\bBravos\b/g, end: "Braves", standalone: true },
-      { ap: /\bFilis\b|\bFilies\b/g, end: "Phillies", standalone: true },
-      { ap: /\bNacionales\b/g, end: "Nationals", standalone: true },
-      { ap: /\bCachorros\b/g, end: "Cubs", standalone: true },
-      { ap: /\bRojos\b/g, end: "Reds", standalone: true },
-      { ap: /\bCerveceros\b/g, end: "Brewers", standalone: true },
-      { ap: /\bPiratas\b/g, end: "Pirates", standalone: true },
-      { ap: /\bCardenales\b/g, end: "Cardinals", standalone: true },
-      { ap: /\bGigantes\b/g, end: "Giants", standalone: true }
+      { ap: /\bMedias Rojas\b/gi, end: "Red Sox", standalone: true },
+      { ap: /\bMedias Blancas\b/gi, end: "White Sox", standalone: true },
+      { ap: /\bGuardianes\b/gi, end: "Guardians", standalone: true },
+      { ap: /\bTigres\b/gi, end: "Tigers", standalone: true },
+      { ap: /\bReales\b/gi, end: "Royals", standalone: true },
+      { ap: /\bMellizos\b/gi, end: "Twins", standalone: true },
+      { ap: /\bAngelinos\b/gi, end: "Angels", standalone: true },
+      { ap: /\bAtléticos\b/gi, end: "Athletics", standalone: true },
+      { ap: /\bMarineros\b/gi, end: "Mariners", standalone: true },
+      { ap: /\bVigilantes\b/gi, end: "Rangers", standalone: true },
+      { ap: /\bAzulejos\b/gi, end: "Blue Jays", standalone: true },
+      { ap: /\bBravos\b/gi, end: "Braves", standalone: true },
+      { ap: /\bFilis\b|\bFilies\b/gi, end: "Phillies", standalone: true },
+      { ap: /\bNacionales\b/gi, end: "Nationals", standalone: true },
+      { ap: /\bCachorros\b/gi, end: "Cubs", standalone: true },
+      { ap: /\bRojos\b/gi, end: "Reds", standalone: true },
+      { ap: /\bCerveceros\b/gi, end: "Brewers", standalone: true },
+      { ap: /\bPiratas\b/gi, end: "Pirates", standalone: true },
+      { ap: /\bCardenales\b/gi, end: "Cardinals", standalone: true },
+      { ap: /\bGigantes\b/gi, end: "Giants", standalone: true }
     ];
 
     const NBA_TEAM_TRANSLATIONS = [
@@ -578,22 +578,32 @@
     const BASEBALL_CONTEXT = /\b(?:béisbol|beisbol|MLB|Grandes Ligas|Liga Nacional|Liga Americana|Serie Mundial|jonr[oó]n(?:es)?|cuadrangular(?:es)?|home run(?:s)?|bate(?:ó|aron|aron)|bateador(?:es)?|batea(?:n|ron)|lanzador(?:es)?|lanz[oó]|pitcher(?:s)?|relevista(?:s)?|abridor(?:es)?|receptor(?:es)?|catcher(?:s)?|inning(?:s)?|entrada(?:s)?|carrera(?:s)?|bases?|bullpen|diamante|out(?:s)?|hit(?:s)?|doble(?:s)?|triple(?:s)?|roleta(?:s)?|sencillo(?:s)?|serie(?:s)?|par(?:tido|tidos)|temporada|playoffs|postemporada|clasificaci[oó]n|wild card|wild-card)\b/i;
 
     function hasBaseballTeamContext(text) {
-      return MLB_TEAM_TRANSLATIONS.some(item => {
+      const explicitBaseballContext = MLB_TEAM_TRANSLATIONS.some(item => {
         if (item.standalone) return false;
         item.ap.lastIndex = 0;
         const found = item.ap.test(text);
         item.ap.lastIndex = 0;
         return found;
       }) || BASEBALL_CONTEXT.test(text);
+
+      if (explicitBaseballContext) return true;
+
+      // Un apodo MLB aislado también puede ser el único indicio de contexto de béisbol.
+      return MLB_TEAM_TRANSLATIONS.some(item => {
+        if (!item.standalone) return false;
+        const nickname = new RegExp(item.ap.source, 'i');
+        const match = nickname.exec(text);
+        if (!match) return false;
+        const before = text.slice(0, match.index);
+        return /^[A-ZÁÉÍÓÚÑ]/.test(match[0]) ||
+          /\b(?:los|las)\s+$/i.test(before);
+      });
     }
 
     function shouldTranslateStandaloneNickname(fullText, offset, match, baseballContext) {
       if (!baseballContext) return false;
-      if (!match || match[0] !== match[0].toUpperCase()) return false;
-      const before = fullText.slice(Math.max(0, offset - 20), offset);
+      if (!match) return false;
       const after = fullText.slice(offset + match.length, offset + match.length + 35);
-      const precededByArticle = /(?:^|\s)(?:el|la|los|las)\s+$/i.test(before);
-      if (!precededByArticle) return false;
       if (/^\s+de\s+/i.test(after)) return false;
       return true;
     }
@@ -1400,11 +1410,39 @@ function convertStraightDoubleQuotesInRoot(root) {
       });
     }
 
+    function getDictionaryWithMLBNicknameAliases() {
+      const items = [...dictionary];
+      const existingKeywords = new Set(
+        items.map(item => String(item.keyword || '').toLocaleLowerCase('es'))
+      );
+
+      MLB_TEAM_TRANSLATIONS.filter(item => item.standalone).forEach(nickname => {
+        const canonicalTeam = MLB_TEAM_TRANSLATIONS.find(candidate =>
+          !candidate.standalone &&
+          candidate.end.toLocaleLowerCase('es').startsWith(
+            nickname.end.toLocaleLowerCase('es') + ' de '
+          )
+        )?.end || nickname.end;
+
+        const canonical = items.find(item =>
+          String(item.keyword || '').toLocaleLowerCase('es') ===
+          canonicalTeam.toLocaleLowerCase('es')
+        );
+        if (!canonical || existingKeywords.has(nickname.end.toLocaleLowerCase('es'))) return;
+
+        items.push({ keyword: nickname.end, url: canonical.url });
+        existingKeywords.add(nickname.end.toLocaleLowerCase('es'));
+      });
+
+      return items.sort((a, b) => b.keyword.length - a.keyword.length);
+    }
+
     function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {
       let total = 0;
       const matchedTopicsSet = new Set();
+      const processingDictionary = getDictionaryWithMLBNicknameAliases();
 
-      dictionary.forEach(item => {
+      processingDictionary.forEach(item => {
         if (!item.keyword || !item.keyword.trim()) return;
 
         const topicKey = (item.url || item.keyword).toLowerCase().replace(/\/$/, '');
