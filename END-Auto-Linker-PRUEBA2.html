@@ -1863,7 +1863,8 @@
         .select('id,title,updated_at,created_at').is('deleted_at', null).order('updated_at', { ascending: false });
       if (error) {
         console.error('Error cargando borradores en línea:', error);
-        setOnlineDraftStatus('No se pudo cargar. Verifica la tabla y sus políticas RLS.', true);
+        const detail = error.message || error.details || error.hint || error.code || 'Error desconocido de Supabase';
+        setOnlineDraftStatus('Error al cargar: ' + detail, true);
         return;
       }
       onlineDraftsCache = data || [];
