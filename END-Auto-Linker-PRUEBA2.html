@@ -1968,9 +1968,9 @@
     function setupOnlineDraftLibrary() {
       document.getElementById('btnSaveOnlineDraft').addEventListener('click', () => saveOnlineDraft(false));
       document.getElementById('btnNewOnlineDraft').addEventListener('click', () => {
-        currentOnlineDraftId = null;
-        document.getElementById('onlineDraftTitle').value = '';
-        setOnlineDraftStatus('Modo nuevo borrador: el texto actual no se ha borrado.');
+        // Crear y guardar inmediatamente una copia independiente del texto actual.
+        // Se conserva el nombre escrito para usarlo como título del nuevo borrador.
+        saveOnlineDraft(true);
       });
       document.getElementById('btnRefreshOnlineDrafts').addEventListener('click', loadOnlineDrafts);
       document.getElementById('btnOpenOnlineDraft').addEventListener('click', openSelectedOnlineDraft);
