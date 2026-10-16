@@ -1905,7 +1905,8 @@
         : await supabaseClient.from(ONLINE_DRAFTS_TABLE).insert(payload).select('id,title,updated_at,created_at').single();
       if (result.error) {
         console.error('Error guardando borrador en línea:', result.error);
-        setOnlineDraftStatus('No se pudo guardar. Comprueba la tabla end_article_drafts y sus políticas RLS.', true); return;
+        const detail = result.error.message || result.error.details || result.error.hint || result.error.code || 'Error desconocido de Supabase';
+        setOnlineDraftStatus('Error al guardar: ' + detail, true); return;
       }
       currentOnlineDraftId = result.data.id;
       document.getElementById('onlineDraftTitle').value = result.data.title || title;
