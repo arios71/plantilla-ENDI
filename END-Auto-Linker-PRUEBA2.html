@@ -78,7 +78,7 @@
         </div>
         <div>
           <h1 class="text-lg font-bold leading-none flex items-center gap-2">
-            Auto-Linker & Formateador SEO
+            Auto-Linker & Formateador Editorial
           </h1>
           <p class="text-xs text-slate-400 mt-0.5">Optimizado para la redacción de El Nuevo Día</p>
         </div>
@@ -132,7 +132,7 @@
         </div>
       </div>
 
-      <!-- COPIAS LOCALES: independientes de Supabase y del autoguardado del navegador -->
+      <!-- COPIAS LOCALES -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3" id="localDraftPanel">
         <div class="flex items-center justify-between gap-3">
           <h2 class="font-semibold text-xs uppercase tracking-wider text-slate-500 flex items-center gap-2">
@@ -140,7 +140,7 @@
           </h2>
           <span id="localDraftStatus" class="text-[10px] text-slate-400" role="status" aria-live="polite">Listo</span>
         </div>
-        <p class="text-xs text-slate-500">Guarda una copia HTML en tu computadora y ábrela después para recuperar el texto original y sus ajustes. El autoguardado del navegador seguirá funcionando por separado.</p>
+        <p class="text-xs text-slate-500">Guarda una copia HTML en tu computadora y ábrela después para recuperar el texto original y sus ajustes.</p>
         <div class="flex flex-wrap gap-2">
           <button type="button" id="btnSaveLocalDraft" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 rounded-lg text-xs font-medium transition">
             <i class="fa-solid fa-download mr-1"></i> Guardar copia en mi computadora
@@ -159,7 +159,6 @@
         </h2>
 
         <div class="space-y-3">
-          <!-- Dateline AP to END Toggle -->
           <div class="flex items-center justify-between">
             <span class="text-xs font-medium text-slate-700">Procedencia END (NUEVA YORK —)</span>
             <label class="relative inline-flex items-center cursor-pointer">
@@ -168,16 +167,14 @@
             </label>
           </div>
 
-          <!-- MLB Teams Translation Toggle -->
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-700">Nombres MLB, NBA y NFL en Inglés (Cachorros &rarr; Cubs)</span>
+            <span class="text-xs font-medium text-slate-700">Nombres MLB, NBA y NFL en Inglés</span>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" id="toggleMLBTeams" checked class="sr-only peer">
               <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
             </label>
           </div>
 
-          <!-- Frequency Setting -->
           <div class="flex items-center justify-between">
             <span class="text-xs font-medium text-slate-700">Frecuencia de enlaces</span>
             <div class="inline-flex rounded-lg bg-slate-100 p-1 border border-slate-200">
@@ -196,7 +193,6 @@
             </div>
           </div>
 
-          <!-- Bold Toggle -->
           <div class="flex items-center justify-between">
             <span class="text-xs font-medium text-slate-700">Enlace en Negrita (&lt;strong&gt;)</span>
             <label class="relative inline-flex items-center cursor-pointer">
@@ -205,7 +201,6 @@
             </label>
           </div>
 
-          <!-- Target Blank Toggle -->
           <div class="flex items-center justify-between">
             <span class="text-xs font-medium text-slate-700">Abrir pestaña nueva (_blank)</span>
             <label class="relative inline-flex items-center cursor-pointer">
@@ -315,7 +310,7 @@
         </div>
       </div>
 
-      <!-- PANEL: TÓPICOS (links END) -->
+      <!-- PANEL: TÓPICOS -->
       <div id="topicsPanel" class="flex flex-col min-h-0 flex-1">
         <div class="p-4 bg-slate-50 border-b border-slate-200 space-y-3">
           <div class="flex items-center justify-between gap-3">
@@ -370,7 +365,7 @@
         </div>
       </div>
 
-      <!-- PANEL: LISTA ANGLICISMOS -->
+      <!-- PANEL: ANGLICISMOS -->
       <div id="anglicismsPanel" class="hidden flex-col min-h-0 flex-1">
         <div class="p-4 bg-slate-50 border-b border-slate-200 space-y-3">
           <div class="flex items-center justify-between gap-3">
@@ -423,8 +418,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // Diccionario predeterminado con los 30 equipos exactos de MLB que proporcionaste
     const DEFAULT_DICTIONARY = [
+      // MLB (30 equipos)
       { keyword: "Cubs de Chicago", url: "https://www.elnuevodia.com/topicos/cubs-de-chicago/" },
       { keyword: "Twins de Minnesota", url: "https://www.elnuevodia.com/topicos/twins-de-minnesota/" },
       { keyword: "White Sox de Chicago", url: "https://www.elnuevodia.com/topicos/white-sox-de-chicago/" },
@@ -454,41 +449,107 @@
       { keyword: "Diamondbacks de Arizona", url: "https://www.elnuevodia.com/topicos/diamondbacks-de-arizona/" },
       { keyword: "Giants de San Francisco", url: "https://www.elnuevodia.com/topicos/giants-de-san-francisco/" },
       { keyword: "Rockies de Colorado", url: "https://www.elnuevodia.com/topicos/rockies-de-colorado/" },
-      { keyword: "Reds de Cincinnati", url: "https://www.elnuevodia.com/topicos/reds-de-cincinnati/" }
+      { keyword: "Reds de Cincinnati", url: "https://www.elnuevodia.com/topicos/reds-de-cincinnati/" },
+
+      // NBA (30 equipos)
+      { keyword: "Hawks de Atlanta", url: "https://www.elnuevodia.com/topicos/hawks-de-atlanta/" },
+      { keyword: "Celtics de Boston", url: "https://www.elnuevodia.com/topicos/celtics-de-boston/" },
+      { keyword: "Nets de Brooklyn", url: "https://www.elnuevodia.com/topicos/nets-de-brooklyn/" },
+      { keyword: "Hornets de Charlotte", url: "https://www.elnuevodia.com/topicos/hornets-de-charlotte/" },
+      { keyword: "Bulls de Chicago", url: "https://www.elnuevodia.com/topicos/bulls-de-chicago/" },
+      { keyword: "Cavaliers de Cleveland", url: "https://www.elnuevodia.com/topicos/cavaliers-de-cleveland/" },
+      { keyword: "Mavericks de Dallas", url: "https://www.elnuevodia.com/topicos/mavericks-de-dallas/" },
+      { keyword: "Nuggets de Denver", url: "https://www.elnuevodia.com/topicos/nuggets-de-denver/" },
+      { keyword: "Pistons de Detroit", url: "https://www.elnuevodia.com/topicos/pistons-de-detroit/" },
+      { keyword: "Warriors de Golden State", url: "https://www.elnuevodia.com/topicos/warriors-de-golden-state/" },
+      { keyword: "Rockets de Houston", url: "https://www.elnuevodia.com/topicos/rockets-de-houston/" },
+      { keyword: "Pacers de Indiana", url: "https://www.elnuevodia.com/topicos/pacers-de-indiana/" },
+      { keyword: "Clippers de Los Ángeles", url: "https://www.elnuevodia.com/topicos/clippers-de-los-angeles/" },
+      { keyword: "Lakers de Los Ángeles", url: "https://www.elnuevodia.com/topicos/lakers-de-los-angeles/" },
+      { keyword: "Grizzlies de Memphis", url: "https://www.elnuevodia.com/topicos/grizzlies-de-memphis/" },
+      { keyword: "Heat de Miami", url: "https://www.elnuevodia.com/topicos/heat-de-miami/" },
+      { keyword: "Bucks de Milwaukee", url: "https://www.elnuevodia.com/topicos/bucks-de-milwaukee/" },
+      { keyword: "Timberwolves de Minnesota", url: "https://www.elnuevodia.com/topicos/timberwolves-de-minnesota/" },
+      { keyword: "Pelicans de Nueva Orleans", url: "https://www.elnuevodia.com/topicos/pelicans-de-nueva-orleans/" },
+      { keyword: "Knicks de Nueva York", url: "https://www.elnuevodia.com/topicos/knicks-de-nueva-york/" },
+      { keyword: "Thunder de Oklahoma City", url: "https://www.elnuevodia.com/topicos/thunder-de-oklahoma-city/" },
+      { keyword: "Magic de Orlando", url: "https://www.elnuevodia.com/topicos/magic-de-orlando/" },
+      { keyword: "76ers de Filadelfia", url: "https://www.elnuevodia.com/topicos/76ers-de-filadelfia/" },
+      { keyword: "Suns de Phoenix", url: "https://www.elnuevodia.com/topicos/suns-de-phoenix/" },
+      { keyword: "Trail Blazers de Portland", url: "https://www.elnuevodia.com/topicos/trail-blazers-de-portland/" },
+      { keyword: "Kings de Sacramento", url: "https://www.elnuevodia.com/topicos/kings-de-sacramento/" },
+      { keyword: "Spurs de San Antonio", url: "https://www.elnuevodia.com/topicos/spurs-de-san-antonio/" },
+      { keyword: "Raptors de Toronto", url: "https://www.elnuevodia.com/topicos/raptor-de-toronto/" },
+      { keyword: "Jazz de Utah", url: "https://www.elnuevodia.com/topicos/jazz-de-utah/" },
+      { keyword: "Wizards de Washington", url: "https://www.elnuevodia.com/topicos/wizards-de-washington/" },
+
+      // NFL (32 equipos)
+      { keyword: "Cardinals de Arizona", url: "https://www.elnuevodia.com/topicos/cardinals-de-arizona/" },
+      { keyword: "Falcons de Atlanta", url: "https://www.elnuevodia.com/topicos/falcons-de-atlanta/" },
+      { keyword: "Ravens de Baltimore", url: "https://www.elnuevodia.com/topicos/ravens-de-baltimore/" },
+      { keyword: "Bills de Buffalo", url: "https://www.elnuevodia.com/topicos/bills-de-buffalo/" },
+      { keyword: "Panthers de Carolina", url: "https://www.elnuevodia.com/topicos/panthers-de-carolina/" },
+      { keyword: "Bears de Chicago", url: "https://www.elnuevodia.com/topicos/bears-de-chicago/" },
+      { keyword: "Bengals de Cincinnati", url: "https://www.elnuevodia.com/topicos/bengals-de-cincinnati/" },
+      { keyword: "Browns de Cleveland", url: "https://www.elnuevodia.com/topicos/browns-de-cleveland/" },
+      { keyword: "Cowboys de Dallas", url: "https://www.elnuevodia.com/topicos/cowboys-de-dallas/" },
+      { keyword: "Broncos de Denver", url: "https://www.elnuevodia.com/topicos/broncos-de-denver/" },
+      { keyword: "Lions de Detroit", url: "https://www.elnuevodia.com/topicos/lions-de-detroit/" },
+      { keyword: "Packers de Green Bay", url: "https://www.elnuevodia.com/topicos/packers-de-green-bay/" },
+      { keyword: "Texans de Houston", url: "https://www.elnuevodia.com/topicos/texans-de-houston/" },
+      { keyword: "Colts de Indianápolis", url: "https://www.elnuevodia.com/topicos/colts-de-indianapolis/" },
+      { keyword: "Jaguars de Jacksonville", url: "https://www.elnuevodia.com/topicos/jaguars-de-jacksonville/" },
+      { keyword: "Chiefs de Kansas City", url: "https://www.elnuevodia.com/topicos/chiefs-de-kansas-city/" },
+      { keyword: "Raiders de Las Vegas", url: "https://www.elnuevodia.com/topicos/raiders-de-las-vegas/" },
+      { keyword: "Chargers de Los Ángeles", url: "https://www.elnuevodia.com/topicos/chargers-de-los-angeles/" },
+      { keyword: "Rams de Los Ángeles", url: "https://www.elnuevodia.com/topicos/rams-de-los-angeles/" },
+      { keyword: "Dolphins de Miami", url: "https://www.elnuevodia.com/topicos/dolphins-de-miami/" },
+      { keyword: "Vikings de Minnesota", url: "https://www.elnuevodia.com/topicos/vikings-de-minnesota/" },
+      { keyword: "Patriots de Nueva Inglaterra", url: "https://www.elnuevodia.com/topicos/patriots-de-nueva-inglaterra/" },
+      { keyword: "Saints de Nueva Orleans", url: "https://www.elnuevodia.com/topicos/saints-de-nueva-orleans/" },
+      { keyword: "Giants de Nueva York", url: "https://www.elnuevodia.com/topicos/giants-de-nueva-york/" },
+      { keyword: "Jets de Nueva York", url: "https://www.elnuevodia.com/topicos/jets-de-nueva-york/" },
+      { keyword: "Eagles de Filadelfia", url: "https://www.elnuevodia.com/topicos/eagles-de-philadelphia/" },
+      { keyword: "Steelers de Pittsburgh", url: "https://www.elnuevodia.com/topicos/steelers-de-pittsburgh/" },
+      { keyword: "49ers de San Francisco", url: "https://www.elnuevodia.com/topicos/49ers-de-san-francisco/" },
+      { keyword: "Seahawks de Seattle", url: "https://www.elnuevodia.com/topicos/seahawks-de-seattle/" },
+      { keyword: "Buccaneers de Tampa Bay", url: "https://www.elnuevodia.com/topicos/buccaneers-de-tampa-bay/" },
+      { keyword: "Titans de Tennessee", url: "https://www.elnuevodia.com/topicos/titans-de-tennessee/" },
+      { keyword: "Commanders de Washington", url: "https://www.elnuevodia.com/topicos/commanders-de-washington/" }
     ];
 
-    // Reglas de traducción para cables de AP -> Estilo END en inglés
+    // Reglas de traducción para nombres en inglés/híbridos (se fuerzan con \b ... \b/gi)
     const MLB_TEAM_TRANSLATIONS = [
-      { ap: /New York Yankees/g, end: "Yankees de Nueva York" },
-      { ap: /Los Angeles Dodgers/g, end: "Dodgers de Los Ángeles" },
-      { ap: /San Diego Padres/g, end: "Padres de San Diego" },
-      { ap: /Arizona Diamondbacks/g, end: "Diamondbacks de Arizona" },
-      { ap: /San Francisco Giants/g, end: "Giants de San Francisco" },
-      { ap: /New York Mets/g, end: "Mets de Nueva York" },
-      { ap: /St\. Louis Cardinals|St Louis Cardinals/g, end: "Cardinals de San Luis" },
-      { ap: /Pittsburgh Pirates/g, end: "Pirates de Pittsburgh" },
-      { ap: /Milwaukee Brewers/g, end: "Brewers de Milwaukee" },
-      { ap: /Cincinnati Reds/g, end: "Reds de Cincinnati" },
-      { ap: /Chicago Cubs/g, end: "Cubs de Chicago" },
-      { ap: /Washington Nationals/g, end: "Nationals de Washington" },
-      { ap: /Miami Marlins/g, end: "Marlins de Miami" },
-      { ap: /Philadelphia Phillies/g, end: "Phillies de Filadelfia" },
-      { ap: /Atlanta Braves/g, end: "Braves de Atlanta" },
-      { ap: /Oakland Athletics/g, end: "Athletics" },
-      { ap: /Tampa Bay Rays/g, end: "Rays de Tampa Bay" },
-      { ap: /Toronto Blue Jays/g, end: "Blue Jays de Toronto" },
-      { ap: /Kansas City Royals/g, end: "Royals de Kansas City" },
-      { ap: /Detroit Tigers/g, end: "Tigers de Detroit" },
-      { ap: /Cleveland Guardians/g, end: "Guardians de Cleveland" },
-      { ap: /Minnesota Twins/g, end: "Twins de Minnesota" },
-      { ap: /Chicago White Sox/g, end: "White Sox de Chicago" },
-      { ap: /Boston Red Sox/g, end: "Red Sox de Boston" },
-      { ap: /Baltimore Orioles/g, end: "Orioles de Baltimore" },
-      { ap: /Texas Rangers/g, end: "Rangers de Texas" },
-      { ap: /Seattle Mariners/g, end: "Mariners de Seattle" },
-      { ap: /Houston Astros/g, end: "Astros de Houston" },
-      { ap: /Los Angeles Angels|Anaheim Angels/g, end: "Angels de Los Ángeles" },
-      { ap: /Colorado Rockies/g, end: "Rockies de Colorado" },
+      { ap: /\bWashington Nationals\b/gi, end: "Nationals de Washington" },
+      { ap: /\bNew York Yankees\b|\bYanquis de Nueva York\b/gi, end: "Yankees de Nueva York" },
+      { ap: /\bLos Angeles Dodgers\b/gi, end: "Dodgers de Los Ángeles" },
+      { ap: /\bSan Diego Padres\b/gi, end: "Padres de San Diego" },
+      { ap: /\bArizona Diamondbacks\b/gi, end: "Diamondbacks de Arizona" },
+      { ap: /\bSan Francisco Giants\b/gi, end: "Giants de San Francisco" },
+      { ap: /\bNew York Mets\b/gi, end: "Mets de Nueva York" },
+      { ap: /\bSt\.? Louis Cardinals\b/gi, end: "Cardinals de San Luis" },
+      { ap: /\bPittsburgh Pirates\b/gi, end: "Pirates de Pittsburgh" },
+      { ap: /\bMilwaukee Brewers\b/gi, end: "Brewers de Milwaukee" },
+      { ap: /\bCincinnati Reds\b/gi, end: "Reds de Cincinnati" },
+      { ap: /\bChicago Cubs\b/gi, end: "Cubs de Chicago" },
+      { ap: /\bMiami Marlins\b/gi, end: "Marlins de Miami" },
+      { ap: /\bPhiladelphia Phillies\b/gi, end: "Phillies de Filadelfia" },
+      { ap: /\bAtlanta Braves\b/gi, end: "Braves de Atlanta" },
+      { ap: /\bOakland Athletics\b/gi, end: "Athletics" },
+      { ap: /\bTampa Bay Rays\b/gi, end: "Rays de Tampa Bay" },
+      { ap: /\bToronto Blue Jays\b/gi, end: "Blue Jays de Toronto" },
+      { ap: /\bKansas City Royals\b/gi, end: "Royals de Kansas City" },
+      { ap: /\bDetroit Tigers\b/gi, end: "Tigers de Detroit" },
+      { ap: /\bCleveland Guardians\b/gi, end: "Guardians de Cleveland" },
+      { ap: /\bMinnesota Twins\b/gi, end: "Twins de Minnesota" },
+      { ap: /\bChicago White Sox\b/gi, end: "White Sox de Chicago" },
+      { ap: /\bBoston Red Sox\b/gi, end: "Red Sox de Boston" },
+      { ap: /\bBaltimore Orioles\b/gi, end: "Orioles de Baltimore" },
+      { ap: /\bTexas Rangers\b/gi, end: "Rangers de Texas" },
+      { ap: /\bSeattle Mariners\b/gi, end: "Mariners de Seattle" },
+      { ap: /\bHouston Astros\b/gi, end: "Astros de Houston" },
+      { ap: /\bLos Angeles Angels\b|\bAnaheim Angels\b/gi, end: "Angels de Los Ángeles" },
+      { ap: /\bColorado Rockies\b/gi, end: "Rockies de Colorado" },
       { ap: /Medias Rojas de Boston/g, end: "Red Sox de Boston" },
       { ap: /Medias Blancas de Chicago/g, end: "White Sox de Chicago" },
       { ap: /Guardianes de Cleveland/g, end: "Guardians de Cleveland" },
@@ -510,63 +571,95 @@
       { ap: /Piratas de Pittsburgh/g, end: "Pirates de Pittsburgh" },
       { ap: /Cardenales de San Luis/g, end: "Cardinals de San Luis" },
       { ap: /Gigantes de San Francisco/g, end: "Giants de San Francisco" },
-      { ap: /\bMedias Rojas\b/g, end: "Red Sox", standalone: true },
-      { ap: /\bMedias Blancas\b/g, end: "White Sox", standalone: true },
-      { ap: /\bGuardianes\b/g, end: "Guardians", standalone: true },
-      { ap: /\bTigres\b/g, end: "Tigers", standalone: true },
-      { ap: /\bReales\b/g, end: "Royals", standalone: true },
-      { ap: /\bMellizos\b/g, end: "Twins", standalone: true },
-      { ap: /\bAngelinos\b/g, end: "Angels", standalone: true },
-      { ap: /\bAtléticos\b/g, end: "Athletics", standalone: true },
-      { ap: /\bMarineros\b/g, end: "Mariners", standalone: true },
-      { ap: /\bVigilantes\b/g, end: "Rangers", standalone: true },
-      { ap: /\bAzulejos\b/g, end: "Blue Jays", standalone: true },
-      { ap: /\bBravos\b/g, end: "Braves", standalone: true },
-      { ap: /\bFilis\b|\bFilies\b/g, end: "Phillies", standalone: true },
-      { ap: /\bNacionales\b/g, end: "Nationals", standalone: true },
-      { ap: /\bCachorros\b/g, end: "Cubs", standalone: true },
-      { ap: /\bRojos\b/g, end: "Reds", standalone: true },
-      { ap: /\bCerveceros\b/g, end: "Brewers", standalone: true },
-      { ap: /\bPiratas\b/g, end: "Pirates", standalone: true },
-      { ap: /\bCardenales\b/g, end: "Cardinals", standalone: true },
-      { ap: /\bGigantes\b/g, end: "Giants", standalone: true }
+      { ap: /\bYanquis\b/gi, end: "Yankees", standalone: true },
+      { ap: /\bMedias Rojas\b/gi, end: "Red Sox", standalone: true },
+      { ap: /\bMedias Blancas\b/gi, end: "White Sox", standalone: true },
+      { ap: /\bGuardianes\b/gi, end: "Guardians", standalone: true },
+      { ap: /\bTigres\b/gi, end: "Tigers", standalone: true },
+      { ap: /\bReales\b/gi, end: "Royals", standalone: true },
+      { ap: /\bMellizos\b/gi, end: "Twins", standalone: true },
+      { ap: /\bAngelinos\b/gi, end: "Angels", standalone: true },
+      { ap: /\bAtléticos\b/gi, end: "Athletics", standalone: true },
+      { ap: /\bMarineros\b/gi, end: "Mariners", standalone: true },
+      { ap: /\bVigilantes\b/gi, end: "Rangers", standalone: true },
+      { ap: /\bAzulejos\b/gi, end: "Blue Jays", standalone: true },
+      { ap: /\bBravos\b/gi, end: "Braves", standalone: true },
+      { ap: /\bFilis\b|\bFilies\b/gi, end: "Phillies", standalone: true },
+      { ap: /\bNacionales\b/gi, end: "Nationals", standalone: true },
+      { ap: /\bCachorros\b/gi, end: "Cubs", standalone: true },
+      { ap: /\bRojos\b/gi, end: "Reds", standalone: true },
+      { ap: /\bCerveceros\b/gi, end: "Brewers", standalone: true },
+      { ap: /\bPiratas\b/gi, end: "Pirates", standalone: true },
+      { ap: /\bCardenales\b/gi, end: "Cardinals", standalone: true },
+      { ap: /\bGigantes\b/gi, end: "Giants", standalone: true }
     ];
 
     const NBA_TEAM_TRANSLATIONS = [
-      { ap: /Atlanta Hawks/g, end: "Hawks de Atlanta" }, { ap: /Boston Celtics/g, end: "Celtics de Boston" },
-      { ap: /Brooklyn Nets/g, end: "Nets de Brooklyn" }, { ap: /Charlotte Hornets/g, end: "Hornets de Charlotte" },
-      { ap: /Chicago Bulls/g, end: "Bulls de Chicago" }, { ap: /Cleveland Cavaliers/g, end: "Cavaliers de Cleveland" },
-      { ap: /Dallas Mavericks/g, end: "Mavericks de Dallas" }, { ap: /Denver Nuggets/g, end: "Nuggets de Denver" },
-      { ap: /Detroit Pistons/g, end: "Pistons de Detroit" }, { ap: /Golden State Warriors/g, end: "Warriors de Golden State" },
-      { ap: /Houston Rockets/g, end: "Rockets de Houston" }, { ap: /Indiana Pacers/g, end: "Pacers de Indiana" },
-      { ap: /Los Angeles Clippers/g, end: "Clippers de Los Ángeles" }, { ap: /Los Angeles Lakers/g, end: "Lakers de Los Ángeles" },
-      { ap: /Memphis Grizzlies/g, end: "Grizzlies de Memphis" }, { ap: /Miami Heat/g, end: "Heat de Miami" },
-      { ap: /Milwaukee Bucks/g, end: "Bucks de Milwaukee" }, { ap: /Minnesota Timberwolves/g, end: "Timberwolves de Minnesota" },
-      { ap: /New Orleans Pelicans/g, end: "Pelicans de Nueva Orleans" }, { ap: /New York Knicks/g, end: "Knicks de Nueva York" },
-      { ap: /Oklahoma City Thunder/g, end: "Thunder de Oklahoma City" }, { ap: /Orlando Magic/g, end: "Magic de Orlando" },
-      { ap: /Philadelphia 76ers/g, end: "76ers de Filadelfia" }, { ap: /Phoenix Suns/g, end: "Suns de Phoenix" },
-      { ap: /Portland Trail Blazers/g, end: "Trail Blazers de Portland" }, { ap: /Sacramento Kings/g, end: "Kings de Sacramento" },
-      { ap: /San Antonio Spurs/g, end: "Spurs de San Antonio" }, { ap: /Toronto Raptors/g, end: "Raptors de Toronto" },
-      { ap: /Utah Jazz/g, end: "Jazz de Utah" }, { ap: /Washington Wizards/g, end: "Wizards de Washington" }
+      { ap: /\bMilwaukee Bucks\b/gi, end: "Bucks de Milwaukee" },
+      { ap: /\bOklahoma City Thunder\b/gi, end: "Thunder de Oklahoma City" },
+      { ap: /\bPhoenix Suns\b/gi, end: "Suns de Phoenix" },
+      { ap: /\bAtlanta Hawks\b/gi, end: "Hawks de Atlanta" },
+      { ap: /\bBoston Celtics\b/gi, end: "Celtics de Boston" },
+      { ap: /\bBrooklyn Nets\b/gi, end: "Nets de Brooklyn" },
+      { ap: /\bCharlotte Hornets\b/gi, end: "Hornets de Charlotte" },
+      { ap: /\bChicago Bulls\b/gi, end: "Bulls de Chicago" },
+      { ap: /\bCleveland Cavaliers\b/gi, end: "Cavaliers de Cleveland" },
+      { ap: /\bDallas Mavericks\b/gi, end: "Mavericks de Dallas" },
+      { ap: /\bDenver Nuggets\b/gi, end: "Nuggets de Denver" },
+      { ap: /\bDetroit Pistons\b/gi, end: "Pistons de Detroit" },
+      { ap: /\bGolden State Warriors\b/gi, end: "Warriors de Golden State" },
+      { ap: /\bHouston Rockets\b/gi, end: "Rockets de Houston" },
+      { ap: /\bIndiana Pacers\b/gi, end: "Pacers de Indiana" },
+      { ap: /\bLos Angeles Clippers\b/gi, end: "Clippers de Los Ángeles" },
+      { ap: /\bLos Angeles Lakers\b/gi, end: "Lakers de Los Ángeles" },
+      { ap: /\bMemphis Grizzlies\b/gi, end: "Grizzlies de Memphis" },
+      { ap: /\bMiami Heat\b/gi, end: "Heat de Miami" },
+      { ap: /\bMinnesota Timberwolves\b/gi, end: "Timberwolves de Minnesota" },
+      { ap: /\bNew Orleans Pelicans\b/gi, end: "Pelicans de Nueva Orleans" },
+      { ap: /\bNew York Knicks\b/gi, end: "Knicks de Nueva York" },
+      { ap: /\bOrlando Magic\b/gi, end: "Magic de Orlando" },
+      { ap: /\bPhiladelphia 76ers\b/gi, end: "76ers de Filadelfia" },
+      { ap: /\bPortland Trail Blazers\b/gi, end: "Trail Blazers de Portland" },
+      { ap: /\bSacramento Kings\b/gi, end: "Kings de Sacramento" },
+      { ap: /\bSan Antonio Spurs\b/gi, end: "Spurs de San Antonio" },
+      { ap: /\bToronto Raptors\b/gi, end: "Raptors de Toronto" },
+      { ap: /\bUtah Jazz\b/gi, end: "Jazz de Utah" },
+      { ap: /\bWashington Wizards\b/gi, end: "Wizards de Washington" }
     ];
 
     const NFL_TEAM_TRANSLATIONS = [
-      { ap: /Arizona Cardinals/g, end: "Cardinals de Arizona" }, { ap: /Atlanta Falcons/g, end: "Falcons de Atlanta" },
-      { ap: /Baltimore Ravens/g, end: "Ravens de Baltimore" }, { ap: /Buffalo Bills/g, end: "Bills de Buffalo" },
-      { ap: /Carolina Panthers/g, end: "Panthers de Carolina" }, { ap: /Chicago Bears/g, end: "Bears de Chicago" },
-      { ap: /Cincinnati Bengals/g, end: "Bengals de Cincinnati" }, { ap: /Cleveland Browns/g, end: "Browns de Cleveland" },
-      { ap: /Dallas Cowboys/g, end: "Cowboys de Dallas" }, { ap: /Denver Broncos/g, end: "Broncos de Denver" },
-      { ap: /Detroit Lions/g, end: "Lions de Detroit" }, { ap: /Green Bay Packers/g, end: "Packers de Green Bay" },
-      { ap: /Houston Texans/g, end: "Texans de Houston" }, { ap: /Indianapolis Colts/g, end: "Colts de Indianápolis" },
-      { ap: /Jacksonville Jaguars/g, end: "Jaguars de Jacksonville" }, { ap: /Kansas City Chiefs/g, end: "Chiefs de Kansas City" },
-      { ap: /Las Vegas Raiders/g, end: "Raiders de Las Vegas" }, { ap: /Los Angeles Chargers/g, end: "Chargers de Los Ángeles" },
-      { ap: /Los Angeles Rams/g, end: "Rams de Los Ángeles" }, { ap: /Miami Dolphins/g, end: "Dolphins de Miami" },
-      { ap: /Minnesota Vikings/g, end: "Vikings de Minnesota" }, { ap: /New England Patriots/g, end: "Patriots de Nueva Inglaterra" },
-      { ap: /New Orleans Saints/g, end: "Saints de Nueva Orleans" }, { ap: /New York Giants/g, end: "Giants de Nueva York" },
-      { ap: /New York Jets/g, end: "Jets de Nueva York" }, { ap: /Philadelphia Eagles/g, end: "Eagles de Filadelfia" },
-      { ap: /Pittsburgh Steelers/g, end: "Steelers de Pittsburgh" }, { ap: /San Francisco 49ers/g, end: "49ers de San Francisco" },
-      { ap: /Seattle Seahawks/g, end: "Seahawks de Seattle" }, { ap: /Tampa Bay Buccaneers/g, end: "Buccaneers de Tampa Bay" },
-      { ap: /Tennessee Titans/g, end: "Titans de Tennessee" }, { ap: /Washington Commanders/g, end: "Commanders de Washington" }
+      { ap: /\bGreen Bay Packers\b/gi, end: "Packers de Green Bay" },
+      { ap: /\bPhiladelphia Eagles\b/gi, end: "Eagles de Filadelfia" },
+      { ap: /\bNew York Jets\b/gi, end: "Jets de Nueva York" },
+      { ap: /\bArizona Cardinals\b/gi, end: "Cardinals de Arizona" },
+      { ap: /\bAtlanta Falcons\b/gi, end: "Falcons de Atlanta" },
+      { ap: /\bBaltimore Ravens\b/gi, end: "Ravens de Baltimore" },
+      { ap: /\bBuffalo Bills\b/gi, end: "Bills de Buffalo" },
+      { ap: /\bCarolina Panthers\b/gi, end: "Panthers de Carolina" },
+      { ap: /\bChicago Bears\b/gi, end: "Bears de Chicago" },
+      { ap: /\bCincinnati Bengals\b/gi, end: "Bengals de Cincinnati" },
+      { ap: /\bCleveland Browns\b/gi, end: "Browns de Cleveland" },
+      { ap: /\bDallas Cowboys\b/gi, end: "Cowboys de Dallas" },
+      { ap: /\bDenver Broncos\b/gi, end: "Broncos de Denver" },
+      { ap: /\bDetroit Lions\b/gi, end: "Lions de Detroit" },
+      { ap: /\bHouston Texans\b/gi, end: "Texans de Houston" },
+      { ap: /\bIndianapolis Colts\b/gi, end: "Colts de Indianápolis" },
+      { ap: /\bJacksonville Jaguars\b/gi, end: "Jaguars de Jacksonville" },
+      { ap: /\bKansas City Chiefs\b/gi, end: "Chiefs de Kansas City" },
+      { ap: /\bLas Vegas Raiders\b/gi, end: "Raiders de Las Vegas" },
+      { ap: /\bLos Angeles Chargers\b/gi, end: "Chargers de Los Ángeles" },
+      { ap: /\bLos Angeles Rams\b/gi, end: "Rams de Los Ángeles" },
+      { ap: /\bMiami Dolphins\b/gi, end: "Dolphins de Miami" },
+      { ap: /\bMinnesota Vikings\b/gi, end: "Vikings de Minnesota" },
+      { ap: /\bNew England Patriots\b/gi, end: "Patriots de Nueva Inglaterra" },
+      { ap: /\bNew Orleans Saints\b/gi, end: "Saints de Nueva Orleans" },
+      { ap: /\bNew York Giants\b/gi, end: "Giants de Nueva York" },
+      { ap: /\bPittsburgh Steelers\b/gi, end: "Steelers de Pittsburgh" },
+      { ap: /\bSan Francisco 49ers\b/gi, end: "49ers de San Francisco" },
+      { ap: /\bSeattle Seahawks\b/gi, end: "Seahawks de Seattle" },
+      { ap: /\bTampa Bay Buccaneers\b/gi, end: "Buccaneers de Tampa Bay" },
+      { ap: /\bTennessee Titans\b/gi, end: "Titans de Tennessee" },
+      { ap: /\bWashington Commanders\b/gi, end: "Commanders de Washington" }
     ];
 
     const ALL_TEAM_TRANSLATIONS = [
@@ -578,22 +671,31 @@
     const BASEBALL_CONTEXT = /\b(?:béisbol|beisbol|MLB|Grandes Ligas|Liga Nacional|Liga Americana|Serie Mundial|jonr[oó]n(?:es)?|cuadrangular(?:es)?|home run(?:s)?|bate(?:ó|aron|aron)|bateador(?:es)?|batea(?:n|ron)|lanzador(?:es)?|lanz[oó]|pitcher(?:s)?|relevista(?:s)?|abridor(?:es)?|receptor(?:es)?|catcher(?:s)?|inning(?:s)?|entrada(?:s)?|carrera(?:s)?|bases?|bullpen|diamante|out(?:s)?|hit(?:s)?|doble(?:s)?|triple(?:s)?|roleta(?:s)?|sencillo(?:s)?|serie(?:s)?|par(?:tido|tidos)|temporada|playoffs|postemporada|clasificaci[oó]n|wild card|wild-card)\b/i;
 
     function hasBaseballTeamContext(text) {
-      return MLB_TEAM_TRANSLATIONS.some(item => {
+      const explicitBaseballContext = MLB_TEAM_TRANSLATIONS.some(item => {
         if (item.standalone) return false;
         item.ap.lastIndex = 0;
         const found = item.ap.test(text);
         item.ap.lastIndex = 0;
         return found;
       }) || BASEBALL_CONTEXT.test(text);
+
+      if (explicitBaseballContext) return true;
+
+      return MLB_TEAM_TRANSLATIONS.some(item => {
+        if (!item.standalone) return false;
+        const nickname = new RegExp(item.ap.source, 'i');
+        const match = nickname.exec(text);
+        if (!match) return false;
+        const before = text.slice(0, match.index);
+        return /^[A-ZÁÉÍÓÚÑ]/.test(match[0]) ||
+          /\b(?:los|las)\s+$/i.test(before);
+      });
     }
 
     function shouldTranslateStandaloneNickname(fullText, offset, match, baseballContext) {
       if (!baseballContext) return false;
-      if (!match || match[0] !== match[0].toUpperCase()) return false;
-      const before = fullText.slice(Math.max(0, offset - 20), offset);
+      if (!match) return false;
       const after = fullText.slice(offset + match.length, offset + match.length + 35);
-      const precededByArticle = /(?:^|\s)(?:el|la|los|las)\s+$/i.test(before);
-      if (!precededByArticle) return false;
       if (/^\s+de\s+/i.test(after)) return false;
       return true;
     }
@@ -637,8 +739,6 @@
     const toggleMLBTeams = document.getElementById('toggleMLBTeams');
     const dictCountBadge = document.getElementById('dictCountBadge');
     
-    // AUTOGUARDADO LOCAL: independiente del motor de procesamiento y de Supabase.
-    // Solo conserva el borrador y las preferencias de formato en este navegador.
     const AUTO_SAVE_KEY = 'end_auto_linker_draft_v1';
     let autoSaveTimer = null;
     let autoProcessTimer = null;
@@ -782,25 +882,13 @@
       });
     }
 
-    function addSpanishTeamArticle(fullText, offset, endName) {
-      const before = fullText.slice(0, offset);
-      if (/(?:^|\s)(?:el|la|los|las)\s*$/i.test(before)) return endName;
-      const trimmed = before.trimEnd();
-      const atSentenceStart = !trimmed || /[.!?¡¿:;—]$/.test(trimmed);
-      const article = atSentenceStart ? 'Los' : 'los';
-      return `${article} ${endName}`;
-    }
-
     function translateTeamNamesEND(text) {
       let cleanedText = text;
       const baseballContext = hasBaseballTeamContext(text);
 
       ALL_TEAM_TRANSLATIONS.forEach(item => {
         item.ap.lastIndex = 0;
-        cleanedText = cleanedText.replace(item.ap, (match, ...args) => {
-          const offset = args[args.length - 2];
-          return addSpanishTeamArticle(cleanedText, offset, item.end);
-        });
+        cleanedText = cleanedText.replace(item.ap, item.end);
         item.ap.lastIndex = 0;
       });
 
@@ -809,10 +897,10 @@
           .filter(item => item.standalone)
           .forEach(item => {
             item.ap.lastIndex = 0;
-            cleanedText = cleanedText.replace(item.ap, (match, ...args) => {
-              const offset = args[args.length - 2];
+            cleanedText = cleanedText.replace(item.ap, (match, offset) => {
               return shouldTranslateStandaloneNickname(cleanedText, offset, match, baseballContext)
-                ? item.end : match;
+                ? item.end
+                : match;
             });
             item.ap.lastIndex = 0;
           });
@@ -821,21 +909,26 @@
       return cleanedText;
     }
 
-    // NUEVA FUNCIÓN: Formateo automático de expresiones de dinero según reglas de El Nuevo Día
     function formatCurrencyExpressions(text) {
       let formatted = text;
 
-      // 1. Corrección del error común de AP: "billón/billones de dólares" (incorrecto en español) -> "$X,000 millones"
+      formatted = formatted.replace(/mill[oó]nes/gi, (match) => {
+        return match.toLowerCase().includes('ó') ? 'millones' : match;
+      });
+
       formatted = formatted.replace(/\b(?:un|1)\s+bill[oó]n(?:\s+de\s+d[oó]lares)?\b/gi, '$1,000 millones');
       formatted = formatted.replace(/\b(\d+)\s+bill[oó]nes(?:\s+de\s+d[oó]lares)?\b/gi, (match, num) => {
         return `$${parseInt(num) * 1000} millones`;
       });
 
-      // 2. Traducción de montos textuales específicos a cifras con signo ($100, $250)
+      formatted = formatted.replace(
+        /(?:de\s+dólares\s+de\s+|de\s+dólares\s+|dólares\s+)?(\d+)[.,](\d+)\s+millones(?:\s+de\s+dólares)?/gi,
+        (match, ent, dec) => `$${ent}.${dec} millones`
+      );
+
       formatted = formatted.replace(/\bcien\s+d[oó]lares\b/gi, '$100');
       formatted = formatted.replace(/\bdoscientos\s+cincuenta\s+d[oó]lares\b/gi, '$250');
 
-      // 3. Millones en dinero: "1 millón de dólares", "tres millones de dólares", etc. -> "$X millones"
       const wordNumbersToDigits = {
         'un': '1', 'uno': '1', 'dos': '2', 'tres': '3', 'cuatro': '4', 'cinco': '5',
         'seis': '6', 'siete': '7', 'ocho': '8', 'nueve': '9', 'diez': '10'
@@ -846,19 +939,18 @@
         return `$${digit} millón${Number(digit) > 1 ? 'es' : ''}`;
       });
 
-      // 4. Singular: "un dólar" o "1 dólar" -> "$1"
       formatted = formatted.replace(/\b(?:un|1)\s+d[oó]lar\b/gi, '$1');
 
-      // 5. Cifras directas numéricas seguidas de dólares: "10 dólares", "1,000 dólares" -> "$10", "$1,000"
       formatted = formatted.replace(/\b(\d{1,3}(?:,\d{3})*|\d+)\s+d[oó]lares\b/gi, '$$$1');
 
-      // 6. Cantidades textuales menores directas: "diez dólares", "mil dólares" -> "$10", "$1,000"
       const directNumberWords = {
         'diez': '10', 'mil': '1,000', 'cien': '100'
       };
       formatted = formatted.replace(/\b(diez|mil)\s+d[oó]lares\b/gi, (match, word) => {
         return `$${directNumberWords[word.toLowerCase()]}`;
       });
+
+      formatted = formatted.replace(/\$\s+/g, '$');
 
       return formatted;
     }
@@ -1343,13 +1435,42 @@
       nodes.forEach(callback);
     }
 
+    function convertStraightDoubleQuotesInRoot(root) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      let node;
+      while ((node = walker.nextNode())) {
+        if (node.parentElement && !node.parentElement.closest('script, style')) nodes.push(node);
+      }
+
+      let previousChar = '';
+      nodes.forEach(textNode => {
+        const value = textNode.nodeValue;
+        let converted = '';
+        for (const char of value) {
+          if (char === '"') {
+            const opening = !previousChar || /\s/.test(previousChar) || /[([{—–:;!?¿¡]/.test(previousChar);
+            converted += opening ? '“' : '”';
+            previousChar = opening ? '“' : '”';
+          } else {
+            converted += char;
+            previousChar = char;
+          }
+        }
+        textNode.nodeValue = converted;
+      });
+    }
+
     function autoItalicizeEnglishSportsTerms(root) {
       const regex = getAnglicismRegex();
 
       forEachTextNode(root, node => {
+        if (node.parentElement && node.parentElement.closest('a')) return;
+
         regex.lastIndex = 0;
         if (!regex.test(node.nodeValue)) return;
         regex.lastIndex = 0;
+
         const frag = document.createDocumentFragment();
         let last = 0;
         let match;
@@ -1360,10 +1481,21 @@
           if (match[0].toLocaleLowerCase('es') === 'par') {
             continue;
           }
-          const em = document.createElement('em');
-          em.textContent = match[0];
-          frag.appendChild(em);
-          last = match.index + match[0].length;
+
+          const matchedWord = match[0];
+          const textAfter = node.nodeValue.slice(match.index + matchedWord.length);
+          
+          if (matchedWord.toLowerCase() === 'green' && /^\s+bay\b/i.test(textAfter)) {
+            frag.appendChild(document.createTextNode(matchedWord));
+          } else if (matchedWord.toLowerCase() === 'eagles' && /\bde\s+filadelfia\b/i.test(node.nodeValue)) {
+            frag.appendChild(document.createTextNode(matchedWord));
+          } else {
+            const em = document.createElement('em');
+            em.textContent = matchedWord;
+            frag.appendChild(em);
+          }
+
+          last = match.index + matchedWord.length;
         }
         if (last < node.nodeValue.length) {
           frag.appendChild(document.createTextNode(node.nodeValue.slice(last)));
@@ -1375,9 +1507,14 @@
     function linkDictionaryTerms(root, replaceMode, isBold, isBlank) {
       let total = 0;
       const matchedTopicsSet = new Set();
+      
+      const processingDictionary = [...dictionary].sort((a, b) => b.keyword.length - a.keyword.length);
 
-      dictionary.forEach(item => {
+      processingDictionary.forEach(item => {
         if (!item.keyword || !item.keyword.trim()) return;
+
+        const isTeamKeyword = /\bde\b/i.test(item.keyword) || item.keyword.includes(' ');
+        if (!isTeamKeyword) return;
 
         const topicKey = (item.url || item.keyword).toLowerCase().replace(/\/$/, '');
         if (replaceMode === 'first' && matchedTopicsSet.has(topicKey)) return;
@@ -1447,8 +1584,6 @@
     }
 
     function processText() {
-      // Si el procesamiento se solicita por otra acción (opciones, formato o Regenerar),
-      // cancela cualquier ejecución pendiente para evitar procesar dos veces.
       clearTimeout(autoProcessTimer);
       autoProcessTimer = null;
 
@@ -1497,7 +1632,7 @@
         }
 
         value = applyNumericFormatting(value);
-        value = formatCurrencyExpressions(value); // <--- APLICACIÓN AUTOMÁTICA DE MONEDA
+        value = formatCurrencyExpressions(value);
 
         if (value !== original) {
           node.nodeValue = value;
@@ -1507,6 +1642,7 @@
       const totalMatches = linkDictionaryTerms(root, replaceMode, isBold, isBlank);
 
       autoItalicizeEnglishSportsTerms(root);
+      convertStraightDoubleQuotesInRoot(root);
 
       root.querySelectorAll('div').forEach(div => {
         if (div.innerHTML.trim().toLowerCase() === '<br>') {
@@ -1527,7 +1663,6 @@
       wordCountElement.style.color = wordTotal >= 1200 ? '#dc2626' : wordTotal >= 600 ? '#f97316' : '#000000';
     }
 
-    // COPIAS LOCALES: independiente de Supabase y del autoguardado del navegador.
     function setLocalDraftStatus(message, isError = false) {
       const status = document.getElementById('localDraftStatus');
       if (!status) return;
@@ -1542,7 +1677,6 @@
     }
 
     function buildLocalDraftHtml(snapshot) {
-      // El HTML se puede leer fuera de la plantilla y contiene un snapshot para restaurar el borrador.
       const snapshotJson = JSON.stringify(snapshot)
         .replace(/</g, '\\u003c')
         .replace(/>/g, '\\u003e')
@@ -1660,7 +1794,6 @@
     });
 
     function setupEventListeners() {
-      // La escritura y el pegado se procesan cuando el usuario hace una pausa breve.
       inputText.addEventListener('input', scheduleAutoProcessing);
       inputText.addEventListener('input', scheduleAutoSave);
       toggleBold.addEventListener('change', () => { processText(); scheduleAutoSave(); });
@@ -1798,6 +1931,7 @@
           showToast("Tu navegador no ofrece el menú para compartir. El texto se copió para que puedas pegarlo donde quieras.");
         }
       });
+
       function getExportFilename(extension) {
         const entered = window.prompt('Nombre del archivo:', 'Borrador-END');
         if (entered === null) return null;
@@ -1871,9 +2005,6 @@
         downloadBlob(new Blob(['\ufeff', text], { type: 'text/plain;charset=utf-8' }), filename);
         showToast('Archivo de texto descargado.');
       });
-
-
-
 
       const dictModal = document.getElementById('dictModal');
       document.getElementById('btnOpenDictionary').addEventListener('click', async () => {
@@ -2014,7 +2145,7 @@
           return;
         }
 
-        if (!confirm('¿Seguro que deseas reemplazar el diccionario central por los términos predeterminados? Esto eliminará también los términos personalizados, incluidos los de NBA.')) {
+        if (!confirm('¿Seguro que deseas reemplazar el diccionario central por los términos predeterminados? Esto eliminará también los términos personalizados.')) {
           return;
         }
 
@@ -2086,7 +2217,6 @@
       const displayItems = sortDictionaryForDisplay(filtered);
 
       container.innerHTML = displayItems.map(item => {
-        const dictionaryIndex = dictionary.indexOf(item);
         const safeKeyword = escapeHtml(item.keyword);
         const safeUrl = escapeHtml(item.url);
         const href = escapeHtml(sanitizeUrl(item.url));
