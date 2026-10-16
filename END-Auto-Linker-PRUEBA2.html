@@ -1468,8 +1468,18 @@
         if (node.parentElement && !node.parentElement.closest('script, style')) nodes.push(node);
       }
 
+      // La posición de las comillas se calcula dentro de cada bloque de texto,
+      // no arrastrando el último carácter de un párrafo anterior.
       let previousChar = '';
+      let previousBlock = null;
+      const blockSelector = 'p, div, li, blockquote, h1, h2, h3, h4, h5, h6, pre';
       nodes.forEach(textNode => {
+        const block = textNode.parentElement?.closest(blockSelector) || root;
+        if (block !== previousBlock) {
+          previousChar = '';
+          previousBlock = block;
+        }
+
         const value = textNode.nodeValue;
         let converted = '';
         for (const char of value) {
