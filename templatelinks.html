@@ -152,6 +152,30 @@
         </div>
       </div>
 
+      <!-- BIBLIOTECA EN LÍNEA: borradores privados en Supabase -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3" id="onlineDraftPanel">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="font-semibold text-xs uppercase tracking-wider text-slate-500 flex items-center gap-2"><i class="fa-solid fa-cloud text-brand-600"></i> Biblioteca de borradores en línea</h2>
+          <span id="onlineDraftStatus" class="text-[10px] text-slate-400" role="status" aria-live="polite">Inicia sesión como administrador</span>
+        </div>
+        <p class="text-xs text-slate-500">Guarda y recupera tus borradores desde otra computadora. Esta biblioteca es independiente de las copias locales y del diccionario editorial.</p>
+        <div id="onlineDraftControls" class="hidden space-y-2">
+          <label for="onlineDraftTitle" class="block text-xs font-medium text-slate-600">Título del borrador</label>
+          <input id="onlineDraftTitle" type="text" maxlength="180" placeholder="Ej.: Juego decisivo de los Yankees" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+          <div class="flex flex-wrap gap-2">
+            <button type="button" id="btnSaveOnlineDraft" class="bg-brand-600 hover:bg-brand-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> Guardar borrador</button>
+            <button type="button" id="btnNewOnlineDraft" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition">Guardar como nuevo</button>
+            <button type="button" id="btnRefreshOnlineDrafts" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-rotate mr-1"></i> Actualizar lista</button>
+          </div>
+          <label for="onlineDraftSelect" class="block text-xs font-medium text-slate-600 pt-1">Borradores guardados</label>
+          <select id="onlineDraftSelect" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-brand-600 outline-none"><option value="">No hay borradores cargados</option></select>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" id="btnOpenOnlineDraft" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-folder-open mr-1"></i> Abrir seleccionado</button>
+            <button type="button" id="btnDeleteOnlineDraft" class="border border-red-200 hover:bg-red-50 text-red-700 px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-trash-can mr-1"></i> Eliminar seleccionado</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Settings Panel -->
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
         <h2 class="font-semibold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2">
@@ -857,6 +881,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       restoreSavedDraftIfRequested();
       setupLocalDraftUI();
+      setupOnlineDraftLibrary();
       setupEventListeners();
       await loadDictionary();
       await loadAnglicismList();
@@ -1787,10 +1812,178 @@
       });
     }
 
+    // Biblioteca privada de borradores en línea: tabla independiente del diccionario y de otras aplicaciones.
+    const ONLINE_DRAFTS_TABLE = 'end_article_drafts';
+    let currentOnlineDraftId = null;
+    let onlineDraftsCache = [];
+
+    function setOnlineDraftStatus(message, isError = false) {
+      const status = document.getElementById('onlineDraftStatus');
+      if (!status) return;
+      status.textContent = message;
+      status.className = 'text-[10px] ' + (isError ? 'text-red-500' : 'text-slate-400');
+    }
+
+    function updateOnlineDraftUI() {
+      const controls = document.getElementById('onlineDraftControls');
+      if (!controls) return;
+      const allowed = isAdminUser();
+      controls.classList.toggle('hidden', !allowed);
+      if (!allowed) {
+        currentOnlineDraftId = null;
+        onlineDraftsCache = [];
+        const select = document.getElementById('onlineDraftSelect');
+        if (select) select.innerHTML = '<option value="">Inicia sesión para ver tus borradores</option>';
+        setOnlineDraftStatus('Inicia sesión como administrador');
+      } else {
+        setOnlineDraftStatus('Biblioteca privada lista');
+      }
+    }
+
+    function renderOnlineDraftOptions() {
+      const select = document.getElementById('onlineDraftSelect');
+      if (!select) return;
+      const previous = select.value;
+      select.innerHTML = '';
+      if (!onlineDraftsCache.length) {
+        select.add(new Option('No hay borradores guardados', ''));
+        return;
+      }
+      onlineDraftsCache.forEach(draft => {
+        const date = draft.updated_at ? new Date(draft.updated_at).toLocaleString('es-PR') : '';
+        select.add(new Option((draft.title || 'Borrador sin título') + (date ? ' — ' + date : ''), draft.id));
+      });
+      if (onlineDraftsCache.some(draft => draft.id === previous)) select.value = previous;
+    }
+
+    async function loadOnlineDrafts() {
+      if (!isAdminUser()) { updateOnlineDraftUI(); return; }
+      setOnlineDraftStatus('Cargando borradores…');
+      const { data, error } = await supabaseClient.from(ONLINE_DRAFTS_TABLE)
+        .select('id,title,updated_at,created_at').is('deleted_at', null).order('updated_at', { ascending: false });
+      if (error) {
+        console.error('Error cargando borradores en línea:', error);
+        const detail = error.message || error.details || error.hint || error.code || 'Error desconocido de Supabase';
+        setOnlineDraftStatus('Error al cargar: ' + detail, true);
+        return;
+      }
+      onlineDraftsCache = data || [];
+      renderOnlineDraftOptions();
+      setOnlineDraftStatus(onlineDraftsCache.length + (onlineDraftsCache.length === 1 ? ' borrador guardado' : ' borradores guardados'));
+    }
+
+    function makeOnlineDraftTitle() {
+      const typed = document.getElementById('onlineDraftTitle').value.trim();
+      if (typed) return typed;
+      const text = (inputText.innerText || inputText.textContent || '').replace(/\s+/g, ' ').trim();
+      return text ? text.split(' ').slice(0, 8).join(' ') : 'Borrador sin título';
+    }
+
+    function getOnlineDraftSettings() {
+      return {
+        toggleDateline: !!(toggleDateline && toggleDateline.checked),
+        toggleMLBTeams: !!(toggleMLBTeams && toggleMLBTeams.checked),
+        toggleBold: !!(toggleBold && toggleBold.checked),
+        toggleTargetBlank: !!(toggleTargetBlank && toggleTargetBlank.checked),
+        replaceMode: document.querySelector('input[name="replaceMode"]:checked')?.value || 'first'
+      };
+    }
+
+    async function saveOnlineDraft(asNew = false) {
+      if (!isAdminUser()) { setOnlineDraftStatus('Inicia sesión como administrador para guardar.', true); return; }
+      const bodyHtml = inputText.innerHTML.trim();
+      if (!bodyHtml || !(inputText.innerText || inputText.textContent || '').trim()) {
+        setOnlineDraftStatus('Escribe o pega un borrador antes de guardarlo.', true); return;
+      }
+      const title = makeOnlineDraftTitle();
+      setOnlineDraftStatus('Guardando…');
+      const payload = {
+        user_id: currentUser.id, title, content_html: bodyHtml, settings: getOnlineDraftSettings(),
+        updated_at: new Date().toISOString(), deleted_at: null
+      };
+      const result = currentOnlineDraftId && !asNew
+        ? await supabaseClient.from(ONLINE_DRAFTS_TABLE).update(payload).eq('id', currentOnlineDraftId).select('id,title,updated_at,created_at').single()
+        : await supabaseClient.from(ONLINE_DRAFTS_TABLE).insert(payload).select('id,title,updated_at,created_at').single();
+      if (result.error) {
+        console.error('Error guardando borrador en línea:', result.error);
+        const detail = result.error.message || result.error.details || result.error.hint || result.error.code || 'Error desconocido de Supabase';
+        setOnlineDraftStatus('Error al guardar: ' + detail, true); return;
+      }
+      currentOnlineDraftId = result.data.id;
+      document.getElementById('onlineDraftTitle').value = result.data.title || title;
+      await loadOnlineDrafts();
+      document.getElementById('onlineDraftSelect').value = currentOnlineDraftId;
+      setOnlineDraftStatus('Guardado en línea: ' + (result.data.title || title));
+    }
+
+    async function openSelectedOnlineDraft() {
+      if (!isAdminUser()) return;
+      const id = document.getElementById('onlineDraftSelect').value;
+      if (!id) { setOnlineDraftStatus('Selecciona un borrador de la lista.', true); return; }
+      setOnlineDraftStatus('Abriendo borrador…');
+      const { data, error } = await supabaseClient.from(ONLINE_DRAFTS_TABLE)
+        .select('id,title,content_html,settings,updated_at').eq('id', id).is('deleted_at', null).single();
+      if (error || !data) {
+        console.error('Error abriendo borrador en línea:', error);
+        setOnlineDraftStatus('No se pudo abrir el borrador.', true); return;
+      }
+      currentOnlineDraftId = data.id;
+      document.getElementById('onlineDraftTitle').value = data.title || '';
+      inputText.innerHTML = data.content_html || '';
+      const settings = data.settings || {};
+      if (toggleDateline) toggleDateline.checked = settings.toggleDateline !== false;
+      if (toggleMLBTeams) toggleMLBTeams.checked = settings.toggleMLBTeams !== false;
+      if (toggleBold) toggleBold.checked = settings.toggleBold !== false;
+      if (toggleTargetBlank) toggleTargetBlank.checked = settings.toggleTargetBlank !== false;
+      if (settings.replaceMode) {
+        const radio = document.querySelector('input[name="replaceMode"][value="' + settings.replaceMode + '"]');
+        if (radio) radio.checked = true;
+      }
+      processText();
+      scheduleAutoSave();
+      setOnlineDraftStatus('Borrador abierto: ' + (data.title || 'Sin título'));
+    }
+
+    async function deleteSelectedOnlineDraft() {
+      if (!isAdminUser()) return;
+      const id = document.getElementById('onlineDraftSelect').value;
+      const draft = onlineDraftsCache.find(item => item.id === id);
+      if (!id || !draft) { setOnlineDraftStatus('Selecciona un borrador para eliminar.', true); return; }
+      if (!confirm('¿Eliminar el borrador "' + (draft.title || 'Sin título') + '" de la biblioteca en línea?')) return;
+      const now = new Date().toISOString();
+      const { error } = await supabaseClient.from(ONLINE_DRAFTS_TABLE)
+        .update({ deleted_at: now, updated_at: now }).eq('id', id).is('deleted_at', null);
+      if (error) {
+        console.error('Error eliminando borrador en línea:', error);
+        setOnlineDraftStatus('No se pudo eliminar el borrador.', true); return;
+      }
+      if (currentOnlineDraftId === id) {
+        currentOnlineDraftId = null;
+        document.getElementById('onlineDraftTitle').value = '';
+      }
+      await loadOnlineDrafts();
+      setOnlineDraftStatus('Borrador eliminado de la biblioteca.');
+    }
+
+    function setupOnlineDraftLibrary() {
+      document.getElementById('btnSaveOnlineDraft').addEventListener('click', () => saveOnlineDraft(false));
+      document.getElementById('btnNewOnlineDraft').addEventListener('click', () => {
+        // Crear y guardar inmediatamente una copia independiente del texto actual.
+        // Se conserva el nombre escrito para usarlo como título del nuevo borrador.
+        saveOnlineDraft(true);
+      });
+      document.getElementById('btnRefreshOnlineDrafts').addEventListener('click', loadOnlineDrafts);
+      document.getElementById('btnOpenOnlineDraft').addEventListener('click', openSelectedOnlineDraft);
+      document.getElementById('btnDeleteOnlineDraft').addEventListener('click', deleteSelectedOnlineDraft);
+      updateOnlineDraftUI();
+    }
+
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
       currentUser = session?.user || null;
       await updateAuthUI();
       renderDictionaryList();
+      updateOnlineDraftUI();
+      if (isAdminUser()) await loadOnlineDrafts();
     });
 
     function setupEventListeners() {
