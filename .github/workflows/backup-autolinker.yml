@@ -1,0 +1,40 @@
+name: Respaldo automatico del Auto-Linker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - templatelinks.html
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar la version actual de main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Crear copia fechada
+        id: backup
+        shell: bash
+        run: |
+          mkdir -p backups/automaticos
+          FECHA=$(date -u +"%Y-%m-%d_%H-%M-%S_UTC")
+          ARCHIVO="backups/automaticos/templatelinks-${FECHA}-run-${GITHUB_RUN_ID}.html"
+          cp templatelinks.html "$ARCHIVO"
+          echo "archivo=$ARCHIVO" >> "$GITHUB_OUTPUT"
+
+      - name: Guardar copia en GitHub
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${{ steps.backup.outputs.archivo }}"
+          git commit -m "Respaldo automatico del Auto-Linker"
+          git push
