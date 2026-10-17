@@ -52,6 +52,7 @@
     .preview-content a:hover {
       color: #002f67;
     }
+
     /* Resaltado temporal de la zona equivalente al cursor del editor izquierdo. */
     .preview-content .caret-location-highlight {
       background-color: rgba(251, 172, 51, 0.22) !important;
@@ -60,7 +61,6 @@
       border-radius: 4px;
       transition: background-color 0.2s ease;
     }
-
     .format-btn { width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;color:#475569;background:transparent;transition:background .15s,color .15s; }
     .format-btn:hover { background:#e2e8f0;color:#0f172a; }
     .format-btn.active { background:#dbeafe;color:#0056b3; }
@@ -776,6 +776,35 @@
     let autoSaveTimer = null;
     let autoProcessTimer = null;
     const AUTO_PROCESS_DELAY = 700;
+    let restoringDraft = false;
+
+    function setAutoSaveStatus(message, state = 'normal') {
+      const status = document.getElementById('autoSaveStatus');
+      if (!status) return;
+      status.textContent = message;
+      status.className = 'text-[10px] ' + (
+        state === 'saved' ? 'text-emerald-600' :
+        state === 'error' ? 'text-red-500' : 'text-slate-400'
+      );
+    }
+
+    function getAutoSaveSnapshot() {
+      return {
+        version: 1,
+        savedAt: new Date().toISOString(),
+        inputHtml: inputText.innerHTML,
+        outputHtml: previewOutput.innerHTML,
+        outputCode: codeOutput.textContent,
+        toggles: {
+          bold: toggleBold.checked,
+          targetBlank: toggleTargetBlank.checked,
+          dateline: !!toggleDateline && toggleDateline.checked,
+          mlbTeams: !!toggleMLBTeams && toggleMLBTeams.checked,
+          replaceMode: document.querySelector('input[name="replaceMode"]:checked')?.value || 'first'
+        }
+      };
+    }
+
     let caretProgressOnNextProcess = null;
     let lastKnownCaretProgress = null;
     let caretHighlightTimer = null;
@@ -809,6 +838,51 @@
         lastKnownCaretProgress = progress;
       }
       return progress;
+    }
+
+    function highlightOutputAtCaretProgress(progress) {
+      const viewPreview = document.getElementById('viewPreview');
+      if (!viewPreview || viewPreview.classList.contains('hidden')) return;
+
+      previewOutput.querySelectorAll('.caret-location-highlight').forEach(element => {
+        element.classList.remove('caret-location-highlight');
+      });
+      clearTimeout(caretHighlightTimer);
+
+      if (progress === null || progress === undefined || !Number.isFinite(progress)) return;
+
+      const textLength = (previewOutput.textContent || '').length;
+      if (!textLength) return;
+
+      const targetOffset = Math.min(textLength - 1, Math.floor(progress * textLength));
+      const walker = document.createTreeWalker(previewOutput, NodeFilter.SHOW_TEXT);
+      let remaining = targetOffset;
+      let targetNode = null;
+      let node;
+
+      while ((node = walker.nextNode())) {
+        const length = node.nodeValue.length;
+        if (remaining < length || (remaining === length && length > 0)) {
+          targetNode = node;
+          break;
+        }
+        remaining -= length;
+      }
+
+      if (!targetNode) return;
+
+      const block = targetNode.parentElement?.closest('p, li, h1, h2, h3, h4, blockquote, pre');
+      const targetElement = block && previewOutput.contains(block)
+        ? block
+        : targetNode.parentElement;
+
+      if (!targetElement || !previewOutput.contains(targetElement)) return;
+
+      targetElement.classList.add('caret-location-highlight');
+      caretHighlightTimer = setTimeout(() => {
+        targetElement.classList.remove('caret-location-highlight');
+        caretHighlightTimer = null;
+      }, 1400);
     }
 
     function scrollOutputToCaretProgress(progress) {
@@ -873,80 +947,6 @@
           viewCode.scrollHeight - viewCode.clientHeight
         ));
       }
-    }
-
-    function highlightOutputAtCaretProgress(progress) {
-      const viewPreview = document.getElementById('viewPreview');
-      if (!viewPreview || viewPreview.classList.contains('hidden')) return;
-
-      previewOutput.querySelectorAll('.caret-location-highlight').forEach(element => {
-        element.classList.remove('caret-location-highlight');
-      });
-      clearTimeout(caretHighlightTimer);
-
-      if (progress === null || progress === undefined || !Number.isFinite(progress)) return;
-
-      const textLength = (previewOutput.textContent || '').length;
-      if (!textLength) return;
-
-      const targetOffset = Math.min(textLength - 1, Math.floor(progress * textLength));
-      const walker = document.createTreeWalker(previewOutput, NodeFilter.SHOW_TEXT);
-      let remaining = targetOffset;
-      let targetNode = null;
-      let node;
-
-      while ((node = walker.nextNode())) {
-        const length = node.nodeValue.length;
-        if (remaining < length || (remaining === length && length > 0)) {
-          targetNode = node;
-          break;
-        }
-        remaining -= length;
-      }
-
-      if (!targetNode) return;
-
-      const block = targetNode.parentElement?.closest('p, li, h1, h2, h3, h4, blockquote, pre');
-      const targetElement = block && previewOutput.contains(block)
-        ? block
-        : targetNode.parentElement;
-
-      if (!targetElement || !previewOutput.contains(targetElement)) return;
-
-      targetElement.classList.add('caret-location-highlight');
-      caretHighlightTimer = setTimeout(() => {
-        targetElement.classList.remove('caret-location-highlight');
-        caretHighlightTimer = null;
-      }, 1400);
-    }
-
-    let restoringDraft = false;
-
-    function setAutoSaveStatus(message, state = 'normal') {
-      const status = document.getElementById('autoSaveStatus');
-      if (!status) return;
-      status.textContent = message;
-      status.className = 'text-[10px] ' + (
-        state === 'saved' ? 'text-emerald-600' :
-        state === 'error' ? 'text-red-500' : 'text-slate-400'
-      );
-    }
-
-    function getAutoSaveSnapshot() {
-      return {
-        version: 1,
-        savedAt: new Date().toISOString(),
-        inputHtml: inputText.innerHTML,
-        outputHtml: previewOutput.innerHTML,
-        outputCode: codeOutput.textContent,
-        toggles: {
-          bold: toggleBold.checked,
-          targetBlank: toggleTargetBlank.checked,
-          dateline: !!toggleDateline && toggleDateline.checked,
-          mlbTeams: !!toggleMLBTeams && toggleMLBTeams.checked,
-          replaceMode: document.querySelector('input[name="replaceMode"]:checked')?.value || 'first'
-        }
-      };
     }
 
     function scheduleAutoProcessing() {
@@ -1099,9 +1099,19 @@
         return `$${parseInt(num) * 1000} millones`;
       });
 
+      // Solo añade $ cuando aparece explícitamente «millón(es) de dólares».
+      // Acepta cualquier cantidad de dígitos y elimina «de dólares» del resultado.
       formatted = formatted.replace(
-        /(?:de\s+dólares\s+de\s+|de\s+dólares\s+|dólares\s+)?(\d+)[.,](\d+)\s+millones(?:\s+de\s+dólares)?/gi,
-        (match, ent, dec) => `$${ent}.${dec} millones`
+        /(?<![\d.,])(\d+(?:[.,]\d+)?)\s+mill[oó]n(?:es)?\s+de\s+d[oó]lares\b/gi,
+        (match, amount) => {
+          const isThousands = /[.,]\d{3}$/.test(amount);
+          const normalizedAmount = isThousands
+            ? amount.replace(/\./g, ',')
+            : amount.replace(',', '.');
+          const numericAmount = Number(normalizedAmount.replace(/,/g, ''));
+          const noun = numericAmount === 1 ? 'millón' : 'millones';
+          return '$' + normalizedAmount + ' ' + noun;
+        }
       );
 
       formatted = formatted.replace(/\bcien\s+d[oó]lares\b/gi, '$100');
@@ -1566,7 +1576,9 @@
       formatted = formatted.replace(/\b\d{1,3}(?:\.\d{3})+\b/g, match =>
         match.replace(/\./g, ',')
       );
-      formatted = formatted.replace(/\b\d+,\d{1,2}\b/g, match =>
+      // Conserva la coma en cantidades seguidas de «millón/millones»;
+      // la conversión a punto se hace solo si la expresión indica dólares.
+      formatted = formatted.replace(/\b\d+,\d{1,2}\b(?!\s+mill[oó]n(?:es)?\b)/gi, match =>
         match.replace(',', '.')
       );
 
@@ -1700,6 +1712,7 @@
 
       processingDictionary.forEach(item => {
         if (!item.keyword || !item.keyword.trim()) return;
+
 
         const topicKey = (item.url || item.keyword).toLowerCase().replace(/\/$/, '');
         if (replaceMode === 'first' && matchedTopicsSet.has(topicKey)) return;
@@ -1841,12 +1854,14 @@
 
       previewOutput.innerHTML = processedHtml;
       codeOutput.textContent = processedHtml;
+
       // Acompañar la posición editada en el original; al final, mostrar las últimas líneas.
       if (caretProgressOnNextProcess !== null) {
         scrollOutputToCaretProgress(caretProgressOnNextProcess);
         highlightOutputAtCaretProgress(caretProgressOnNextProcess);
         caretProgressOnNextProcess = null;
       }
+
       statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
       const wordTotal = (previewOutput.innerText || previewOutput.textContent || '').trim().match(/\S+/g)?.length || 0;
       const wordCountElement = document.getElementById('wordCount');
