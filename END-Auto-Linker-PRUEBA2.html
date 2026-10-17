@@ -796,21 +796,66 @@
       };
     }
 
-    let followPreviewOnNextProcess = false;
+    let caretProgressOnNextProcess = null;
 
-    function isCaretAtEndOfInput() {
+    function getCaretProgressInInput() {
       const selection = window.getSelection();
-      if (!selection || !selection.rangeCount || !selection.isCollapsed) return false;
+      if (!selection || !selection.rangeCount || !selection.isCollapsed) return null;
       const anchorNode = selection.anchorNode;
-      if (!anchorNode || (anchorNode !== inputText && !inputText.contains(anchorNode))) return false;
+      if (!anchorNode || (anchorNode !== inputText && !inputText.contains(anchorNode))) return null;
 
       try {
         const textBeforeCaret = document.createRange();
         textBeforeCaret.selectNodeContents(inputText);
         textBeforeCaret.setEnd(selection.anchorNode, selection.anchorOffset);
-        return textBeforeCaret.toString().length === (inputText.textContent || '').length;
+        const totalLength = (inputText.textContent || '').length;
+        if (!totalLength) return 0;
+        return Math.max(0, Math.min(1, textBeforeCaret.toString().length / totalLength));
       } catch (error) {
-        return false;
+        return null;
+      }
+    }
+
+    function scrollOutputToCaretProgress(progress) {
+      const viewPreview = document.getElementById('viewPreview');
+      const viewCode = document.getElementById('viewCode');
+
+      if (viewPreview && !viewPreview.classList.contains('hidden')) {
+        const textLength = (previewOutput.textContent || '').length;
+        if (!textLength || progress >= 1) {
+          viewPreview.scrollTop = viewPreview.scrollHeight;
+          return;
+        }
+
+        const targetOffset = Math.min(textLength - 1, Math.floor(progress * textLength));
+        const walker = document.createTreeWalker(previewOutput, NodeFilter.SHOW_TEXT);
+        let remaining = targetOffset;
+        let targetNode = null;
+        let targetNodeOffset = 0;
+        let node;
+
+        while ((node = walker.nextNode())) {
+          const length = node.nodeValue.length;
+          if (remaining < length) {
+            targetNode = node;
+            targetNodeOffset = remaining;
+            break;
+          }
+          remaining -= length;
+        }
+
+        if (targetNode) {
+          const range = document.createRange();
+          range.setStart(targetNode, targetNodeOffset);
+          range.setEnd(targetNode, targetNodeOffset);
+          const targetRect = range.getBoundingClientRect();
+          const containerRect = viewPreview.getBoundingClientRect();
+          viewPreview.scrollTop += targetRect.top - containerRect.top - viewPreview.clientTop - viewPreview.clientHeight * 0.3;
+        } else {
+          viewPreview.scrollTop = progress * (viewPreview.scrollHeight - viewPreview.clientHeight);
+        }
+      } else if (viewCode && !viewCode.classList.contains('hidden')) {
+        viewCode.scrollTop = progress * (viewCode.scrollHeight - viewCode.clientHeight);
       }
     }
 
@@ -1708,16 +1753,10 @@
       previewOutput.innerHTML = processedHtml;
       codeOutput.textContent = processedHtml;
 
-      // Seguir el final del texto procesado solo cuando el usuario escribe al final del original.
-      if (followPreviewOnNextProcess) {
-        const viewPreview = document.getElementById('viewPreview');
-        const viewCode = document.getElementById('viewCode');
-        if (viewPreview && !viewPreview.classList.contains('hidden')) {
-          viewPreview.scrollTop = viewPreview.scrollHeight;
-        } else if (viewCode && !viewCode.classList.contains('hidden')) {
-          viewCode.scrollTop = viewCode.scrollHeight;
-        }
-        followPreviewOnNextProcess = false;
+      // Acompañar la posición editada en el original; al final, mostrar las últimas líneas.
+      if (caretProgressOnNextProcess !== null) {
+        scrollOutputToCaretProgress(caretProgressOnNextProcess);
+        caretProgressOnNextProcess = null;
       }
 
       statsMatches.textContent = `${totalMatches} término(s) formateado(s) y enlazado(s)`;
@@ -2027,7 +2066,7 @@
 
     function setupEventListeners() {
       inputText.addEventListener('input', () => {
-        followPreviewOnNextProcess = isCaretAtEndOfInput();
+        caretProgressOnNextProcess = getCaretProgressInInput();
         scheduleAutoProcessing();
       });
       inputText.addEventListener('input', scheduleAutoSave);
