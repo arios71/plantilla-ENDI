@@ -1548,9 +1548,6 @@
       processingDictionary.forEach(item => {
         if (!item.keyword || !item.keyword.trim()) return;
 
-        const isTeamKeyword = /\bde\b/i.test(item.keyword) || item.keyword.includes(' ');
-        if (!isTeamKeyword) return;
-
         const topicKey = (item.url || item.keyword).toLowerCase().replace(/\/$/, '');
         if (replaceMode === 'first' && matchedTopicsSet.has(topicKey)) return;
 
