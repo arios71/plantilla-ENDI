@@ -52,6 +52,15 @@
     .preview-content a:hover {
       color: #002f67;
     }
+
+    /* Resaltado temporal de la zona equivalente al cursor del editor izquierdo. */
+    .preview-content .caret-location-highlight {
+      background-color: rgba(251, 172, 51, 0.22) !important;
+      outline: 2px solid rgba(251, 172, 51, 0.65);
+      outline-offset: 2px;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
     .format-btn { width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;color:#475569;background:transparent;transition:background .15s,color .15s; }
     .format-btn:hover { background:#e2e8f0;color:#0f172a; }
     .format-btn.active { background:#dbeafe;color:#0056b3; }
@@ -798,6 +807,7 @@
 
     let caretProgressOnNextProcess = null;
     let lastKnownCaretProgress = null;
+    let caretHighlightTimer = null;
 
     function getCaretProgressInInput() {
       const selection = window.getSelection();
@@ -828,6 +838,51 @@
         lastKnownCaretProgress = progress;
       }
       return progress;
+    }
+
+    function highlightOutputAtCaretProgress(progress) {
+      const viewPreview = document.getElementById('viewPreview');
+      if (!viewPreview || viewPreview.classList.contains('hidden')) return;
+
+      previewOutput.querySelectorAll('.caret-location-highlight').forEach(element => {
+        element.classList.remove('caret-location-highlight');
+      });
+      clearTimeout(caretHighlightTimer);
+
+      if (progress === null || progress === undefined || !Number.isFinite(progress)) return;
+
+      const textLength = (previewOutput.textContent || '').length;
+      if (!textLength) return;
+
+      const targetOffset = Math.min(textLength - 1, Math.floor(progress * textLength));
+      const walker = document.createTreeWalker(previewOutput, NodeFilter.SHOW_TEXT);
+      let remaining = targetOffset;
+      let targetNode = null;
+      let node;
+
+      while ((node = walker.nextNode())) {
+        const length = node.nodeValue.length;
+        if (remaining < length || (remaining === length && length > 0)) {
+          targetNode = node;
+          break;
+        }
+        remaining -= length;
+      }
+
+      if (!targetNode) return;
+
+      const block = targetNode.parentElement?.closest('p, li, h1, h2, h3, h4, blockquote, pre');
+      const targetElement = block && previewOutput.contains(block)
+        ? block
+        : targetNode.parentElement;
+
+      if (!targetElement || !previewOutput.contains(targetElement)) return;
+
+      targetElement.classList.add('caret-location-highlight');
+      caretHighlightTimer = setTimeout(() => {
+        targetElement.classList.remove('caret-location-highlight');
+        caretHighlightTimer = null;
+      }, 1400);
     }
 
     function scrollOutputToCaretProgress(progress) {
@@ -1791,6 +1846,7 @@
       // Acompañar la posición editada en el original; al final, mostrar las últimas líneas.
       if (caretProgressOnNextProcess !== null) {
         scrollOutputToCaretProgress(caretProgressOnNextProcess);
+        highlightOutputAtCaretProgress(caretProgressOnNextProcess);
         caretProgressOnNextProcess = null;
       }
 
@@ -2101,6 +2157,9 @@
 
     function setupEventListeners() {
       inputText.addEventListener('input', () => {
+        // Mantener visible el resaltado mientras siguen las ediciones; el proceso
+        // automático lo volverá a ubicar y lo quitará al terminar de escribir.
+        clearTimeout(caretHighlightTimer);
         const progress = rememberCaretProgress();
         // Si el navegador no entrega la selección en este evento, conservar la
         // última posición conocida en vez de dejar de acompañar la edición.
