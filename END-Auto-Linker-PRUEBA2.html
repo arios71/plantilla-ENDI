@@ -805,11 +805,10 @@
       if (!anchorNode || (anchorNode !== inputText && !inputText.contains(anchorNode))) return false;
 
       try {
-        const caretRange = selection.getRangeAt(0).cloneRange();
-        const endRange = document.createRange();
-        endRange.selectNodeContents(inputText);
-        endRange.collapse(false);
-        return caretRange.compareBoundaryPoints(Range.START_TO_START, endRange) === 0;
+        const textBeforeCaret = document.createRange();
+        textBeforeCaret.selectNodeContents(inputText);
+        textBeforeCaret.setEnd(selection.anchorNode, selection.anchorOffset);
+        return textBeforeCaret.toString().length === (inputText.textContent || '').length;
       } catch (error) {
         return false;
       }
