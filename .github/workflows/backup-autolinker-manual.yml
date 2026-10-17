@@ -1,0 +1,51 @@
+name: Respaldo manual del Auto-Linker
+
+on:
+  workflow_dispatch:
+    inputs:
+      descripcion:
+        description: "Etiqueta para identificar la copia (por ejemplo ESTABLE-ANTES-DE-CAMBIOS)"
+        required: true
+        default: "ESTABLE-ANTES-DE-CAMBIOS"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar la version actual de main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Crear copia manual identificada
+        id: backup
+        shell: bash
+        env:
+          DESCRIPCION: ${{ inputs.descripcion }}
+        run: |
+          mkdir -p backups/manuales
+          ETIQUETA=$(printf '%s' "$DESCRIPCION" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/-/g; s/--*/-/g; s/^-//; s/-$//' | cut -c1-70)
+          if [ -z "$ETIQUETA" ]; then
+            echo "La etiqueta no puede quedar vacia." >&2
+            exit 1
+          fi
+          FECHA=$(date -u +"%Y-%m-%d_%H-%M-%S_UTC")
+          ARCHIVO="backups/manuales/templatelinks-${ETIQUETA}-${FECHA}-run-${GITHUB_RUN_ID}.html"
+          cp templatelinks.html "$ARCHIVO"
+          echo "archivo=$ARCHIVO" >> "$GITHUB_OUTPUT"
+
+      - name: Guardar copia manual en GitHub
+        shell: bash
+        env:
+          DESCRIPCION: ${{ inputs.descripcion }}
+          ARCHIVO: ${{ steps.backup.outputs.archivo }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$ARCHIVO"
+          git commit -m "Respaldo manual del Auto-Linker: $DESCRIPCION"
+          git push
