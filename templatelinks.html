@@ -1100,8 +1100,8 @@
       });
 
       formatted = formatted.replace(
-        /(?:de\s+dólares\s+de\s+|de\s+dólares\s+|dólares\s+)?(\d+)[.,](\d+)\s+millones(?:\s+de\s+dólares)?/gi,
-        (match, ent, dec) => `$${ent}.${dec} millones`
+        /(\d+)[.,](\d+)\s+millones\s+de\s+d[oó]lares\b/gi,
+        (match, ent, dec) => `${ent}.${dec} millones`
       );
 
       formatted = formatted.replace(/\bcien\s+d[oó]lares\b/gi, '$100');
