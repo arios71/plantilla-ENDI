@@ -1099,9 +1099,19 @@
         return `$${parseInt(num) * 1000} millones`;
       });
 
+      // Solo añade $ cuando aparece explícitamente «millón(es) de dólares».
+      // Acepta cualquier cantidad de dígitos y elimina «de dólares» del resultado.
       formatted = formatted.replace(
-        /(?:de\s+dólares\s+de\s+|de\s+dólares\s+|dólares\s+)?(\d+)[.,](\d+)\s+millones(?:\s+de\s+dólares)?/gi,
-        (match, ent, dec) => `$${ent}.${dec} millones`
+        /(?<![\d.,])(\d+(?:[.,]\d+)?)\s+mill[oó]n(?:es)?\s+de\s+d[oó]lares\b/gi,
+        (match, amount) => {
+          const isThousands = /[.,]\d{3}$/.test(amount);
+          const normalizedAmount = isThousands
+            ? amount.replace(/\./g, ',')
+            : amount.replace(',', '.');
+          const numericAmount = Number(normalizedAmount.replace(/,/g, ''));
+          const noun = numericAmount === 1 ? 'millón' : 'millones';
+          return '$' + normalizedAmount + ' ' + noun;
+        }
       );
 
       formatted = formatted.replace(/\bcien\s+d[oó]lares\b/gi, '$100');
@@ -1566,7 +1576,9 @@
       formatted = formatted.replace(/\b\d{1,3}(?:\.\d{3})+\b/g, match =>
         match.replace(/\./g, ',')
       );
-      formatted = formatted.replace(/\b\d+,\d{1,2}\b/g, match =>
+      // Conserva la coma en cantidades seguidas de «millón/millones»;
+      // la conversión a punto se hace solo si la expresión indica dólares.
+      formatted = formatted.replace(/\b\d+,\d{1,2}\b(?!\s+mill[oó]n(?:es)?\b)/gi, match =>
         match.replace(',', '.')
       );
 
