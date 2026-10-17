@@ -797,6 +797,7 @@
     }
 
     let caretProgressOnNextProcess = null;
+    let lastKnownCaretProgress = null;
 
     function getCaretProgressInInput() {
       const selection = window.getSelection();
@@ -805,24 +806,44 @@
       if (!anchorNode || (anchorNode !== inputText && !inputText.contains(anchorNode))) return null;
 
       try {
+        const caretRange = selection.getRangeAt(0).cloneRange();
         const textBeforeCaret = document.createRange();
         textBeforeCaret.selectNodeContents(inputText);
-        textBeforeCaret.setEnd(selection.anchorNode, selection.anchorOffset);
+        textBeforeCaret.setEnd(caretRange.startContainer, caretRange.startOffset);
+
         const totalLength = (inputText.textContent || '').length;
         if (!totalLength) return 0;
+
+        // Range.toString() no incluye todos los saltos entre bloques; normalizar
+        // por la longitud real del texto mantiene estable la posición aproximada.
         return Math.max(0, Math.min(1, textBeforeCaret.toString().length / totalLength));
       } catch (error) {
         return null;
       }
     }
 
+    function rememberCaretProgress() {
+      const progress = getCaretProgressInInput();
+      if (progress !== null) {
+        lastKnownCaretProgress = progress;
+      }
+      return progress;
+    }
+
     function scrollOutputToCaretProgress(progress) {
+      if (progress === null || progress === undefined || !Number.isFinite(progress)) return;
+
       const viewPreview = document.getElementById('viewPreview');
       const viewCode = document.getElementById('viewCode');
 
       if (viewPreview && !viewPreview.classList.contains('hidden')) {
         const textLength = (previewOutput.textContent || '').length;
-        if (!textLength || progress >= 1) {
+        if (!textLength) {
+          viewPreview.scrollTop = 0;
+          return;
+        }
+
+        if (progress >= 0.995) {
           viewPreview.scrollTop = viewPreview.scrollHeight;
           return;
         }
@@ -836,9 +857,9 @@
 
         while ((node = walker.nextNode())) {
           const length = node.nodeValue.length;
-          if (remaining < length) {
+          if (remaining <= length) {
             targetNode = node;
-            targetNodeOffset = remaining;
+            targetNodeOffset = Math.min(remaining, length);
             break;
           }
           remaining -= length;
@@ -850,12 +871,26 @@
           range.setEnd(targetNode, targetNodeOffset);
           const targetRect = range.getBoundingClientRect();
           const containerRect = viewPreview.getBoundingClientRect();
-          viewPreview.scrollTop += targetRect.top - containerRect.top - viewPreview.clientTop - viewPreview.clientHeight * 0.3;
+
+          if (targetRect.height || targetRect.top || targetRect.bottom) {
+            const targetTop = viewPreview.scrollTop +
+              targetRect.top - containerRect.top - viewPreview.clientTop -
+              viewPreview.clientHeight * 0.3;
+            viewPreview.scrollTop = Math.max(0, Math.min(
+              targetTop,
+              viewPreview.scrollHeight - viewPreview.clientHeight
+            ));
+          } else {
+            viewPreview.scrollTop = progress * (viewPreview.scrollHeight - viewPreview.clientHeight);
+          }
         } else {
           viewPreview.scrollTop = progress * (viewPreview.scrollHeight - viewPreview.clientHeight);
         }
       } else if (viewCode && !viewCode.classList.contains('hidden')) {
-        viewCode.scrollTop = progress * (viewCode.scrollHeight - viewCode.clientHeight);
+        viewCode.scrollTop = Math.max(0, Math.min(
+          progress * (viewCode.scrollHeight - viewCode.clientHeight),
+          viewCode.scrollHeight - viewCode.clientHeight
+        ));
       }
     }
 
@@ -2066,8 +2101,17 @@
 
     function setupEventListeners() {
       inputText.addEventListener('input', () => {
-        caretProgressOnNextProcess = getCaretProgressInInput();
+        const progress = rememberCaretProgress();
+        // Si el navegador no entrega la selección en este evento, conservar la
+        // última posición conocida en vez de dejar de acompañar la edición.
+        caretProgressOnNextProcess = progress !== null ? progress : lastKnownCaretProgress;
         scheduleAutoProcessing();
+      });
+
+      document.addEventListener('selectionchange', () => {
+        if (inputText.contains(document.getSelection()?.anchorNode)) {
+          rememberCaretProgress();
+        }
       });
       inputText.addEventListener('input', scheduleAutoSave);
       toggleBold.addEventListener('change', () => { processText(); scheduleAutoSave(); });
