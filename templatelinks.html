@@ -97,6 +97,10 @@
           <i class="fa-solid fa-book text-amber-400"></i>
           <span>Tópicos (links END) (<span id="dictCountBadge">0</span>)</span>
         </button>
+        <button id="btnOpenAutocorrector" class="bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-600 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2">
+          <i class="fa-solid fa-spell-check"></i>
+          <span>Autocorrector (<span id="autocorrectCountBadge">0</span>)</span>
+        </button>
       </div>
     </div>
   </header>
@@ -443,6 +447,47 @@
     </div>
   </div>
 
+  <div id="autocorrectModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+      <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between">
+        <div>
+          <h2 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-spell-check text-emerald-400"></i> Diccionario autocorrector</h2>
+          <p class="text-xs text-slate-300 mt-1">Corrige errores conocidos en el texto del panel derecho.</p>
+        </div>
+        <button id="btnCloseAutocorrector" type="button" class="text-slate-300 hover:text-white" aria-label="Cerrar autocorrector"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="p-4 border-b border-slate-200 bg-slate-50 space-y-3">
+        <p id="autocorrectStatus" class="text-xs text-slate-600" role="status">Cargando diccionario...</p>
+        <div id="autocorrectLoginActions" class="flex gap-2">
+          <button id="btnAutocorrectLogin" type="button" class="text-xs font-semibold text-brand-700 hover:underline">Iniciar sesión en administración de diccionarios</button>
+        </div>
+        <form id="autocorrectEntryForm" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <label class="text-xs font-medium text-slate-700">Palabra incorrecta
+            <input id="autocorrectIncorrect" type="text" maxlength="120" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="Ej.: tenporada" required>
+          </label>
+          <label class="text-xs font-medium text-slate-700">Corrección
+            <input id="autocorrectCorrection" type="text" maxlength="120" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="Ej.: temporada" required>
+          </label>
+          <div class="sm:col-span-2 flex items-center justify-between gap-3">
+            <p class="text-[11px] text-slate-500">Se corregirán palabras completas, no fragmentos de otras palabras.</p>
+            <button type="submit" class="shrink-0 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg px-4 py-2 text-sm font-semibold"><i class="fa-solid fa-plus mr-1"></i>Añadir</button>
+          </div>
+        </form>
+      </div>
+      <div class="flex-1 min-h-0 overflow-y-auto p-4">
+        <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[11px] uppercase tracking-wide font-bold text-slate-500 border-b border-slate-200 pb-2 mb-2">
+          <span>Palabra incorrecta</span><span>Se sustituye por</span><span></span>
+        </div>
+        <div id="autocorrectEntries" class="space-y-1">
+          <p class="text-sm text-slate-400 italic">Cargando entradas...</p>
+        </div>
+      </div>
+      <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex justify-end">
+        <button id="btnCloseAutocorrectorBottom" type="button" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-medium transition transform translate-y-20 opacity-0 flex items-center gap-2 z-50">
     <i id="toastIcon" class="fa-solid fa-check text-emerald-400"></i>
     <span id="toastMsg">Notificación</span>
@@ -754,6 +799,8 @@
     let migrationInProgress = false;
     let anglicismTerms = [];
     let anglicismsFromSupabase = false;
+    let autocorrectTerms = [];
+    let autocorrectFromSupabase = false;
 
     const ADMIN_EMAIL = 'arios71@gmail.com';
 
@@ -1036,8 +1083,10 @@
       setupLocalDraftUI();
       setupOnlineDraftLibrary();
       setupEventListeners();
+      setupAutocorrectorUI();
       await loadDictionary();
       await loadAnglicismList();
+      await loadAutocorrectTerms();
       await updateAuthUI();
       processText();
       scheduleAutoSave();
@@ -1513,7 +1562,7 @@
       const anglicismAdminButton = document.getElementById('btnShowAnglicismLogin');
       const addAnglicismForm = document.getElementById('addAnglicismForm');
 
-      if (currentUser) {
+      if (isAdminUser()) {
         loginPanel.classList.add('hidden');
         editPanel.classList.remove('hidden');
         adminStatus.textContent = `Sesión activa: ${currentUser.email || 'administrador'}`;
@@ -1538,9 +1587,14 @@
         if (anglicismAdminButton) anglicismAdminButton.classList.remove('hidden');
         if (addAnglicismForm) addAnglicismForm.classList.add('hidden');
       }
+      if (typeof updateAutocorrectAdminUI === 'function') updateAutocorrectAdminUI();
     }
 
     async function signInAdmin(email, password) {
+      if (String(email || '').trim().toLocaleLowerCase('es') !== ADMIN_EMAIL) {
+        showToast('Solo el administrador autorizado puede iniciar sesión para editar los diccionarios.', 'error');
+        return false;
+      }
       const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
         console.error('Error de autenticación:', error);
@@ -1781,6 +1835,270 @@
       return total;
     }
 
+
+    // Diccionario autocorrector separado de dictionary_terms (tópicos/enlaces).
+    const AUTOCORRECT_TABLE = 'autocorrect_terms';
+
+    async function loadAutocorrectTerms() {
+      const status = document.getElementById('autocorrectStatus');
+      if (status) status.textContent = 'Cargando diccionario autocorrector...';
+
+      const { data, error } = await supabaseClient
+        .from(AUTOCORRECT_TABLE)
+        .select('id, incorrect, correction')
+        .order('incorrect', { ascending: true });
+
+      if (error) {
+        console.error('Error cargando diccionario autocorrector:', error);
+        autocorrectTerms = [];
+        autocorrectFromSupabase = false;
+        if (status) status.textContent = 'No se pudo cargar el diccionario. Comprueba la conexión y la tabla autocorrect_terms en Supabase.';
+      } else {
+        autocorrectTerms = (Array.isArray(data) ? data : [])
+          .filter(item => typeof item.incorrect === 'string' && item.incorrect.trim() &&
+                          typeof item.correction === 'string' && item.correction.trim())
+          .map(item => ({ id: item.id, incorrect: item.incorrect.trim(), correction: item.correction.trim() }))
+          .sort((a, b) => b.incorrect.length - a.incorrect.length);
+        autocorrectFromSupabase = true;
+        if (status) status.textContent = 'Diccionario conectado. Las correcciones se aplican automáticamente al texto del panel derecho.';
+      }
+
+      const badge = document.getElementById('autocorrectCountBadge');
+      if (badge) badge.textContent = autocorrectTerms.length;
+      renderAutocorrectEntries();
+    }
+
+    function preserveAutocorrectCapitalization(found, correction) {
+      const locale = 'es';
+      if (found && found === found.toLocaleUpperCase(locale)) {
+        return correction.toLocaleUpperCase(locale);
+      }
+      if (found && found[0] === found[0].toLocaleUpperCase(locale) &&
+          found.slice(1) === found.slice(1).toLocaleLowerCase(locale) &&
+          correction === correction.toLocaleLowerCase(locale)) {
+        return correction[0].toLocaleUpperCase(locale) + correction.slice(1);
+      }
+      return correction;
+    }
+
+    function escapeRegexLiteral(value) {
+      return Array.from(value).map(char =>
+        '.^$*+?()[]{}|\\'.includes(char) ? '\\' + char : char
+      ).join('');
+    }
+
+    function applyAutocorrections(text) {
+      if (!text || !autocorrectTerms.length) return text;
+      const entries = [...autocorrectTerms].sort((a, b) => b.incorrect.length - a.incorrect.length);
+      const escaped = entries.map(item => escapeRegexLiteral(item.incorrect));
+      if (!escaped.length) return text;
+      try {
+        const pattern = new RegExp('(?<![\\p{L}\\p{N}_])(?:' + escaped.join('|') + ')(?![\\p{L}\\p{N}_])', 'giu');
+        const lookup = new Map(entries.map(item => [item.incorrect.toLocaleLowerCase('es'), item.correction]));
+        return text.replace(pattern, found => {
+          const correction = lookup.get(found.toLocaleLowerCase('es'));
+          return correction === undefined ? found : preserveAutocorrectCapitalization(found, correction);
+        });
+      } catch (error) {
+        console.error('No se pudo aplicar el diccionario autocorrector:', error);
+        return text;
+      }
+    }
+
+    function renderAutocorrectEntries() {
+      const container = document.getElementById('autocorrectEntries');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!autocorrectTerms.length) {
+        container.innerHTML = '<p class="text-sm text-slate-400 italic">Todavía no hay correcciones registradas.</p>';
+        return;
+      }
+      const canEdit = isAdminUser();
+      const sorted = [...autocorrectTerms].sort((a, b) => a.incorrect.localeCompare(b.incorrect, 'es', { sensitivity: 'base' }));
+      sorted.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-[1fr_1fr_auto] gap-2 items-center border-b border-slate-100 py-2 text-sm';
+        const wrong = document.createElement('span');
+        wrong.className = 'break-words text-slate-700';
+        wrong.textContent = item.incorrect;
+        const right = document.createElement('span');
+        right.className = 'break-words font-semibold text-emerald-700';
+        right.textContent = item.correction;
+        row.append(wrong, right);
+        if (canEdit) {
+          const actions = document.createElement('div');
+          actions.className = 'flex items-center gap-1';
+          const edit = document.createElement('button');
+          edit.type = 'button';
+          edit.className = 'text-brand-600 hover:text-brand-800 text-xs font-semibold px-2 py-1';
+          edit.textContent = 'Editar';
+          edit.title = 'Editar esta corrección';
+          edit.addEventListener('click', () => editAutocorrectTerm(item));
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'text-red-600 hover:text-red-800 text-xs font-semibold px-2 py-1';
+          remove.textContent = 'Eliminar';
+          remove.title = 'Eliminar esta corrección';
+          remove.addEventListener('click', () => deleteAutocorrectTerm(item));
+          actions.append(edit, remove);
+          row.appendChild(actions);
+        } else {
+          const spacer = document.createElement('span');
+          row.appendChild(spacer);
+        }
+        container.appendChild(row);
+      });
+    }
+
+    function setupAutocorrectorUI() {
+      const modal = document.getElementById('autocorrectModal');
+      const close = () => modal.classList.add('hidden');
+      document.getElementById('btnOpenAutocorrector').addEventListener('click', async () => {
+        modal.classList.remove('hidden');
+        await loadAutocorrectTerms();
+        renderAutocorrectEntries();
+      });
+      document.getElementById('btnCloseAutocorrector').addEventListener('click', close);
+      document.getElementById('btnCloseAutocorrectorBottom').addEventListener('click', close);
+      document.getElementById('btnAutocorrectLogin').addEventListener('click', () => {
+        // Reutiliza la autenticación compartida de Tópicos y Anglicismos.
+        modal.classList.add('hidden');
+        document.getElementById('btnOpenDictionary').click();
+        setTimeout(() => {
+          if (!isAdminUser()) {
+            const loginForm = document.getElementById('adminLoginForm');
+            if (loginForm && loginForm.classList.contains('hidden')) document.getElementById('btnShowLogin').click();
+            document.getElementById('adminEmail')?.focus();
+          }
+        }, 0);
+      });
+      document.getElementById('autocorrectEntryForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        await addAutocorrectTerm(
+          document.getElementById('autocorrectIncorrect').value,
+          document.getElementById('autocorrectCorrection').value
+        );
+      });
+      supabaseClient.auth.onAuthStateChange(() => {
+        setTimeout(() => {
+          renderAutocorrectEntries();
+          updateAutocorrectAdminUI();
+        }, 0);
+      });
+      updateAutocorrectAdminUI();
+    }
+
+    function updateAutocorrectAdminUI() {
+      const canEdit = isAdminUser();
+      document.getElementById('autocorrectEntryForm').classList.toggle('hidden', !canEdit);
+      document.getElementById('autocorrectLoginActions').classList.toggle('hidden', canEdit);
+      if (canEdit) {
+        const status = document.getElementById('autocorrectStatus');
+        if (status && autocorrectFromSupabase) status.textContent = 'Sesión de administrador activa. Puedes añadir, editar o eliminar correcciones.';
+      }
+      renderAutocorrectEntries();
+    }
+
+    async function addAutocorrectTerm(incorrectValue, correctionValue) {
+      if (!isAdminUser()) {
+        showToast('Inicia sesión como administrador para añadir correcciones.', 'error');
+        return;
+      }
+      const incorrect = String(incorrectValue || '').trim();
+      const correction = String(correctionValue || '').trim();
+      if (!incorrect || !correction) {
+        showToast('Completa ambos campos.', 'error');
+        return;
+      }
+      if (incorrect.toLocaleLowerCase('es') === correction.toLocaleLowerCase('es')) {
+        showToast('La palabra incorrecta y la corrección no pueden ser iguales.', 'error');
+        return;
+      }
+      const duplicate = autocorrectTerms.find(item => item.incorrect.toLocaleLowerCase('es') === incorrect.toLocaleLowerCase('es'));
+      if (duplicate) {
+        showToast('Esa palabra ya existe. Elimina la entrada anterior antes de reemplazarla.', 'error');
+        return;
+      }
+      const { data, error } = await supabaseClient
+        .from(AUTOCORRECT_TABLE)
+        .insert({ incorrect, correction })
+        .select('id, incorrect, correction')
+        .single();
+      if (error) {
+        console.error('Error guardando corrección:', error);
+        showToast('No se pudo guardar. Verifica la tabla y los permisos de Supabase.', 'error');
+        return;
+      }
+      autocorrectTerms.push(data);
+      autocorrectTerms.sort((a, b) => b.incorrect.length - a.incorrect.length);
+      document.getElementById('autocorrectIncorrect').value = '';
+      document.getElementById('autocorrectCorrection').value = '';
+      document.getElementById('autocorrectIncorrect').focus();
+      const badge = document.getElementById('autocorrectCountBadge');
+      if (badge) badge.textContent = autocorrectTerms.length;
+      renderAutocorrectEntries();
+      processText();
+      showToast('Corrección añadida al diccionario.');
+    }
+
+    async function editAutocorrectTerm(item) {
+      if (!isAdminUser() || !item || item.id == null) {
+        showToast('Inicia sesión como administrador para editar correcciones.', 'error');
+        return;
+      }
+      const incorrectInput = prompt('Editar palabra incorrecta:', item.incorrect);
+      if (incorrectInput === null) return;
+      const incorrect = incorrectInput.trim();
+      if (!incorrect) { showToast('La palabra incorrecta no puede quedar vacía.', 'error'); return; }
+      const correctionInput = prompt('Editar corrección:', item.correction);
+      if (correctionInput === null) return;
+      const correction = correctionInput.trim();
+      if (!correction) { showToast('La corrección no puede quedar vacía.', 'error'); return; }
+      if (incorrect.toLocaleLowerCase('es') === correction.toLocaleLowerCase('es')) {
+        showToast('La palabra incorrecta y la corrección no pueden ser iguales.', 'error');
+        return;
+      }
+      const duplicate = autocorrectTerms.some(entry =>
+        String(entry.id) !== String(item.id) &&
+        entry.incorrect.toLocaleLowerCase('es') === incorrect.toLocaleLowerCase('es')
+      );
+      if (duplicate) { showToast('Ya existe una corrección para esa palabra.', 'error'); return; }
+      const { data, error } = await supabaseClient.from(AUTOCORRECT_TABLE)
+        .update({ incorrect, correction }).eq('id', item.id)
+        .select('id, incorrect, correction').single();
+      if (error) {
+        console.error('Error editando corrección:', error);
+        showToast('No se pudo editar la corrección. Verifica los permisos UPDATE en Supabase.', 'error');
+        return;
+      }
+      autocorrectTerms = autocorrectTerms.map(entry =>
+        String(entry.id) === String(item.id) ? data : entry
+      ).sort((a, b) => b.incorrect.length - a.incorrect.length);
+      renderAutocorrectEntries();
+      processText();
+      showToast('Corrección actualizada.');
+    }
+
+    async function deleteAutocorrectTerm(item) {
+      if (!isAdminUser() || !item || item.id == null) return;
+      if (!confirm('¿Eliminar la corrección "' + item.incorrect + ' → ' + item.correction + '"?')) return;
+      const { error } = await supabaseClient
+        .from(AUTOCORRECT_TABLE)
+        .delete()
+        .eq('id', item.id);
+      if (error) {
+        console.error('Error eliminando corrección:', error);
+        showToast('No se pudo eliminar la corrección.', 'error');
+        return;
+      }
+      autocorrectTerms = autocorrectTerms.filter(entry => String(entry.id) !== String(item.id));
+      const badge = document.getElementById('autocorrectCountBadge');
+      if (badge) badge.textContent = autocorrectTerms.length;
+      renderAutocorrectEntries();
+      processText();
+      showToast('Corrección eliminada.');
+    }
+
     function processText() {
       clearTimeout(autoProcessTimer);
       autoProcessTimer = null;
@@ -1824,6 +2142,8 @@
       forEachTextNode(root, node => {
         let value = node.nodeValue;
         const original = value;
+
+        value = applyAutocorrections(value);
 
         if (isMLBTranslated) {
           value = translateTeamNamesEND(value);
@@ -2609,7 +2929,7 @@
         const safeKeyword = escapeHtml(item.keyword);
         const safeUrl = escapeHtml(item.url);
         const href = escapeHtml(sanitizeUrl(item.url));
-        const deleteButton = currentUser
+        const deleteButton = isAdminUser()
           ? `<button onclick="removeKeywordById('${escapeHtml(item.id || '')}')" class="text-slate-400 hover:text-red-600 p-1.5 transition" title="Eliminar término"><i class="fa-solid fa-trash-can"></i></button>`
           : '';
 
