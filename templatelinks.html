@@ -1880,10 +1880,16 @@
       return correction;
     }
 
+    function escapeRegexLiteral(value) {
+      return Array.from(value).map(char =>
+        '.^$*+?()[]{}|\\'.includes(char) ? '\\' + char : char
+      ).join('');
+    }
+
     function applyAutocorrections(text) {
       if (!text || !autocorrectTerms.length) return text;
       const entries = [...autocorrectTerms].sort((a, b) => b.incorrect.length - a.incorrect.length);
-      const escaped = entries.map(item => item.incorrect.replace(/[.*+?^${}()|[\]\\]/g, '\\    function processText() {'));
+      const escaped = entries.map(item => escapeRegexLiteral(item.incorrect));
       if (!escaped.length) return text;
       try {
         const pattern = new RegExp('(?<![\\p{L}\\p{N}_])(?:' + escaped.join('|') + ')(?![\\p{L}\\p{N}_])', 'giu');
@@ -1952,12 +1958,12 @@
         const email = document.getElementById('autocorrectLoginEmail').value.trim();
         const password = document.getElementById('autocorrectLoginPassword').value;
         if (email.toLocaleLowerCase('es') !== ADMIN_EMAIL.toLocaleLowerCase('es')) {
-          showToast('Solo el administrador puede modificar este diccionario.', true);
+          showToast('Solo el administrador puede modificar este diccionario.', 'error');
           return;
         }
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) {
-          showToast('No se pudo iniciar sesión: ' + error.message, true);
+          showToast('No se pudo iniciar sesión: ' + error.message, 'error');
           return;
         }
         currentUser = (await supabaseClient.auth.getUser()).data.user;
@@ -1995,22 +2001,22 @@
 
     async function addAutocorrectTerm(incorrectValue, correctionValue) {
       if (!isAdminUser()) {
-        showToast('Inicia sesión como administrador para añadir correcciones.', true);
+        showToast('Inicia sesión como administrador para añadir correcciones.', 'error');
         return;
       }
       const incorrect = String(incorrectValue || '').trim();
       const correction = String(correctionValue || '').trim();
       if (!incorrect || !correction) {
-        showToast('Completa ambos campos.', true);
+        showToast('Completa ambos campos.', 'error');
         return;
       }
       if (incorrect.toLocaleLowerCase('es') === correction.toLocaleLowerCase('es')) {
-        showToast('La palabra incorrecta y la corrección no pueden ser iguales.', true);
+        showToast('La palabra incorrecta y la corrección no pueden ser iguales.', 'error');
         return;
       }
       const duplicate = autocorrectTerms.find(item => item.incorrect.toLocaleLowerCase('es') === incorrect.toLocaleLowerCase('es'));
       if (duplicate) {
-        showToast('Esa palabra ya existe. Elimina la entrada anterior antes de reemplazarla.', true);
+        showToast('Esa palabra ya existe. Elimina la entrada anterior antes de reemplazarla.', 'error');
         return;
       }
       const { data, error } = await supabaseClient
@@ -2020,7 +2026,7 @@
         .single();
       if (error) {
         console.error('Error guardando corrección:', error);
-        showToast('No se pudo guardar. Verifica la tabla y los permisos de Supabase.', true);
+        showToast('No se pudo guardar. Verifica la tabla y los permisos de Supabase.', 'error');
         return;
       }
       autocorrectTerms.push(data);
@@ -2044,7 +2050,7 @@
         .eq('id', item.id);
       if (error) {
         console.error('Error eliminando corrección:', error);
-        showToast('No se pudo eliminar la corrección.', true);
+        showToast('No se pudo eliminar la corrección.', 'error');
         return;
       }
       autocorrectTerms = autocorrectTerms.filter(entry => String(entry.id) !== String(item.id));
