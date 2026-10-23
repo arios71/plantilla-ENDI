@@ -1592,6 +1592,7 @@
         if (anglicismAdminButton) anglicismAdminButton.classList.remove('hidden');
         if (addAnglicismForm) addAnglicismForm.classList.add('hidden');
       }
+      if (typeof updateAutocorrectAdminUI === 'function') updateAutocorrectAdminUI();
     }
 
     async function signInAdmin(email, password) {
@@ -1874,7 +1875,8 @@
         return correction.toLocaleUpperCase(locale);
       }
       if (found && found[0] === found[0].toLocaleUpperCase(locale) &&
-          found.slice(1) === found.slice(1).toLocaleLowerCase(locale)) {
+          found.slice(1) === found.slice(1).toLocaleLowerCase(locale) &&
+          correction === correction.toLocaleLowerCase(locale)) {
         return correction[0].toLocaleUpperCase(locale) + correction.slice(1);
       }
       return correction;
