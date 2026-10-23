@@ -1485,7 +1485,7 @@
     };
 
     async function migrateLocalDictionaryToSupabase() {
-      if (!currentUser || migrationInProgress) return;
+      if (!isAdminUser() || migrationInProgress) return;
       migrationInProgress = true;
 
       const localDictionary = getLocalDictionaryForMigration();
@@ -2812,8 +2812,8 @@
       document.getElementById('addKeywordForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        if (!currentUser) {
-          showToast('Debes iniciar sesión como administrador.', 'error');
+        if (!isAdminUser()) {
+          showToast('Debes iniciar sesión como administrador autorizado.', 'error');
           return;
         }
 
@@ -2849,8 +2849,8 @@
       });
 
       document.getElementById('btnResetDefault').addEventListener('click', async () => {
-        if (!currentUser) {
-          showToast('Debes iniciar sesión como administrador.', 'error');
+        if (!isAdminUser()) {
+          showToast('Debes iniciar sesión como administrador autorizado.', 'error');
           return;
         }
 
@@ -2946,8 +2946,8 @@
     }
 
     window.removeKeywordById = async function(id) {
-      if (!currentUser) {
-        showToast('Debes iniciar sesión como administrador.', 'error');
+      if (!isAdminUser()) {
+        showToast('Debes iniciar sesión como administrador autorizado.', 'error');
         return;
       }
 
