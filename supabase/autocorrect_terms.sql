@@ -45,3 +45,73 @@ begin
   end if;
 end
 $$;
+
+-- Protección adicional para las otras dos listas de Auto-Linker.
+-- Estas políticas RESTRICTIVE se combinan con las políticas permisivas existentes
+-- y exigen que el correo JWT sea el del administrador para cualquier escritura.
+-- No elimina ni reemplaza políticas previas ni modifica los datos.
+
+alter table public.dictionary_terms enable row level security;
+alter table public.anglicism_terms enable row level security;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'dictionary_terms'
+      and policyname = 'Auto-Linker admin only dictionary insert' and permissive = 'RESTRICTIVE'
+  ) then
+    create policy "Auto-Linker admin only dictionary insert"
+      on public.dictionary_terms as restrictive for insert to public
+      with check ((auth.jwt() ->> 'email') = 'arios71@gmail.com');
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'dictionary_terms'
+      and policyname = 'Auto-Linker admin only dictionary update' and permissive = 'RESTRICTIVE'
+  ) then
+    create policy "Auto-Linker admin only dictionary update"
+      on public.dictionary_terms as restrictive for update to public
+      using ((auth.jwt() ->> 'email') = 'arios71@gmail.com')
+      with check ((auth.jwt() ->> 'email') = 'arios71@gmail.com');
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'dictionary_terms'
+      and policyname = 'Auto-Linker admin only dictionary delete' and permissive = 'RESTRICTIVE'
+  ) then
+    create policy "Auto-Linker admin only dictionary delete"
+      on public.dictionary_terms as restrictive for delete to public
+      using ((auth.jwt() ->> 'email') = 'arios71@gmail.com');
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'anglicism_terms'
+      and policyname = 'Auto-Linker admin only anglicism insert' and permissive = 'RESTRICTIVE'
+  ) then
+    create policy "Auto-Linker admin only anglicism insert"
+      on public.anglicism_terms as restrictive for insert to public
+      with check ((auth.jwt() ->> 'email') = 'arios71@gmail.com');
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'anglicism_terms'
+      and policyname = 'Auto-Linker admin only anglicism update' and permissive = 'RESTRICTIVE'
+  ) then
+    create policy "Auto-Linker admin only anglicism update"
+      on public.anglicism_terms as restrictive for update to public
+      using ((auth.jwt() ->> 'email') = 'arios71@gmail.com')
+      with check ((auth.jwt() ->> 'email') = 'arios71@gmail.com');
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'anglicism_terms'
+      and policyname = 'Auto-Linker admin only anglicism delete' and permissive = 'RESTRICTIVE'
+  ) then
+    create policy "Auto-Linker admin only anglicism delete"
+      on public.anglicism_terms as restrictive for delete to public
+      using ((auth.jwt() ->> 'email') = 'arios71@gmail.com');
+  end if;
+end
+$$;
