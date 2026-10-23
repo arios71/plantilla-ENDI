@@ -1898,7 +1898,7 @@
         // espacio, ese espacio forma parte de la coincidencia y se elimina al sustituir.
         const alternatives = entries.map(item => {
           const literal = escapeRegexLiteral(item.incorrect);
-          const hasTrailingWhitespace = /\\s$/u.test(item.incorrect);
+          const hasTrailingWhitespace = /\s$/u.test(item.incorrect);
           return '(?<![\\p{L}\\p{N}_])' + literal +
             (hasTrailingWhitespace ? '' : '(?![\\p{L}\\p{N}_])');
         });
@@ -1907,7 +1907,7 @@
         return text.replace(pattern, found => {
           const correction = lookup.get(found.toLocaleLowerCase('es'));
           if (correction === undefined) return found;
-          const foundWithoutTrailingSpace = found.replace(/\\s+$/u, '');
+          const foundWithoutTrailingSpace = found.replace(/\s+$/u, '');
           return preserveAutocorrectCapitalization(foundWithoutTrailingSpace, correction);
         });
       } catch (error) {
