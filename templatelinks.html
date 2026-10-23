@@ -1567,7 +1567,7 @@
       const anglicismAdminButton = document.getElementById('btnShowAnglicismLogin');
       const addAnglicismForm = document.getElementById('addAnglicismForm');
 
-      if (currentUser) {
+      if (isAdminUser()) {
         loginPanel.classList.add('hidden');
         editPanel.classList.remove('hidden');
         adminStatus.textContent = `Sesión activa: ${currentUser.email || 'administrador'}`;
@@ -1596,6 +1596,10 @@
     }
 
     async function signInAdmin(email, password) {
+      if (String(email || '').trim().toLocaleLowerCase('es') !== ADMIN_EMAIL) {
+        showToast('Solo el administrador autorizado puede iniciar sesión para editar los diccionarios.', 'error');
+        return false;
+      }
       const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
         console.error('Error de autenticación:', error);
