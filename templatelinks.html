@@ -1857,7 +1857,8 @@
         autocorrectTerms = (Array.isArray(data) ? data : [])
           .filter(item => typeof item.incorrect === 'string' && item.incorrect.trim() &&
                           typeof item.correction === 'string' && item.correction.trim())
-          .map(item => ({ id: item.id, incorrect: item.incorrect.trim(), correction: item.correction.trim() }))
+          // El espacio final de "incorrect" puede ser significativo (p. ej., "ex ").
+          .map(item => ({ id: item.id, incorrect: item.incorrect, correction: item.correction.trim() }))
           .sort((a, b) => b.incorrect.length - a.incorrect.length);
         autocorrectFromSupabase = true;
         if (status) status.textContent = 'Diccionario conectado. Las correcciones se aplican automáticamente al texto del panel derecho.';
@@ -1893,11 +1894,21 @@
       const escaped = entries.map(item => escapeRegexLiteral(item.incorrect));
       if (!escaped.length) return text;
       try {
-        const pattern = new RegExp('(?<![\\p{L}\\p{N}_])(?:' + escaped.join('|') + ')(?![\\p{L}\\p{N}_])', 'giu');
+        // Cada entrada se delimita por separado: si el término incorrecto termina en
+        // espacio, ese espacio forma parte de la coincidencia y se elimina al sustituir.
+        const alternatives = entries.map(item => {
+          const literal = escapeRegexLiteral(item.incorrect);
+          const hasTrailingWhitespace = /\\s$/u.test(item.incorrect);
+          return '(?<![\\p{L}\\p{N}_])' + literal +
+            (hasTrailingWhitespace ? '' : '(?![\\p{L}\\p{N}_])');
+        });
+        const pattern = new RegExp('(?:' + alternatives.join('|') + ')', 'giu');
         const lookup = new Map(entries.map(item => [item.incorrect.toLocaleLowerCase('es'), item.correction]));
         return text.replace(pattern, found => {
           const correction = lookup.get(found.toLocaleLowerCase('es'));
-          return correction === undefined ? found : preserveAutocorrectCapitalization(found, correction);
+          if (correction === undefined) return found;
+          const foundWithoutTrailingSpace = found.replace(/\\s+$/u, '');
+          return preserveAutocorrectCapitalization(foundWithoutTrailingSpace, correction);
         });
       } catch (error) {
         console.error('No se pudo aplicar el diccionario autocorrector:', error);
@@ -2004,9 +2015,11 @@
         showToast('Inicia sesión como administrador para añadir correcciones.', 'error');
         return;
       }
-      const incorrect = String(incorrectValue || '').trim();
+      // Conserva espacios finales en el término incorrecto; pueden distinguir una regla
+      // como "ex " de la palabra independiente "ex". Solo se quitan espacios iniciales.
+      const incorrect = String(incorrectValue || '').trimStart();
       const correction = String(correctionValue || '').trim();
-      if (!incorrect || !correction) {
+      if (!incorrect.trim() || !correction) {
         showToast('Completa ambos campos.', 'error');
         return;
       }
@@ -2048,8 +2061,9 @@
       }
       const incorrectInput = prompt('Editar palabra incorrecta:', item.incorrect);
       if (incorrectInput === null) return;
-      const incorrect = incorrectInput.trim();
-      if (!incorrect) { showToast('La palabra incorrecta no puede quedar vacía.', 'error'); return; }
+      // Conservar espacios finales porque pueden ser parte deliberada del patrón.
+      const incorrect = incorrectInput.trimStart();
+      if (!incorrect.trim()) { showToast('La palabra incorrecta no puede quedar vacía.', 'error'); return; }
       const correctionInput = prompt('Editar corrección:', item.correction);
       if (correctionInput === null) return;
       const correction = correctionInput.trim();
