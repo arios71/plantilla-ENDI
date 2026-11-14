@@ -2312,6 +2312,7 @@
     // Biblioteca privada de borradores en línea: tabla independiente del diccionario y de otras aplicaciones.
     const ONLINE_DRAFTS_TABLE = 'end_article_drafts';
     let currentOnlineDraftId = null;
+    let currentOnlineDraftTitle = null;
     let onlineDraftsCache = [];
 
     function setOnlineDraftStatus(message, isError = false) {
@@ -2328,6 +2329,7 @@
       controls.classList.toggle('hidden', !allowed);
       if (!allowed) {
         currentOnlineDraftId = null;
+        currentOnlineDraftTitle = null;
         onlineDraftsCache = [];
         const select = document.getElementById('onlineDraftSelect');
         if (select) select.innerHTML = '<option value="">Inicia sesión para ver tus borradores</option>';
@@ -2398,7 +2400,15 @@
         user_id: currentUser.id, title, content_html: bodyHtml, settings: getOnlineDraftSettings(),
         updated_at: new Date().toISOString(), deleted_at: null
       };
-      const result = currentOnlineDraftId && !asNew
+      const updatingExisting = !!currentOnlineDraftId && !asNew;
+      if (updatingExisting) {
+        const previousTitle = currentOnlineDraftTitle || 'Borrador sin título';
+        if (!confirm('Vas a sobrescribir el borrador guardado «' + previousTitle + '».\n\nEl contenido actual reemplazará el texto de esa historia en la biblioteca.\n\n¿Quieres continuar?')) {
+          setOnlineDraftStatus('No se realizaron cambios.');
+          return;
+        }
+      }
+      const result = updatingExisting
         ? await supabaseClient.from(ONLINE_DRAFTS_TABLE).update(payload).eq('id', currentOnlineDraftId).select('id,title,updated_at,created_at').single()
         : await supabaseClient.from(ONLINE_DRAFTS_TABLE).insert(payload).select('id,title,updated_at,created_at').single();
       if (result.error) {
@@ -2407,7 +2417,8 @@
         setOnlineDraftStatus('Error al guardar: ' + detail, true); return;
       }
       currentOnlineDraftId = result.data.id;
-      document.getElementById('onlineDraftTitle').value = result.data.title || title;
+      currentOnlineDraftTitle = result.data.title || title;
+      document.getElementById('onlineDraftTitle').value = currentOnlineDraftTitle;
       await loadOnlineDrafts();
       document.getElementById('onlineDraftSelect').value = currentOnlineDraftId;
       setOnlineDraftStatus('Guardado en línea: ' + (result.data.title || title));
@@ -2425,6 +2436,7 @@
         setOnlineDraftStatus('No se pudo abrir el borrador.', true); return;
       }
       currentOnlineDraftId = data.id;
+      currentOnlineDraftTitle = data.title || 'Borrador sin título';
       document.getElementById('onlineDraftTitle').value = data.title || '';
       inputText.innerHTML = data.content_html || '';
       const settings = data.settings || {};
@@ -2438,7 +2450,7 @@
       }
       processText();
       scheduleAutoSave();
-      setOnlineDraftStatus('Borrador abierto: ' + (data.title || 'Sin título'));
+      setOnlineDraftStatus('Editando: ' + currentOnlineDraftTitle + '. «Guardar borrador» actualizará esta historia.');
     }
 
     async function deleteSelectedOnlineDraft() {
@@ -2456,6 +2468,7 @@
       }
       if (currentOnlineDraftId === id) {
         currentOnlineDraftId = null;
+        currentOnlineDraftTitle = null;
         document.getElementById('onlineDraftTitle').value = '';
       }
       await loadOnlineDrafts();
@@ -2550,8 +2563,14 @@
 
       document.getElementById('btnClearInput').addEventListener('click', () => {
         inputText.innerHTML = '';
+        currentOnlineDraftId = null;
+        currentOnlineDraftTitle = null;
+        document.getElementById('onlineDraftTitle').value = '';
+        const draftSelect = document.getElementById('onlineDraftSelect');
+        if (draftSelect) draftSelect.value = '';
         processText();
         scheduleAutoSave();
+        setOnlineDraftStatus('Nueva historia: se guardará como un borrador independiente.');
       });
 
       document.getElementById('btnRegenerate').addEventListener('click', () => {
