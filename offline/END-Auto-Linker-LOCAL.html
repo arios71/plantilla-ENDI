@@ -5,31 +5,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Auto-Linker Periodístico - El Nuevo Día</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Tailwind se carga de forma no bloqueante solo cuando hay internet.
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      theme: { extend: {
+        fontFamily: { sans: ['Inter', 'sans-serif'] },
+        colors: { brand: { 50:'#f0f7ff',100:'#e0effe',600:'#0056b3',700:'#004088',800:'#002f67' } }
+      }}
+    };
+    if (navigator.onLine) {
+      const tailwindScript = document.createElement('script');
+      tailwindScript.src = 'https://cdn.tailwindcss.com';
+      tailwindScript.async = true;
+      document.head.appendChild(tailwindScript);
+    }
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#f0f7ff',
-              100: '#e0effe',
-              600: '#0056b3',
-              700: '#004088',
-              800: '#002f67',
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
     ::-webkit-scrollbar {
       width: 6px;
@@ -111,7 +106,7 @@
       </div>
       <div class="flex items-center space-x-2">
         <button id="btnOpenDictionary"
-        <span id="offlineConnectionStatus" class="text-[10px] text-slate-300 hidden sm:inline" role="status">Preparando conexión…</span> class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2">
+        <span id="offlineConnectionStatus" class="text-[10px] text-slate-300" role="status">Preparando conexión…</span> class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2">
           <i class="fa-solid fa-book text-amber-400"></i>
           <span>Tópicos (links END) (<span id="dictCountBadge">0</span>)</span>
         </button>
@@ -830,9 +825,9 @@
     }
     function updateOfflineConnectionStatus(){
       const el=document.getElementById('offlineConnectionStatus'); if(!el)return;
-      if(!navigator.onLine){el.textContent='Sin conexión · guardado local activo';el.className='text-[10px] text-amber-300 hidden sm:inline';}
-      else if(supabaseIsOfflineStub){el.textContent='Internet disponible · conectando Supabase…';el.className='text-[10px] text-amber-200 hidden sm:inline';}
-      else{el.textContent='Conectado · Supabase disponible';el.className='text-[10px] text-emerald-300 hidden sm:inline';}
+      if(!navigator.onLine){el.textContent='Sin conexión · guardado local activo';el.className='text-[10px] text-amber-300';}
+      else if(supabaseIsOfflineStub){el.textContent='Internet disponible · conectando Supabase…';el.className='text-[10px] text-amber-200';}
+      else{el.textContent='Conectado · Supabase disponible';el.className='text-[10px] text-emerald-300';}
     }
     function registerSupabaseAuthListeners(){
       if(!supabaseClient||!supabaseClient.auth||authListenerClient===supabaseClient)return;
@@ -1147,7 +1142,7 @@
       const connected=await ensureSupabaseConnection(); updateOfflineConnectionStatus();
       if(!connected){setOnlineDraftStatus('Internet no disponible para Supabase. El trabajo sigue guardándose localmente.');return;}
       registerSupabaseAuthListeners(); await loadDictionary(); await loadAnglicismList(); await loadAutocorrectTerms();
-      await updateAuthUI(); if(isAdminUser())await loadOnlineDrafts(); processText(); scheduleAutoSave();
+      await updateAuthUI(); updateOnlineDraftUI(); if(isAdminUser())await loadOnlineDrafts(); processText(); scheduleAutoSave();
     }
     window.addEventListener('online',reconnectSupabaseAndRefresh);
     window.addEventListener('offline',()=>{
@@ -1157,7 +1152,7 @@
     window.addEventListener('DOMContentLoaded',async()=>{
       restoreSavedDraftIfRequested(); setupLocalDraftUI(); setupOnlineDraftLibrary(); setupEventListeners(); setupAutocorrectorUI();
       await ensureSupabaseConnection(); registerSupabaseAuthListeners(); updateOfflineConnectionStatus();
-      await loadDictionary(); await loadAnglicismList(); await loadAutocorrectTerms(); await updateAuthUI();
+      await loadDictionary(); await loadAnglicismList(); await loadAutocorrectTerms(); await updateAuthUI(); updateOnlineDraftUI();
       processText(); scheduleAutoSave();
     });
 
