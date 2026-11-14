@@ -1735,9 +1735,15 @@
           }
 
           const matchedWord = match[0];
+          const textBefore = node.nodeValue.slice(0, match.index);
           const textAfter = node.nodeValue.slice(match.index + matchedWord.length);
-          
-          if (matchedWord.toLowerCase() === 'green' && /^\s+bay\b/i.test(textAfter)) {
+          const isPartOfProperName =
+            /^[\p{Lu}]/u.test(matchedWord) &&
+            /(?:^|[^\p{L}\p{N}])(?:\p{Lu}[\p{L}\p{M}'’.-]*\s+){2}$/u.test(textBefore);
+
+          if (isPartOfProperName) {
+            frag.appendChild(document.createTextNode(matchedWord));
+          } else if (matchedWord.toLowerCase() === 'green' && /^\s+bay\b/i.test(textAfter)) {
             frag.appendChild(document.createTextNode(matchedWord));
           } else if (matchedWord.toLowerCase() === 'eagles' && /\bde\s+filadelfia\b/i.test(node.nodeValue)) {
             frag.appendChild(document.createTextNode(matchedWord));
