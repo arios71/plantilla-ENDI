@@ -76,7 +76,6 @@
       overflow-y: scroll;
     }
   </style>
-
   <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2227,133 +2226,7 @@
         '<title>Borrador de El Nuevo Día</title><style>body{font:16px/1.6 Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 20px;color:#222}h1{font-size:24px;margin-bottom:8px}.saved-date{color:#666;font-size:13px;margin-bottom:24px}.draft-content{overflow-wrap:anywhere}.draft-content p{margin:0 0 1em}.draft-content a{color:#075985;text-decoration:underline}.draft-content strong,.draft-content b{font-weight:700}.draft-content em,.draft-content i{font-style:italic}.draft-content u{text-decoration:underline}</style></head><body>' +
         '<h1>Borrador de El Nuevo Día</h1><p class="saved-date">Guardado desde Auto-Linker el ' + escapeLocalDraftHtml(savedDate) + '.</p>' +
         '<main class="draft-content">' + processedHtml + '</main>' +
-        '<script type="application/json" id="end-auto-linker-snapshot">' + snapshotJson + '</scr' + 'ipt>
-  <div id="pwaOfflineNotice" role="status" aria-live="polite" hidden></div>
-  <script>
-  (() => {
-    const notice = document.getElementById('pwaOfflineNotice');
-    const refreshConnection = () => {
-      if (!navigator.onLine) {
-        notice.hidden = false;
-        notice.dataset.state = 'offline';
-        notice.textContent = 'Sin conexión · trabajando con recursos y diccionarios guardados';
-      } else {
-        notice.hidden = true;
-        notice.dataset.state = 'online';
-      }
-    };
-    window.addEventListener('online', refreshConnection);
-    window.addEventListener('offline', refreshConnection);
-    refreshConnection();
-
-    const readCache = key => {
-      try { const value = localStorage.getItem(key); return value ? JSON.parse(value) : null; }
-      catch (_) { return null; }
-    };
-    const writeCache = (key, value) => {
-      try { localStorage.setItem(key, JSON.stringify(value)); } catch (error) { console.warn('No se pudo actualizar la copia local:', error); }
-    };
-
-    // Los diccionarios se consultan en Supabase cuando hay conexión y se conservan localmente.
-    window.loadDictionary = async function() {
-      setDictionaryConnectionStatus('loading');
-      try {
-        const { data, error } = await supabaseClient.from('dictionary_terms')
-          .select('id, keyword, url').order('keyword', { ascending: true });
-        if (error) throw error;
-        if (Array.isArray(data) && data.length) {
-          dictionary = data.filter(item => item.keyword && item.url)
-            .map(item => ({ id:item.id, keyword:item.keyword, url:item.url }));
-          writeCache('end_auto_linker_dictionary_cache_v1', dictionary);
-          dictionaryFromSupabase = true;
-          setDictionaryConnectionStatus('connected');
-        } else {
-          dictionary = [...DEFAULT_DICTIONARY];
-          dictionaryFromSupabase = false;
-          setDictionaryConnectionStatus('empty');
-        }
-      } catch (error) {
-        console.warn('Usando copia local de Tópicos:', error);
-        dictionary = readCache('end_auto_linker_dictionary_cache_v1') || [...DEFAULT_DICTIONARY];
-        dictionaryFromSupabase = false;
-        setDictionaryConnectionStatus('error');
-      }
-      sortDictionaryForProcessing();
-      updateDictBadge();
-    };
-
-    window.loadAnglicismList = async function() {
-      try {
-        const { data, error } = await supabaseClient.from('anglicism_terms')
-          .select('id, term, pattern').order('term', { ascending: true });
-        if (error) throw error;
-        if (Array.isArray(data) && data.length) {
-          anglicismTerms = data.filter(item => item.term && item.pattern && item.term.trim().toLocaleLowerCase('es') !== 'par')
-            .map(item => ({ id:item.id, term:item.term.trim(), pattern:item.pattern }));
-          writeCache('end_auto_linker_anglicism_cache_v1', anglicismTerms);
-          anglicismsFromSupabase = true;
-        } else {
-          anglicismTerms = getDefaultAnglicismTerms();
-          anglicismsFromSupabase = false;
-        }
-      } catch (error) {
-        console.warn('Usando copia local de Anglicismos:', error);
-        anglicismTerms = readCache('end_auto_linker_anglicism_cache_v1') || getDefaultAnglicismTerms();
-        anglicismsFromSupabase = false;
-      }
-      const badge = document.getElementById('anglicismCountBadge');
-      if (badge) badge.textContent = anglicismTerms.length;
-    };
-
-    window.loadAutocorrectTerms = async function() {
-      const status = document.getElementById('autocorrectStatus');
-      if (status) status.textContent = 'Cargando diccionario autocorrector...';
-      try {
-        const { data, error } = await supabaseClient.from(AUTOCORRECT_TABLE)
-          .select('id, incorrect, correction').order('incorrect', { ascending: true });
-        if (error) throw error;
-        autocorrectTerms = (Array.isArray(data) ? data : [])
-          .filter(item => typeof item.incorrect === 'string' && item.incorrect.trim() &&
-            typeof item.correction === 'string' && item.correction.trim())
-          .map(item => ({ id:item.id, incorrect:item.incorrect.trim(), correction:item.correction.trim() }))
-          .sort((a,b) => b.incorrect.length-a.incorrect.length);
-        writeCache('end_auto_linker_autocorrect_cache_v1', autocorrectTerms);
-        autocorrectFromSupabase = true;
-        if (status) status.textContent = 'Diccionario conectado. Las correcciones se aplican automáticamente al texto del panel derecho.';
-      } catch (error) {
-        console.warn('Usando copia local del autocorrector:', error);
-        autocorrectTerms = readCache('end_auto_linker_autocorrect_cache_v1') || [];
-        autocorrectTerms.sort((a,b) => b.incorrect.length-a.incorrect.length);
-        autocorrectFromSupabase = false;
-        if (status) status.textContent = autocorrectTerms.length
-          ? 'Sin conexión. Usando la copia local del autocorrector.'
-          : 'Sin conexión y sin una copia local del autocorrector.';
-      }
-      const badge = document.getElementById('autocorrectCountBadge');
-      if (badge) badge.textContent = autocorrectTerms.length;
-      renderAutocorrectEntries();
-    };
-
-    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-      navigator.serviceWorker.register('./service-worker.js', { scope: './' })
-        .then(registration => {
-          if (!navigator.serviceWorker.controller) {
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-              try {
-                if (!sessionStorage.getItem('endPwaControllerReloaded')) {
-                  sessionStorage.setItem('endPwaControllerReloaded', '1');
-                  location.reload();
-                }
-              } catch (_) {}
-            }, { once:true });
-          }
-          console.info('END Auto-Linker PWA activa:', registration.scope);
-        })
-        .catch(error => console.error('No se pudo activar el modo offline:', error));
-    }
-  })();
-  </script>
-</body></html>';
+        '<script type="application/json" id="end-auto-linker-snapshot">' + snapshotJson + '</scr' + 'ipt></body></html>';
     }
 
     function saveDraftToComputer() {
@@ -3156,6 +3029,61 @@
         toast.classList.add('translate-y-20', 'opacity-0');
       }, 3500);
     }
+  </script>
+  <div id="pwaOfflineNotice" role="status" aria-live="polite" hidden></div>
+  <script>
+  (() => {
+    const notice=document.getElementById('pwaOfflineNotice');
+    const refreshConnection=()=>{
+      if(!navigator.onLine){notice.hidden=false;notice.dataset.state='offline';notice.textContent='Sin conexión · trabajando con recursos y diccionarios guardados';}
+      else{notice.hidden=true;notice.dataset.state='online';}
+    };
+    window.addEventListener('online',refreshConnection);window.addEventListener('offline',refreshConnection);refreshConnection();
+    const readCache=key=>{try{const v=localStorage.getItem(key);return v?JSON.parse(v):null;}catch(_){return null;}};
+    const writeCache=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));}catch(e){console.warn('No se pudo actualizar la copia local:',e);}};
+    window.loadDictionary=async function(){
+      setDictionaryConnectionStatus('loading');
+      try{
+        const {data,error}=await supabaseClient.from('dictionary_terms').select('id, keyword, url').order('keyword',{ascending:true});
+        if(error)throw error;
+        if(Array.isArray(data)&&data.length){dictionary=data.filter(x=>x.keyword&&x.url).map(x=>({id:x.id,keyword:x.keyword,url:x.url}));writeCache('end_auto_linker_dictionary_cache_v1',dictionary);dictionaryFromSupabase=true;setDictionaryConnectionStatus('connected');}
+        else{dictionary=[...DEFAULT_DICTIONARY];dictionaryFromSupabase=false;setDictionaryConnectionStatus('empty');}
+      }catch(error){console.warn('Usando copia local de Tópicos:',error);dictionary=readCache('end_auto_linker_dictionary_cache_v1')||[...DEFAULT_DICTIONARY];dictionaryFromSupabase=false;setDictionaryConnectionStatus('error');}
+      sortDictionaryForProcessing();updateDictBadge();
+    };
+    window.loadAnglicismList=async function(){
+      try{
+        const {data,error}=await supabaseClient.from('anglicism_terms').select('id, term, pattern').order('term',{ascending:true});
+        if(error)throw error;
+        if(Array.isArray(data)&&data.length){anglicismTerms=data.filter(x=>x.term&&x.pattern&&x.term.trim().toLocaleLowerCase('es')!=='par').map(x=>({id:x.id,term:x.term.trim(),pattern:x.pattern}));writeCache('end_auto_linker_anglicism_cache_v1',anglicismTerms);anglicismsFromSupabase=true;}
+        else{anglicismTerms=getDefaultAnglicismTerms();anglicismsFromSupabase=false;}
+      }catch(error){console.warn('Usando copia local de Anglicismos:',error);anglicismTerms=readCache('end_auto_linker_anglicism_cache_v1')||getDefaultAnglicismTerms();anglicismsFromSupabase=false;}
+      const badge=document.getElementById('anglicismCountBadge');if(badge)badge.textContent=anglicismTerms.length;
+    };
+    window.loadAutocorrectTerms=async function(){
+      const status=document.getElementById('autocorrectStatus');if(status)status.textContent='Cargando diccionario autocorrector...';
+      try{
+        const {data,error}=await supabaseClient.from(AUTOCORRECT_TABLE).select('id, incorrect, correction').order('incorrect',{ascending:true});
+        if(error)throw error;
+        autocorrectTerms=(Array.isArray(data)?data:[]).filter(x=>typeof x.incorrect==='string'&&x.incorrect.trim()&&typeof x.correction==='string'&&x.correction.trim()).map(x=>({id:x.id,incorrect:x.incorrect.trim(),correction:x.correction.trim()})).sort((a,b)=>b.incorrect.length-a.incorrect.length);
+        writeCache('end_auto_linker_autocorrect_cache_v1',autocorrectTerms);autocorrectFromSupabase=true;
+        if(status)status.textContent='Diccionario conectado. Las correcciones se aplican automáticamente al texto del panel derecho.';
+      }catch(error){
+        console.warn('Usando copia local del autocorrector:',error);
+        autocorrectTerms=readCache('end_auto_linker_autocorrect_cache_v1')||[];autocorrectTerms.sort((a,b)=>b.incorrect.length-a.incorrect.length);autocorrectFromSupabase=false;
+        if(status)status.textContent=autocorrectTerms.length?'Sin conexión. Usando la copia local del autocorrector.':'Sin conexión y sin una copia local del autocorrector.';
+      }
+      const badge=document.getElementById('autocorrectCountBadge');if(badge)badge.textContent=autocorrectTerms.length;renderAutocorrectEntries();
+    };
+    if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
+      navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).then(reg=>{
+        if(!navigator.serviceWorker.controller)navigator.serviceWorker.addEventListener('controllerchange',()=>{
+          try{if(!sessionStorage.getItem('endPwaControllerReloaded')){sessionStorage.setItem('endPwaControllerReloaded','1');location.reload();}}catch(_){}
+        },{once:true});
+        console.info('END Auto-Linker PWA activa:',reg.scope);
+      }).catch(error=>console.error('No se pudo activar el modo offline:',error));
+    }
+  })();
   </script>
 </body>
 </html>
