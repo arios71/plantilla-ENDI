@@ -668,8 +668,7 @@
       { ap: /\bRojos\b/gi, end: "Reds", standalone: true },
       { ap: /\bCerveceros\b/gi, end: "Brewers", standalone: true },
       { ap: /\bPiratas\b/gi, end: "Pirates", standalone: true },
-      { ap: /\bCardenales\b/gi, end: "Cardinals", standalone: true },
-      { ap: /\bGigantes\b/gi, end: "Giants", standalone: true }
+      { ap: /\bCardenales\b/gi, end: "Cardinals", standalone: true }
     ];
 
     const NBA_TEAM_TRANSLATIONS = [
@@ -1630,9 +1629,9 @@
       formatted = formatted.replace(/\b\d{1,3}(?:\.\d{3})+\b/g, match =>
         match.replace(/\./g, ',')
       );
-      // Conserva la coma en cantidades seguidas de «millón/millones»;
-      // la conversión a punto se hace solo si la expresión indica dólares.
-      formatted = formatted.replace(/\b\d+,\d{1,2}\b(?!\s+mill[oó]n(?:es)?\b)/gi, match =>
+      // Convierte la coma decimal a punto también cuando la cantidad precede
+      // a «millón/millones», tanto en expresiones monetarias como no monetarias.
+      formatted = formatted.replace(/\b\d+,\d{1,2}\b/gi, match =>
         match.replace(',', '.')
       );
 
