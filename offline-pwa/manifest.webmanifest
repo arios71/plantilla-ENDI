@@ -1,0 +1,19 @@
+{
+  "name": "END Auto-Linker",
+  "short_name": "Auto-Linker END",
+  "description": "Plantilla editorial de El Nuevo Día con trabajo offline y sincronización con Supabase.",
+  "lang": "es",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
