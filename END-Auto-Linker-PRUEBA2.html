@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto-Linker Periodístico - El Nuevo Día</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              600: '#0056b3',
+              700: '#004088',
+              800: '#002f67',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .preview-content a {
+      color: #0056b3;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+    .preview-content a:hover {
+      color: #002f67;
+    }
+
+    /* Resaltado temporal de la zona equivalente al cursor del editor izquierdo. */
+    .preview-content .caret-location-highlight {
+      background-color: rgba(251, 172, 51, 0.22) !important;
+      outline: 2px solid rgba(251, 172, 51, 0.65);
+      outline-offset: 2px;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+    .format-btn { width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;color:#475569;background:transparent;transition:background .15s,color .15s; }
+    .format-btn:hover { background:#e2e8f0;color:#0f172a; }
+    .format-btn.active { background:#dbeafe;color:#0056b3; }
+    #inputText:empty:before { content:attr(data-placeholder);color:#94a3b8;pointer-events:none; }
+    .text-pane-scroll {
+      max-height: 75vh;
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+    }
+    #inputText.text-pane-scroll {
+      min-height: 400px;
+      max-height: 75vh;
+      overflow-y: scroll;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-amber-500 text-slate-900 font-black px-2.5 py-1 rounded text-xs tracking-wider uppercase">
+          END
+        </div>
+        <div>
+          <h1 class="text-lg font-bold leading-none flex items-center gap-2">
+            Auto-Linker & Formateador Editorial
+          </h1>
+          <p class="text-xs text-slate-400 mt-0.5">Optimizado para la redacción de El Nuevo Día</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button id="btnOpenDictionary" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2">
+          <i class="fa-solid fa-book text-amber-400"></i>
+          <span>Tópicos (links END) (<span id="dictCountBadge">0</span>)</span>
+        </button>
+        <button id="btnOpenAutocorrector" class="bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-600 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2">
+          <i class="fa-solid fa-spell-check"></i>
+          <span>Autocorrector (<span id="autocorrectCountBadge">0</span>)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN: Input & Settings -->
+    <section class="lg:col-span-8 flex flex-col gap-5">
+      
+      <!-- Input Card -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+          <label for="inputText" class="font-semibold text-sm text-slate-700 flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-brand-600"></i>
+            1. Borrador Original (AP)
+          </label>
+          <div class="flex items-center gap-3">
+            <span id="wordCount" class="font-bold text-black text-xs">0 palabras</span>
+            <span id="autoSaveStatus" class="text-[10px] text-slate-400" role="status" aria-live="polite">Autoguardado listo</span>
+            <button id="btnClearInput" class="text-xs text-slate-500 hover:text-red-600 transition flex items-center gap-1">
+              <i class="fa-solid fa-trash-can"></i> Limpiar
+            </button>
+          </div>
+        </div>
+        <div class="p-3">
+          <div class="border border-slate-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-brand-600 focus-within:border-transparent">
+            <div id="formatToolbar" class="flex flex-wrap items-center gap-1 p-2 bg-slate-50 border-b border-slate-200" aria-label="Herramientas de formato">
+              <button type="button" class="format-btn" data-command="bold" title="Negrita"><i class="fa-solid fa-bold"></i></button>
+              <button type="button" class="format-btn" data-command="italic" title="Cursiva"><i class="fa-solid fa-italic"></i></button>
+              <button type="button" class="format-btn" data-command="underline" title="Subrayado"><i class="fa-solid fa-underline"></i></button>
+              <span class="w-px h-5 bg-slate-300 mx-1"></span>
+              <label class="format-color flex items-center gap-1 px-2 py-1 rounded-md text-xs text-slate-600 hover:bg-slate-200 cursor-pointer" title="Color del texto">
+                <i class="fa-solid fa-palette"></i>
+                <input id="textColor" type="color" value="#000000" class="w-5 h-5 p-0 border-0 bg-transparent cursor-pointer">
+              </label>
+              <button type="button" id="btnClearFormat" class="format-btn" title="Quitar formato"><i class="fa-solid fa-eraser"></i></button>
+            </div>
+            <div id="inputText" contenteditable="true" role="textbox" aria-multiline="true"
+              class="w-full text-pane-scroll p-3 text-sm leading-relaxed font-sans outline-none"
+              data-placeholder="Pega el texto usando las teclas CTRL + SHIFT + V para que entre sin estilos ni enlaces externos de AP"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COPIAS LOCALES -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3" id="localDraftPanel">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="font-semibold text-xs uppercase tracking-wider text-slate-500 flex items-center gap-2">
+            <i class="fa-solid fa-file-arrow-down text-emerald-600"></i> Copias locales de borradores
+          </h2>
+          <span id="localDraftStatus" class="text-[10px] text-slate-400" role="status" aria-live="polite">Listo</span>
+        </div>
+        <p class="text-xs text-slate-500">Guarda una copia HTML en tu computadora y ábrela después para recuperar el texto original y sus ajustes.</p>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" id="btnSaveLocalDraft" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 rounded-lg text-xs font-medium transition">
+            <i class="fa-solid fa-download mr-1"></i> Guardar copia en mi computadora
+          </button>
+          <button type="button" id="btnLoadLocalDraft" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition">
+            <i class="fa-solid fa-folder-open mr-1"></i> Abrir copia guardada
+          </button>
+          <input type="file" id="localDraftFileInput" accept=".html,.htm,text/html" class="hidden">
+        </div>
+      </div>
+
+      <!-- BIBLIOTECA EN LÍNEA: borradores privados en Supabase -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3" id="onlineDraftPanel">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="font-semibold text-xs uppercase tracking-wider text-slate-500 flex items-center gap-2"><i class="fa-solid fa-cloud text-brand-600"></i> Biblioteca de borradores en línea</h2>
+          <span id="onlineDraftStatus" class="text-[10px] text-slate-400" role="status" aria-live="polite">Inicia sesión como administrador</span>
+        </div>
+        <p class="text-xs text-slate-500">Guarda y recupera tus borradores desde otra computadora. Esta biblioteca es independiente de las copias locales y del diccionario editorial.</p>
+        <div id="onlineDraftControls" class="hidden space-y-2">
+          <label for="onlineDraftTitle" class="block text-xs font-medium text-slate-600">Título del borrador</label>
+          <input id="onlineDraftTitle" type="text" maxlength="180" placeholder="Ej.: Juego decisivo de los Yankees" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+          <div class="flex flex-wrap gap-2">
+            <button type="button" id="btnSaveOnlineDraft" class="bg-brand-600 hover:bg-brand-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> Guardar borrador</button>
+            <button type="button" id="btnNewOnlineDraft" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition">Guardar como nuevo</button>
+            <button type="button" id="btnRefreshOnlineDrafts" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-rotate mr-1"></i> Actualizar lista</button>
+          </div>
+          <label for="onlineDraftSelect" class="block text-xs font-medium text-slate-600 pt-1">Borradores guardados</label>
+          <select id="onlineDraftSelect" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-brand-600 outline-none"><option value="">No hay borradores cargados</option></select>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" id="btnOpenOnlineDraft" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-folder-open mr-1"></i> Abrir seleccionado</button>
+            <button type="button" id="btnDeleteOnlineDraft" class="border border-red-200 hover:bg-red-50 text-red-700 px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-trash-can mr-1"></i> Eliminar seleccionado</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Panel -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
+        <h2 class="font-semibold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <i class="fa-solid fa-sliders"></i> Reglas de Formato
+        </h2>
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Procedencia END (NUEVA YORK —)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleDateline" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Nombres MLB, NBA y NFL en Inglés</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleMLBTeams" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Frecuencia de enlaces</span>
+            <div class="inline-flex rounded-lg bg-slate-100 p-1 border border-slate-200">
+              <label class="cursor-pointer">
+                <input type="radio" name="replaceMode" value="first" checked class="peer sr-only">
+                <span class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 peer-checked:bg-white peer-checked:text-brand-600 peer-checked:shadow-sm block transition">
+                  Solo 1ª aparición (SEO)
+                </span>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="replaceMode" value="all" class="peer sr-only">
+                <span class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 peer-checked:bg-white peer-checked:text-brand-600 peer-checked:shadow-sm block transition">
+                  Todas
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Enlace en Negrita (&lt;strong&gt;)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleBold" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-700">Abrir pestaña nueva (_blank)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleTargetBlank" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN: Output & Preview -->
+    <section class="lg:col-span-4 xl:col-span-4 flex flex-col gap-5">
+      
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col flex-1 overflow-hidden">
+        
+        <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center space-x-2">
+            <div class="flex space-x-1 bg-slate-200/70 p-1 rounded-lg">
+              <button id="tabPreview" class="px-3 py-1 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition">
+                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+              </button>
+              <button id="tabCode" class="px-3 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition">
+                <i class="fa-solid fa-code mr-1"></i> HTML
+              </button>
+            </div>
+
+            <button id="btnRegenerate" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1 shadow-sm active:scale-95">
+              <i class="fa-solid fa-rotate text-brand-600"></i>
+              <span>Regenerar</span>
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btnCopyRich" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-paste"></i>
+              <span>Copiar Texto Enriquecido</span>
+            </button>
+            <button id="btnCopyHtml" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-copy"></i>
+              <span>Copiar HTML</span>
+            </button>
+            <button id="btnShareText" type="button" class="bg-slate-700 hover:bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-share-nodes"></i>
+              <span>Compartir</span>
+            </button>
+            <button id="btnExportWord" type="button" class="bg-blue-700 hover:bg-blue-800 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-file-word"></i>
+              <span>Word</span>
+            </button>
+            <button id="btnExportPdf" type="button" class="bg-red-700 hover:bg-red-800 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span>PDF</span>
+            </button>
+            <button id="btnExportTxt" type="button" class="border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <i class="fa-solid fa-file-lines"></i>
+              <span>TXT</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="viewPreview" class="p-5 flex-1 text-pane-scroll">
+          <div id="previewOutput" class="preview-content text-slate-800 text-base leading-relaxed space-y-4">
+            <p class="text-slate-400 italic text-sm">El texto procesado aparecerá aquí automáticamente a medida que escribas o pegues en el panel izquierdo.</p>
+          </div>
+        </div>
+
+        <div id="viewCode" class="hidden p-4 bg-slate-900 flex-1 text-pane-scroll">
+          <pre><code id="codeOutput" class="text-xs font-mono text-amber-300 whitespace-pre-wrap break-words"></code></pre>
+        </div>
+
+        <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between text-xs text-slate-500">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span id="statsMatches">0 términos enlazados</span>
+          </div>
+          <span id="dictionaryConnectionStatus" class="flex items-center gap-1"><i class="fa-solid fa-circle text-amber-400 text-[8px]"></i> Conectando diccionario central...</span>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <div id="dictModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+      
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-book-bookmark text-amber-400 text-lg"></i>
+          <h2 class="font-bold text-base">Tópicos y anglicismos - El Nuevo Día</h2>
+        </div>
+        <button id="btnCloseModal" class="text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="px-4 pt-3 bg-slate-50 border-b border-slate-200">
+        <div class="flex items-center gap-1 bg-slate-200/70 p-1 rounded-lg w-fit">
+          <button type="button" id="tabTopics" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-white text-slate-800 shadow-sm transition">
+            Tópicos (links END)
+          </button>
+          <button type="button" id="tabAnglicisms" class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 transition">
+            Lista Anglicismos
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL: TÓPICOS -->
+      <div id="topicsPanel" class="flex flex-col min-h-0 flex-1">
+        <div class="p-4 bg-slate-50 border-b border-slate-200 space-y-3">
+          <div class="flex items-center justify-between gap-3">
+            <p class="text-xs text-slate-600 font-medium">Tópicos centralizados de El Nuevo Día</p>
+            <span id="adminStatus" class="text-[11px] text-slate-500">Solo lectura</span>
+          </div>
+
+          <div id="adminLoginPanel" class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-[11px] text-slate-500">Solo el administrador autorizado puede modificar términos.</p>
+              <button type="button" id="btnShowLogin" class="shrink-0 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition">
+                Administrar
+              </button>
+            </div>
+            <form id="adminLoginForm" class="hidden grid grid-cols-1 sm:grid-cols-12 gap-2">
+              <input type="email" id="adminEmail" placeholder="Correo del administrador" autocomplete="username" required class="sm:col-span-4 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+              <input type="password" id="adminPassword" placeholder="Contraseña" autocomplete="current-password" required class="sm:col-span-4 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+              <button type="submit" class="sm:col-span-4 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition">
+                Iniciar sesión
+              </button>
+            </form>
+          </div>
+
+          <div id="adminEditPanel" class="hidden space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-xs text-slate-600 font-medium">Añadir nuevo tópico:</p>
+              <button type="button" id="btnLogout" class="text-[11px] text-slate-500 hover:text-red-600 font-medium">Cerrar sesión</button>
+            </div>
+            <form id="addKeywordForm" class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+              <input type="text" id="newKeyword" placeholder="Ej: Athletics" required class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+              <input type="url" id="newUrl" placeholder="URL opcional" class="sm:col-span-5 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+              <button type="submit" class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-plus"></i> Añadir
+              </button>
+            </form>
+          </div>
+
+          <div>
+            <input type="search" id="dictSearch" placeholder="Buscar tópico..." autocomplete="off" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none bg-white">
+          </div>
+        </div>
+
+        <div class="p-4 flex-1 overflow-y-auto max-h-[50vh] space-y-2" id="dictListContainer"></div>
+
+        <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs">
+          <button id="btnResetDefault" class="text-slate-500 hover:text-red-600 font-medium transition flex items-center gap-1">
+            <i class="fa-solid fa-rotate-left"></i> Restablecer tópicos por defecto
+          </button>
+          <button id="btnCloseModalBottom" class="bg-slate-800 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-slate-700 transition">
+            Cerrar
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL: ANGLICISMOS -->
+      <div id="anglicismsPanel" class="hidden flex-col min-h-0 flex-1">
+        <div class="p-4 bg-slate-50 border-b border-slate-200 space-y-3">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="text-xs text-slate-600 font-medium">Lista Anglicismos</p>
+              <p class="text-[11px] text-slate-500 mt-0.5">Los términos de esta lista se convierten automáticamente a cursiva.</p>
+            </div>
+            <span id="anglicismCountBadge" class="text-[11px] text-slate-500">0</span>
+          </div>
+
+          <div id="anglicismAdminPanel" class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <p id="anglicismAdminNote" class="text-[11px] text-slate-500">Solo el administrador autorizado puede modificar esta lista.</p>
+              <button type="button" id="btnShowAnglicismLogin" class="shrink-0 bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition">
+                Administrar
+              </button>
+            </div>
+          </div>
+
+          <form id="addAnglicismForm" class="hidden grid grid-cols-1 sm:grid-cols-12 gap-2">
+            <input type="text" id="newAnglicism" placeholder="Ej: wild card" required class="sm:col-span-10 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
+            <button type="submit" class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-plus"></i> Añadir
+            </button>
+          </form>
+
+          <div>
+            <input type="search" id="anglicismSearch" placeholder="Buscar anglicismo..." autocomplete="off" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none bg-white">
+          </div>
+        </div>
+
+        <div class="p-4 flex-1 overflow-y-auto max-h-[50vh] space-y-2" id="anglicismListContainer"></div>
+
+        <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs">
+          <span class="text-[11px] text-slate-500">Los cambios se sincronizan para todas las versiones.</span>
+          <button id="btnCloseAnglicismPanel" class="bg-slate-800 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-slate-700 transition">
+            Cerrar
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="autocorrectModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+      <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between">
+        <div>
+          <h2 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-spell-check text-emerald-400"></i> Diccionario autocorrector</h2>
+          <p class="text-xs text-slate-300 mt-1">Corrige errores conocidos en el texto del panel derecho.</p>
+        </div>
+        <button id="btnCloseAutocorrector" type="button" class="text-slate-300 hover:text-white" aria-label="Cerrar autocorrector"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="p-4 border-b border-slate-200 bg-slate-50 space-y-3">
+        <p id="autocorrectStatus" class="text-xs text-slate-600" role="status">Cargando diccionario...</p>
+        <div id="autocorrectLoginActions" class="flex gap-2">
+          <button id="btnAutocorrectLogin" type="button" class="text-xs font-semibold text-brand-700 hover:underline">Iniciar sesión en administración de diccionarios</button>
+        </div>
+        <form id="autocorrectEntryForm" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <label class="text-xs font-medium text-slate-700">Palabra incorrecta
+            <input id="autocorrectIncorrect" type="text" maxlength="120" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="Ej.: tenporada" required>
+          </label>
+          <label class="text-xs font-medium text-slate-700">Corrección
+            <input id="autocorrectCorrection" type="text" maxlength="120" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="Ej.: temporada" required>
+          </label>
+          <div class="sm:col-span-2 flex items-center justify-between gap-3">
+            <p class="text-[11px] text-slate-500">Se corregirán palabras completas, no fragmentos de otras palabras.</p>
+            <button type="submit" class="shrink-0 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg px-4 py-2 text-sm font-semibold"><i class="fa-solid fa-plus mr-1"></i>Añadir</button>
+          </div>
+        </form>
+      </div>
+      <div class="flex-1 min-h-0 overflow-y-auto p-4">
+        <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[11px] uppercase tracking-wide font-bold text-slate-500 border-b border-slate-200 pb-2 mb-2">
+          <span>Palabra incorrecta</span><span>Se sustituye por</span><span></span>
+        </div>
+        <div id="autocorrectEntries" class="space-y-1">
+          <p class="text-sm text-slate-400 italic">Cargando entradas...</p>
+        </div>
+      </div>
+      <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex justify-end">
+        <button id="btnCloseAutocorrectorBottom" type="button" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-medium transition transform translate-y-20 opacity-0 flex items-center gap-2 z-50">
+    <i id="toastIcon" class="fa-solid fa-check text-emerald-400"></i>
+    <span id="toastMsg">Notificación</span>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const DEFAULT_DICTIONARY = [
+      // MLB (30 equipos)
+      { keyword: "Cubs de Chicago", url: "https://www.elnuevodia.com/topicos/cubs-de-chicago/" },
+      { keyword: "Twins de Minnesota", url: "https://www.elnuevodia.com/topicos/twins-de-minnesota/" },
+      { keyword: "White Sox de Chicago", url: "https://www.elnuevodia.com/topicos/white-sox-de-chicago/" },
+      { keyword: "Rays de Tampa Bay", url: "https://www.elnuevodia.com/topicos/rays-de-tampa-bay/" },
+      { keyword: "Yankees de Nueva York", url: "https://www.elnuevodia.com/topicos/yankees-de-nueva-york/" },
+      { keyword: "Red Sox de Boston", url: "https://www.elnuevodia.com/topicos/red-sox-de-boston/" },
+      { keyword: "Orioles de Baltimore", url: "https://www.elnuevodia.com/topicos/orioles-de-baltimore/" },
+      { keyword: "Blue Jays de Toronto", url: "https://www.elnuevodia.com/topicos/blue-jays-de-toronto/" },
+      { keyword: "Guardians de Cleveland", url: "https://www.elnuevodia.com/topicos/guardians-de-cleveland/" },
+      { keyword: "Tigers de Detroit", url: "https://www.elnuevodia.com/topicos/tigers-de-detroit/" },
+      { keyword: "Royals de Kansas City", url: "https://www.elnuevodia.com/topicos/royals-de-kansas-city/" },
+      { keyword: "Astros de Houston", url: "https://www.elnuevodia.com/topicos/astros-de-houston/" },
+      { keyword: "Rangers de Texas", url: "https://www.elnuevodia.com/topicos/rangers-de-texas/" },
+      { keyword: "Mariners de Seattle", url: "https://www.elnuevodia.com/topicos/mariners-de-seattle/" },
+      { keyword: "Athletics", url: "https://www.elnuevodia.com/topicos/athletics-de-oakland/" },
+      { keyword: "Angels de Los Ángeles", url: "https://www.elnuevodia.com/topicos/angels-de-los-angeles/" },
+      { keyword: "Braves de Atlanta", url: "https://www.elnuevodia.com/topicos/braves-de-atlanta/" },
+      { keyword: "Phillies de Filadelfia", url: "https://www.elnuevodia.com/topicos/phillies-de-philadelphia/" },
+      { keyword: "Marlins de Miami", url: "https://www.elnuevodia.com/topicos/marlins-de-miami/" },
+      { keyword: "Nationals de Washington", url: "https://www.elnuevodia.com/topicos/nationals-de-washington/" },
+      { keyword: "Mets de Nueva York", url: "https://www.elnuevodia.com/topicos/mets-de-nueva-york/" },
+      { keyword: "Brewers de Milwaukee", url: "https://www.elnuevodia.com/topicos/brewers-de-milwaukee/" },
+      { keyword: "Pirates de Pittsburgh", url: "https://www.elnuevodia.com/topicos/pirates-de-pittsburgh/" },
+      { keyword: "Cardinals de San Luis", url: "https://www.elnuevodia.com/topicos/cardinals-de-san-luis/" },
+      { keyword: "Dodgers de Los Ángeles", url: "https://www.elnuevodia.com/topicos/dodgers-de-los-angeles/" },
+      { keyword: "Padres de San Diego", url: "https://www.elnuevodia.com/topicos/padres-de-san-diego/" },
+      { keyword: "Diamondbacks de Arizona", url: "https://www.elnuevodia.com/topicos/diamondbacks-de-arizona/" },
+      { keyword: "Giants de San Francisco", url: "https://www.elnuevodia.com/topicos/giants-de-san-francisco/" },
+      { keyword: "Rockies de Colorado", url: "https://www.elnuevodia.com/topicos/rockies-de-colorado/" },
+      { keyword: "Reds de Cincinnati", url: "https://www.elnuevodia.com/topicos/reds-de-cincinnati/" },
+
+      // NBA (30 equipos)
+      { keyword: "Hawks de Atlanta", url: "https://www.elnuevodia.com/topicos/hawks-de-atlanta/" },
+      { keyword: "Celtics de Boston", url: "https://www.elnuevodia.com/topicos/celtics-de-boston/" },
+      { keyword: "Nets de Brooklyn", url: "https://www.elnuevodia.com/topicos/nets-de-brooklyn/" },
+      { keyword: "Hornets de Charlotte", url: "https://www.elnuevodia.com/topicos/hornets-de-charlotte/" },
+      { keyword: "Bulls de Chicago", url: "https://www.elnuevodia.com/topicos/bulls-de-chicago/" },
+      { keyword: "Cavaliers de Cleveland", url: "https://www.elnuevodia.com/topicos/cavaliers-de-cleveland/" },
+      { keyword: "Mavericks de Dallas", url: "https://www.elnuevodia.com/topicos/mavericks-de-dallas/" },
+      { keyword: "Nuggets de Denver", url: "https://www.elnuevodia.com/topicos/nuggets-de-denver/" },
+      { keyword: "Pistons de Detroit", url: "https://www.elnuevodia.com/topicos/pistons-de-detroit/" },
+      { keyword: "Warriors de Golden State", url: "https://www.elnuevodia.com/topicos/warriors-de-golden-state/" },
+      { keyword: "Rockets de Houston", url: "https://www.elnuevodia.com/topicos/rockets-de-houston/" },
+      { keyword: "Pacers de Indiana", url: "https://www.elnuevodia.com/topicos/pacers-de-indiana/" },
+      { keyword: "Clippers de Los Ángeles", url: "https://www.elnuevodia.com/topicos/clippers-de-los-angeles/" },
+      { keyword: "Lakers de Los Ángeles", url: "https://www.elnuevodia.com/topicos/lakers-de-los-angeles/" },
+      { keyword: "Grizzlies de Memphis", url: "https://www.elnuevodia.com/topicos/grizzlies-de-memphis/" },
+      { keyword: "Heat de Miami", url: "https://www.elnuevodia.com/topicos/heat-de-miami/" },
+      { keyword: "Bucks de Milwaukee", url: "https://www.elnuevodia.com/topicos/bucks-de-milwaukee/" },
+      { keyword: "Timberwolves de Minnesota", url: "https://www.elnuevodia.com/topicos/timberwolves-de-minnesota/" },
+      { keyword: "Pelicans de Nueva Orleans", url: "https://www.elnuevodia.com/topicos/pelicans-de-nueva-orleans/" },
+      { keyword: "Knicks de Nueva York", url: "https://www.elnuevodia.com/topicos/knicks-de-nueva-york/" },
+      { keyword: "Thunder de Oklahoma City", url: "https://www.elnuevodia.com/topicos/thunder-de-oklahoma-city/" },
+      { keyword: "Magic de Orlando", url: "https://www.elnuevodia.com/topicos/magic-de-orlando/" },
+      { keyword: "76ers de Filadelfia", url: "https://www.elnuevodia.com/topicos/76ers-de-filadelfia/" },
+      { keyword: "Suns de Phoenix", url: "https://www.elnuevodia.com/topicos/suns-de-phoenix/" },
+      { keyword: "Trail Blazers de Portland", url: "https://www.elnuevodia.com/topicos/trail-blazers-de-portland/" },
+      { keyword: "Kings de Sacramento", url: "https://www.elnuevodia.com/topicos/kings-de-sacramento/" },
+      { keyword: "Spurs de San Antonio", url: "https://www.elnuevodia.com/topicos/spurs-de-san-antonio/" },
+      { keyword: "Raptors de Toronto", url: "https://www.elnuevodia.com/topicos/raptor-de-toronto/" },
+      { keyword: "Jazz de Utah", url: "https://www.elnuevodia.com/topicos/jazz-de-utah/" },
+      { keyword: "Wizards de Washington", url: "https://www.elnuevodia.com/topicos/wizards-de-washington/" },
+
+      // NFL (32 equipos)
+      { keyword: "Cardinals de Arizona", url: "https://www.elnuevodia.com/topicos/cardinals-de-arizona/" },
+      { keyword: "Falcons de Atlanta", url: "https://www.elnuevodia.com/topicos/falcons-de-atlanta/" },
+      { keyword: "Ravens de Baltimore", url: "https://www.elnuevodia.com/topicos/ravens-de-baltimore/" },
+      { keyword: "Bills de Buffalo", url: "https://www.elnuevodia.com/topicos/bills-de-buffalo/" },
+      { keyword: "Panthers de Carolina", url: "https://www.elnuevodia.com/topicos/panthers-de-carolina/" },
+      { keyword: "Bears de Chicago", url: "https://www.elnuevodia.com/topicos/bears-de-chicago/" },
+      { keyword: "Bengals de Cincinnati", url: "https://www.elnuevodia.com/topicos/bengals-de-cincinnati/" },
+      { keyword: "Browns de Cleveland", url: "https://www.elnuevodia.com/topicos/browns-de-cleveland/" },
+      { keyword: "Cowboys de Dallas", url: "https://www.elnuevodia.com/topicos/cowboys-de-dallas/" },
+      { keyword: "Broncos de Denver", url: "https://www.elnuevodia.com/topicos/broncos-de-denver/" },
+      { keyword: "Lions de Detroit", url: "https://www.elnuevodia.com/topicos/lions-de-detroit/" },
+      { keyword: "Packers de Green Bay", url: "https://www.elnuevodia.com/topicos/packers-de-green-bay/" },
+      { keyword: "Texans de Houston", url: "https://www.elnuevodia.com/topicos/texans-de-houston/" },
+      { keyword: "Colts de Indianápolis", url: "https://www.elnuevodia.com/topicos/colts-de-indianapolis/" },
+      { keyword: "Jaguars de Jacksonville", url: "https://www.elnuevodia.com/topicos/jaguars-de-jacksonville/" },
+      { keyword: "Chiefs de Kansas City", url: "https://www.elnuevodia.com/topicos/chiefs-de-kansas-city/" },
+      { keyword: "Raiders de Las Vegas", url: "https://www.elnuevodia.com/topicos/raiders-de-las-vegas/" },
+      { keyword: "Chargers de Los Ángeles", url: "https://www.elnuevodia.com/topicos/chargers-de-los-angeles/" },
+      { keyword: "Rams de Los Ángeles", url: "https://www.elnuevodia.com/topicos/rams-de-los-angeles/" },
+      { keyword: "Dolphins de Miami", url: "https://www.elnuevodia.com/topicos/dolphins-de-miami/" },
+      { keyword: "Vikings de Minnesota", url: "https://www.elnuevodia.com/topicos/vikings-de-minnesota/" },
+      { keyword: "Patriots de Nueva Inglaterra", url: "https://www.elnuevodia.com/topicos/patriots-de-nueva-inglaterra/" },
+      { keyword: "Saints de Nueva Orleans", url: "https://www.elnuevodia.com/topicos/saints-de-nueva-orleans/" },
+      { keyword: "Giants de Nueva York", url: "https://www.elnuevodia.com/topicos/giants-de-nueva-york/" },
+      { keyword: "Jets de Nueva York", url: "https://www.elnuevodia.com/topicos/jets-de-nueva-york/" },
+      { keyword: "Eagles de Filadelfia", url: "https://www.elnuevodia.com/topicos/eagles-de-philadelphia/" },
+      { keyword: "Steelers de Pittsburgh", url: "https://www.elnuevodia.com/topicos/steelers-de-pittsburgh/" },
+      { keyword: "49ers de San Francisco", url: "https://www.elnuevodia.com/topicos/49ers-de-san-francisco/" },
+      { keyword: "Seahawks de Seattle", url: "https://www.elnuevodia.com/topicos/seahawks-de-seattle/" },
+      { keyword: "Buccaneers de Tampa Bay", url: "https://www.elnuevodia.com/topicos/buccaneers-de-tampa-bay/" },
+      { keyword: "Titans de Tennessee", url: "https://www.elnuevodia.com/topicos/titans-de-tennessee/" },
+      { keyword: "Commanders de Washington", url: "https://www.elnuevodia.com/topicos/commanders-de-washington/" }
+    ];
+
+    // Reglas de traducción para nombres en inglés/híbridos (se fuerzan con \b ... \b/gi)
+    const MLB_TEAM_TRANSLATIONS = [
+      { ap: /\bWashington Nationals\b/gi, end: "Nationals de Washington" },
+      { ap: /\bNew York Yankees\b|\bYanquis de Nueva York\b/gi, end: "Yankees de Nueva York" },
+      { ap: /\bLos Angeles Dodgers\b/gi, end: "Dodgers de Los Ángeles" },
+      { ap: /\bSan Diego Padres\b/gi, end: "Padres de San Diego" },
+      { ap: /\bArizona Diamondbacks\b/gi, end: "Diamondbacks de Arizona" },
+      { ap: /\bSan Francisco Giants\b/gi, end: "Giants de San Francisco" },
+      { ap: /\bNew York Mets\b/gi, end: "Mets de Nueva York" },
+      { ap: /\bSt\.? Louis Cardinals\b/gi, end: "Cardinals de San Luis" },
+      { ap: /\bPittsburgh Pirates\b/gi, end: "Pirates de Pittsburgh" },
+      { ap: /\bMilwaukee Brewers\b/gi, end: "Brewers de Milwaukee" },
+      { ap: /\bCincinnati Reds\b/gi, end: "Reds de Cincinnati" },
+      { ap: /\bChicago Cubs\b/gi, end: "Cubs de Chicago" },
+      { ap: /\bMiami Marlins\b/gi, end: "Marlins de Miami" },
+      { ap: /\bPhiladelphia Phillies\b/gi, end: "Phillies de Filadelfia" },
+      { ap: /\bAtlanta Braves\b/gi, end: "Braves de Atlanta" },
+      { ap: /\bOakland Athletics\b/gi, end: "Athletics" },
+      { ap: /\bTampa Bay Rays\b/gi, end: "Rays de Tampa Bay" },
+      { ap: /\bToronto Blue Jays\b/gi, end: "Blue Jays de Toronto" },
+      { ap: /\bKansas City Royals\b/gi, end: "Royals de Kansas City" },
+      { ap: /\bDetroit Tigers\b/gi, end: "Tigers de Detroit" },
+      { ap: /\bCleveland Guardians\b/gi, end: "Guardians de Cleveland" },
+      { ap: /\bMinnesota Twins\b/gi, end: "Twins de Minnesota" },
+      { ap: /\bChicago White Sox\b/gi, end: "White Sox de Chicago" },
+      { ap: /\bBoston Red Sox\b/gi, end: "Red Sox de Boston" },
+      { ap: /\bBaltimore Orioles\b/gi, end: "Orioles de Baltimore" },
+      { ap: /\bTexas Rangers\b/gi, end: "Rangers de Texas" },
+      { ap: /\bSeattle Mariners\b/gi, end: "Mariners de Seattle" },
+      { ap: /\bHouston Astros\b/gi, end: "Astros de Houston" },
+      { ap: /\bLos Angeles Angels\b|\bAnaheim Angels\b/gi, end: "Angels de Los Ángeles" },
+      { ap: /\bColorado Rockies\b/gi, end: "Rockies de Colorado" },
+      { ap: /Medias Rojas de Boston/g, end: "Red Sox de Boston" },
+      { ap: /Medias Blancas de Chicago/g, end: "White Sox de Chicago" },
+      { ap: /Guardianes de Cleveland/g, end: "Guardians de Cleveland" },
+      { ap: /Tigres de Detroit/g, end: "Tigers de Detroit" },
+      { ap: /Reales de Kansas City/g, end: "Royals de Kansas City" },
+      { ap: /Mellizos de Minnesota/g, end: "Twins de Minnesota" },
+      { ap: /Ángeles de Los Ángeles|Angelinos de Los Ángeles/g, end: "Angels de Los Ángeles" },
+      { ap: /Atléticos de Oakland|Athletics de Oakland/g, end: "Athletics" },
+      { ap: /Marineros de Seattle/g, end: "Mariners de Seattle" },
+      { ap: /Vigilantes de Texas/g, end: "Rangers de Texas" },
+      { ap: /Azulejos de Toronto/g, end: "Blue Jays de Toronto" },
+      { ap: /Mantarrayas de Tampa Bay|Rayos de Tampa Bay/g, end: "Rays de Tampa Bay" },
+      { ap: /Bravos de Atlanta/g, end: "Braves de Atlanta" },
+      { ap: /Filis de Filadelfia|Filies de Filadelfia/g, end: "Phillies de Filadelfia" },
+      { ap: /Nacionales de Washington/g, end: "Nationals de Washington" },
+      { ap: /Cachorros de Chicago/g, end: "Cubs de Chicago" },
+      { ap: /Rojos de Cincinnati/g, end: "Reds de Cincinnati" },
+      { ap: /Cerveceros de Milwaukee/g, end: "Brewers de Milwaukee" },
+      { ap: /Piratas de Pittsburgh/g, end: "Pirates de Pittsburgh" },
+      { ap: /Cardenales de San Luis/g, end: "Cardinals de San Luis" },
+      { ap: /Gigantes de San Francisco/g, end: "Giants de San Francisco" },
+      { ap: /\bYanquis\b/gi, end: "Yankees", standalone: true },
+      { ap: /\bMedias Rojas\b/gi, end: "Red Sox", standalone: true },
+      { ap: /\bMedias Blancas\b/gi, end: "White Sox", standalone: true },
+      { ap: /\bGuardianes\b/gi, end: "Guardians", standalone: true },
+      { ap: /\bTigres\b/gi, end: "Tigers", standalone: true },
+      { ap: /\bReales\b/gi, end: "Royals", standalone: true },
+      { ap: /\bMellizos\b/gi, end: "Twins", standalone: true },
+      { ap: /\bAngelinos\b/gi, end: "Angels", standalone: true },
+      { ap: /\bAtléticos\b/gi, end: "Athletics", standalone: true },
+      { ap: /\bMarineros\b/gi, end: "Mariners", standalone: true },
+      { ap: /\bVigilantes\b/gi, end: "Rangers", standalone: true },
+      { ap: /\bAzulejos\b/gi, end: "Blue Jays", standalone: true },
+      { ap: /\bFilis\b|\bFilies\b/gi, end: "Phillies", standalone: true },
+      { ap: /\bNacionales\b/gi, end: "Nationals", standalone: true },
+      { ap: /\bCachorros\b/gi, end: "Cubs", standalone: true },
+      { ap: /\bRojos\b/gi, end: "Reds", standalone: true },
+      { ap: /\bCerveceros\b/gi, end: "Brewers", standalone: true },
+      { ap: /\bPiratas\b/gi, end: "Pirates", standalone: true },
+      { ap: /\bCardenales\b/gi, end: "Cardinals", standalone: true },
+    ];
+
+    const NBA_TEAM_TRANSLATIONS = [
+      { ap: /\bMilwaukee Bucks\b/gi, end: "Bucks de Milwaukee" },
+      { ap: /\bOklahoma City Thunder\b/gi, end: "Thunder de Oklahoma City" },
+      { ap: /\bPhoenix Suns\b/gi, end: "Suns de Phoenix" },
+      { ap: /\bAtlanta Hawks\b/gi, end: "Hawks de Atlanta" },
+      { ap: /\bBoston Celtics\b/gi, end: "Celtics de Boston" },
+      { ap: /\bBrooklyn Nets\b/gi, end: "Nets de Brooklyn" },
+      { ap: /\bCharlotte Hornets\b/gi, end: "Hornets de Charlotte" },
+      { ap: /\bChicago Bulls\b/gi, end: "Bulls de Chicago" },
+      { ap: /\bCleveland Cavaliers\b/gi, end: "Cavaliers de Cleveland" },
+      { ap: /\bDallas Mavericks\b/gi, end: "Mavericks de Dallas" },
+      { ap: /\bDenver Nuggets\b/gi, end: "Nuggets de Denver" },
+      { ap: /\bDetroit Pistons\b/gi, end: "Pistons de Detroit" },
+      { ap: /\bGolden State Warriors\b/gi, end: "Warriors de Golden State" },
+      { ap: /\bHouston Rockets\b/gi, end: "Rockets de Houston" },
+      { ap: /\bIndiana Pacers\b/gi, end: "Pacers de Indiana" },
+      { ap: /\bLos Angeles Clippers\b/gi, end: "Clippers de Los Ángeles" },
+      { ap: /\bLos Angeles Lakers\b/gi, end: "Lakers de Los Ángeles" },
+      { ap: /\bMemphis Grizzlies\b/gi, end: "Grizzlies de Memphis" },
+      { ap: /\bMiami Heat\b/gi, end: "Heat de Miami" },
+      { ap: /\bMinnesota Timberwolves\b/gi, end: "Timberwolves de Minnesota" },
+      { ap: /\bNew Orleans Pelicans\b/gi, end: "Pelicans de Nueva Orleans" },
+      { ap: /\bNew York Knicks\b/gi, end: "Knicks de Nueva York" },
+      { ap: /\bOrlando Magic\b/gi, end: "Magic de Orlando" },
+      { ap: /\bPhiladelphia 76ers\b/gi, end: "76ers de Filadelfia" },
+      { ap: /\bPortland Trail Blazers\b/gi, end: "Trail Blazers de Portland" },
+      { ap: /\bSacramento Kings\b/gi, end: "Kings de Sacramento" },
+      { ap: /\bSan Antonio Spurs\b/gi, end: "Spurs de San Antonio" },
+      { ap: /\bToronto Raptors\b/gi, end: "Raptors de Toronto" },
+      { ap: /\bUtah Jazz\b/gi, end: "Jazz de Utah" },
+      { ap: /\bWashington Wizards\b/gi, end: "Wizards de Washington" }
+    ];
+
+    const NFL_TEAM_TRANSLATIONS = [
+      { ap: /\bGreen Bay Packers\b/gi, end: "Packers de Green Bay" },
+      { ap: /\bPhiladelphia Eagles\b/gi, end: "Eagles de Filadelfia" },
+      { ap: /\bNew York Jets\b/gi, end: "Jets de Nueva York" },
+      { ap: /\bArizona Cardinals\b/gi, end: "Cardinals de Arizona" },
+      { ap: /\bAtlanta Falcons\b/gi, end: "Falcons de Atlanta" },
+      { ap: /\bBaltimore Ravens\b/gi, end: "Ravens de Baltimore" },
+      { ap: /\bBuffalo Bills\b/gi, end: "Bills de Buffalo" },
+      { ap: /\bCarolina Panthers\b/gi, end: "Panthers de Carolina" },
+      { ap: /\bChicago Bears\b/gi, end: "Bears de Chicago" },
+      { ap: /\bCincinnati Bengals\b/gi, end: "Bengals de Cincinnati" },
+      { ap: /\bCleveland Browns\b/gi, end: "Browns de Cleveland" },
+      { ap: /\bDallas Cowboys\b/gi, end: "Cowboys de Dallas" },
+      { ap: /\bDenver Broncos\b/gi, end: "Broncos de Denver" },
+      { ap: /\bDetroit Lions\b/gi, end: "Lions de Detroit" },
+      { ap: /\bHouston Texans\b/gi, end: "Texans de Houston" },
+      { ap: /\bIndianapolis Colts\b/gi, end: "Colts de Indianápolis" },
+      { ap: /\bJacksonville Jaguars\b/gi, end: "Jaguars de Jacksonville" },
+      { ap: /\bKansas City Chiefs\b/gi, end: "Chiefs de Kansas City" },
+      { ap: /\bLas Vegas Raiders\b/gi, end: "Raiders de Las Vegas" },
+      { ap: /\bLos Angeles Chargers\b/gi, end: "Chargers de Los Ángeles" },
+      { ap: /\bLos Angeles Rams\b/gi, end: "Rams de Los Ángeles" },
+      { ap: /\bMiami Dolphins\b/gi, end: "Dolphins de Miami" },
+      { ap: /\bMinnesota Vikings\b/gi, end: "Vikings de Minnesota" },
+      { ap: /\bNew England Patriots\b/gi, end: "Patriots de Nueva Inglaterra" },
+      { ap: /\bNew Orleans Saints\b/gi, end: "Saints de Nueva Orleans" },
+      { ap: /\bNew York Giants\b/gi, end: "Giants de Nueva York" },
+      { ap: /\bPittsburgh Steelers\b/gi, end: "Steelers de Pittsburgh" },
+      { ap: /\bSan Francisco 49ers\b/gi, end: "49ers de San Francisco" },
+      { ap: /\bSeattle Seahawks\b/gi, end: "Seahawks de Seattle" },
+      { ap: /\bTampa Bay Buccaneers\b/gi, end: "Buccaneers de Tampa Bay" },
+      { ap: /\bTennessee Titans\b/gi, end: "Titans de Tennessee" },
+      { ap: /\bWashington Commanders\b/gi, end: "Commanders de Washington" }
+    ];
+
+    const ALL_TEAM_TRANSLATIONS = [
+      ...MLB_TEAM_TRANSLATIONS.filter(item => !item.standalone),
+      ...NBA_TEAM_TRANSLATIONS,
+      ...NFL_TEAM_TRANSLATIONS
+    ];
+
+    const BASEBALL_CONTEXT = /\b(?:béisbol|beisbol|MLB|Grandes Ligas|Liga Nacional|Liga Americana|Serie Mundial|jonr[oó]n(?:es)?|cuadrangular(?:es)?|home run(?:s)?|bate(?:ó|aron|aron)|bateador(?:es)?|batea(?:n|ron)|lanzador(?:es)?|lanz[oó]|pitcher(?:s)?|relevista(?:s)?|abridor(?:es)?|receptor(?:es)?|catcher(?:s)?|inning(?:s)?|entrada(?:s)?|carrera(?:s)?|bases?|bullpen|diamante|out(?:s)?|hit(?:s)?|doble(?:s)?|triple(?:s)?|roleta(?:s)?|sencillo(?:s)?|serie(?:s)?|par(?:tido|tidos)|temporada|playoffs|postemporada|clasificaci[oó]n|wild card|wild-card)\b/i;
+
+    function hasBaseballTeamContext(text) {
+      const explicitBaseballContext = MLB_TEAM_TRANSLATIONS.some(item => {
+        if (item.standalone) return false;
+        item.ap.lastIndex = 0;
+        const found = item.ap.test(text);
+        item.ap.lastIndex = 0;
+        return found;
+      }) || BASEBALL_CONTEXT.test(text);
+
+      if (explicitBaseballContext) return true;
+
+      return MLB_TEAM_TRANSLATIONS.some(item => {
+        if (!item.standalone) return false;
+        const nickname = new RegExp(item.ap.source, 'i');
+        const match = nickname.exec(text);
+        if (!match) return false;
+        const before = text.slice(0, match.index);
+        return /^[A-ZÁÉÍÓÚÑ]/.test(match[0]) ||
+          /\b(?:los|las)\s+$/i.test(before);
+      });
+    }
+
+    function shouldTranslateStandaloneNickname(fullText, offset, match, baseballContext) {
+      if (!baseballContext) return false;
+      if (!match) return false;
+      const after = fullText.slice(offset + match.length, offset + match.length + 35);
+      if (/^\s+de\s+/i.test(after)) return false;
+      return true;
+    }
+
+    const SUPABASE_URL = "https://ngkygzwqtwxcggukqznj.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_D3k7urSeKP8aR0ypEdrOXw_6-sxarN-";
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: false
+        }
+      }
+    );
+
+    let dictionary = [];
+    let processedHtml = "";
+    let dictionaryFromSupabase = false;
+    let currentUser = null;
+    let migrationInProgress = false;
+    let anglicismTerms = [];
+    let anglicismsFromSupabase = false;
+    let autocorrectTerms = [];
+    let autocorrectFromSupabase = false;
+
+    const ADMIN_EMAIL = 'arios71@gmail.com';
+
+    function isAdminUser() {
+      return !!currentUser &&
+        String(currentUser.email || '').trim().toLocaleLowerCase('es') === ADMIN_EMAIL;
+    }
+
+    const inputText = document.getElementById('inputText');
+    const previewOutput = document.getElementById('previewOutput');
+    const codeOutput = document.getElementById('codeOutput');
+    const statsMatches = document.getElementById('statsMatches');
+    const toggleBold = document.getElementById('toggleBold');
+    const toggleTargetBlank = document.getElementById('toggleTargetBlank');
+    const toggleDateline = document.getElementById('toggleDateline');
+    const toggleMLBTeams = document.getElementById('toggleMLBTeams');
+    const dictCountBadge = document.getElementById('dictCountBadge');
+    
+    const AUTO_SAVE_KEY = 'end_auto_linker_draft_v1';
+    let autoSaveTimer = null;
+    let autoProcessTimer = null;
+    const AUTO_PROCESS_DELAY = 700;
+    let restoringDraft = false;
+
+    function setAutoSaveStatus(message, state = 'normal') {
+      const status = document.getElementById('autoSaveStatus');
+      if (!status) return;
+      status.textContent = message;
+      status.className = 'text-[10px] ' + (
+        state === 'saved' ? 'text-emerald-600' :
+        state === 'error' ? 'text-red-500' : 'text-slate-400'
+      );
+    }
+
+    function getAutoSaveSnapshot() {
+      return {
+        version: 1,
+        savedAt: new Date().toISOString(),
+        inputHtml: inputText.innerHTML,
+        outputHtml: previewOutput.innerHTML,
+        outputCode: codeOutput.textContent,
+        toggles: {
+          bold: toggleBold.checked,
+          targetBlank: toggleTargetBlank.checked,
+          dateline: !!toggleDateline && toggleDateline.checked,
+          mlbTeams: !!toggleMLBTeams && toggleMLBTeams.checked,
+          replaceMode: document.querySelector('input[name="replaceMode"]:checked')?.value || 'first'
+        }
+      };
+    }
+
+    let caretProgressOnNextProcess = null;
+    let lastKnownCaretProgress = null;
+    let caretHighlightTimer = null;
+
+    function getCaretProgressInInput() {
+      const selection = window.getSelection();
+      if (!selection || !selection.rangeCount || !selection.isCollapsed) return null;
+      const anchorNode = selection.anchorNode;
+      if (!anchorNode || (anchorNode !== inputText && !inputText.contains(anchorNode))) return null;
+
+      try {
+        const caretRange = selection.getRangeAt(0).cloneRange();
+        const textBeforeCaret = document.createRange();
+        textBeforeCaret.selectNodeContents(inputText);
+        textBeforeCaret.setEnd(caretRange.startContainer, caretRange.startOffset);
+
+        const totalLength = (inputText.textContent || '').length;
+        if (!totalLength) return 0;
+
+        // Range.toString() no incluye todos los saltos entre bloques; normalizar
+        // por la longitud real del texto mantiene estable la posición aproximada.
+        return Math.max(0, Math.min(1, textBeforeCaret.toString().length / totalLength));
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function rememberCaretProgress() {
+      const progress = getCaretProgressInInput();
+      if (progress !== null) {
+        lastKnownCaretProgress = progress;
+      }
+      return progress;
+    }
+
+    function highlightOutputAtCaretProgress(progress) {
+      const viewPreview = document.getElementById('viewPreview');
+      if (!viewPreview || viewPreview.classList.contains('hidden')) return;
+
+      previewOutput.querySelectorAll('.caret-location-highlight').forEach(element => {
+        element.classList.remove('caret-location-highlight');
+      });
+      clearTimeout(caretHighlightTimer);
+
+      if (progress === null || progress === undefined || !Number.isFinite(progress)) return;
+
+      const textLength = (previewOutput.textContent || '').length;
+      if (!textLength) return;
+
+      const targetOffset = Math.min(textLength - 1, Math.floor(progress * textLength));
+      const walker = document.createTreeWalker(previewOutput, NodeFilter.SHOW_TEXT);
+      let remaining = targetOffset;
+      let targetNode = null;
+      let node;
+
+      while ((node = walker.nextNode())) {
+        const length = node.nodeValue.length;
+        if (remaining < length || (remaining === length && length > 0)) {
+          targetNode = node;
+          break;
+        }
+        remaining -= length;
+      }
+
+      if (!targetNode) return;
+
+      const block = targetNode.parentElement?.closest('p, li, h1, h2, h3, h4, blockquote, pre');
+      const targetElement = block && previewOutput.contains(block)
+        ? block
+        : targetNode.parentElement;
+
+      if (!targetElement || !previewOutput.contains(targetElement)) return;
+
+      targetElement.classList.add('caret-location-highlight');
+      caretHighlightTimer = setTimeout(() => {
+        targetElement.classList.remove('caret-location-highlight');
+        caretHighlightTimer = null;
+      }, 1400);
+    }
+
+    function scrollOutputToCaretProgress(progress) {
+      if (progress === null || progress === undefined || !Number.isFinite(progress)) return;
+
+      const viewPreview = document.getElementById('viewPreview');
+      const viewCode = document.getElementById('viewCode');
+
+      if (viewPreview && !viewPreview.classList.contains('hidden')) {
+        const textLength = (previewOutput.textContent || '').length;
+        if (!textLength) {
+          viewPreview.scrollTop = 0;
+          return;
+        }
+
+        if (progress >= 0.995) {
+          viewPreview.scrollTop = viewPreview.scrollHeight;
+          return;
+        }
+
+        const targetOffset = Math.min(textLength - 1, Math.floor(progress * textLength));
+        const walker = document.createTreeWalker(previewOutput, NodeFilter.SHOW_TEXT);
+        let remaining = targetOffset;
+        let targetNode = null;
+        let targetNodeOffset = 0;
+        let node;
+
+        while ((node = walker.nextNode())) {
+          const length = node.nodeValue.length;
+          if (remaining <= length) {
+            targetNode = node;
+            targetNodeOffset = Math.min(remaining, length);
+            break;
+          }
+          remaining -= length;
+        }
+
+        if (targetNode) {
+          const range = document.createRange();
+          range.setStart(targetNode, targetNodeOffset);
+          range.setEnd(targetNode, targetNodeOffset);
+          const targetRect = range.getBoundingClientRect();
+          const containerRect = viewPreview.getBoundingClientRect();
+
+          if (targetRect.height || targetRect.top || targetRect.bottom) {
+            const targetTop = viewPreview.scrollTop +
+              targetRect.top - containerRect.top - viewPreview.clientTop -
+              viewPreview.clientHeight * 0.3;
+            viewPreview.scrollTop = Math.max(0, Math.min(
+              targetTop,
+              viewPreview.scrollHeight - viewPreview.clientHeight
+            ));
+          } else {
+            viewPreview.scrollTop = progress * (viewPreview.scrollHeight - viewPreview.clientHeight);
+          }
+        } else {
+          viewPreview.scrollTop = progress * (viewPreview.scrollHeight - viewPreview.clientHeight);
+        }
+      } else if (viewCode && !viewCode.classList.contains('hidden')) {
+        viewCode.scrollTop = Math.max(0, Math.min(
+          progress * (viewCode.scrollHeight - viewCode.clientHeight),
+          viewCode.scrollHeight - viewCode.clientHeight
+        ));
+      }
+    }
+
+    function scheduleAutoProcessing() {
+      clearTimeout(autoProcessTimer);
+      autoProcessTimer = setTimeout(() => {
+        autoProcessTimer = null;
