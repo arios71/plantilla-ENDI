@@ -1,12 +1,26 @@
 <!DOCTYPE html>
-<!-- END AUTO-LINKER LOCAL OFFLINE | Base main commit 9ced7ebd8fea84ae294a70827c60f4f76c7f83d4 | Copia independiente, no modifica la plantilla pública. -->
+<!-- END AUTO-LINKER LOCAL OFFLINE | Base main commit 9ced7ebd8fea84ae294a70827c60f4f76c7f83d4 | Estilos originales conservados y cacheables. -->
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Auto-Linker Periodístico - El Nuevo Día</title>
   <script>
-    // Tailwind se carga de forma no bloqueante solo cuando hay internet.
+    // Tailwind se compila al abrir la plantilla con internet y su CSS generado
+    // se conserva en este equipo para las siguientes sesiones sin conexión.
+    const END_TAILWIND_CACHE_KEY = 'end_auto_linker_tailwind_css_v1';
+    try {
+      const cachedTailwindCss = localStorage.getItem(END_TAILWIND_CACHE_KEY);
+      if (cachedTailwindCss) {
+        const cachedStyle = document.createElement('style');
+        cachedStyle.id = 'endOfflineTailwindCache';
+        cachedStyle.textContent = cachedTailwindCss;
+        document.head.appendChild(cachedStyle);
+      }
+    } catch (error) {
+      console.warn('No se pudo recuperar el estilo local:', error);
+    }
+
     window.tailwind = window.tailwind || {};
     window.tailwind.config = {
       theme: { extend: {
@@ -14,11 +28,31 @@
         colors: { brand: { 50:'#f0f7ff',100:'#e0effe',600:'#0056b3',700:'#004088',800:'#002f67' } }
       }}
     };
+
+    function cacheGeneratedTailwindCss() {
+      try {
+        let css = '';
+        for (const sheet of Array.from(document.styleSheets)) {
+          if (sheet.href || sheet.ownerNode?.id === 'endOfflineTailwindCache') continue;
+          try {
+            for (const rule of Array.from(sheet.cssRules)) css += rule.cssText + '\\n';
+          } catch (error) {
+            // Una hoja externa no accesible no impide guardar las hojas locales.
+          }
+        }
+        if (css.length > 10000) localStorage.setItem(END_TAILWIND_CACHE_KEY, css);
+      } catch (error) {
+        console.warn('No se pudo guardar el estilo para uso offline:', error);
+      }
+    }
+
     if (navigator.onLine) {
       const tailwindScript = document.createElement('script');
       tailwindScript.src = 'https://cdn.tailwindcss.com';
+      tailwindScript.onload = () => setTimeout(cacheGeneratedTailwindCss, 1400);
       tailwindScript.async = true;
       document.head.appendChild(tailwindScript);
+      window.addEventListener('load', () => setTimeout(cacheGeneratedTailwindCss, 1800), { once: true });
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -71,22 +105,7 @@
       max-height: 75vh;
       overflow-y: scroll;
     }
-    /* Fallback visual cuando las hojas de estilo externas no están disponibles. */
-    body{margin:0;background:#f1f5f9;color:#1e293b;font-family:Inter,Arial,sans-serif}
-    .hidden{display:none!important}
-    header{position:sticky;top:0;z-index:30;background:#0f172a;color:#fff;padding:12px 18px}
-    header>div{max-width:1280px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    main{max-width:1280px;margin:auto;padding:22px;display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:22px}
-    main>section{min-width:0;display:flex;flex-direction:column;gap:18px}
-    main>section>div{background:#fff;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 1px 3px #0f172a12;overflow:hidden}
-    button{cursor:pointer;border:1px solid #cbd5e1;border-radius:7px;padding:7px 10px;background:#f8fafc;color:#1e293b}
-    input,select{max-width:100%;border:1px solid #cbd5e1;border-radius:6px;padding:8px}
-    #inputText{min-height:400px;padding:14px;outline:none;line-height:1.55;overflow:auto}
-    #viewPreview,#viewCode{min-height:320px;overflow:auto;padding:18px}
-    .preview-content a{color:#0056b3;text-decoration:underline}
-    #offlineConnectionStatus{white-space:nowrap}
-    @media(max-width:850px){main{grid-template-columns:1fr;padding:12px}header>div{flex-wrap:wrap}}
-
+    #offlineConnectionStatus { white-space: nowrap; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
@@ -105,8 +124,7 @@
         </div>
       </div>
       <div class="flex items-center space-x-2">
-        <button id="btnOpenDictionary"
-        <span id="offlineConnectionStatus" class="text-[10px] text-slate-300" role="status">Preparando conexión…</span> class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2">
+        <button id="btnOpenDictionary" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2">
           <i class="fa-solid fa-book text-amber-400"></i>
           <span>Tópicos (links END) (<span id="dictCountBadge">0</span>)</span>
         </button>
@@ -114,6 +132,7 @@
           <i class="fa-solid fa-spell-check"></i>
           <span>Autocorrector (<span id="autocorrectCountBadge">0</span>)</span>
         </button>
+        <span id="offlineConnectionStatus" class="text-[10px] text-slate-300" role="status">Preparando conexión…</span>
       </div>
     </div>
   </header>
@@ -189,8 +208,8 @@
           <label for="onlineDraftTitle" class="block text-xs font-medium text-slate-600">Título del borrador</label>
           <input id="onlineDraftTitle" type="text" maxlength="180" placeholder="Ej.: Juego decisivo de los Yankees" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 outline-none">
           <div class="flex flex-wrap gap-2">
-            <button type="button" id="btnSaveOnlineDraft"
-            <button type="button" id="btnSyncLocalDraft" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> Sincronizar trabajo local con Supabase</button> class="bg-brand-600 hover:bg-brand-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> Guardar borrador</button>
+            <button type="button" id="btnSaveOnlineDraft" class="bg-brand-600 hover:bg-brand-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> Guardar borrador</button>
+            <button type="button" id="btnSyncLocalDraft" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> Sincronizar trabajo local con Supabase</button>
             <button type="button" id="btnNewOnlineDraft" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition">Guardar como nuevo</button>
             <button type="button" id="btnRefreshOnlineDrafts" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition"><i class="fa-solid fa-rotate mr-1"></i> Actualizar lista</button>
           </div>
@@ -507,6 +526,8 @@
     <span id="toastMsg">Notificación</span>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     const DEFAULT_DICTIONARY = [
       // MLB (30 equipos)
@@ -793,50 +814,77 @@
     function createOfflineSupabaseClient() {
       const offlineError = { message: 'Sin conexión con Supabase. El trabajo continúa guardándose localmente.' };
       const builder = new Proxy({}, { get(_target, property) {
-        if (property === 'then') return (resolve, reject) => Promise.resolve({data:null,error:offlineError}).then(resolve,reject);
-        if (property === 'single') return async () => ({data:null,error:offlineError});
+        if (property === 'then') return (resolve, reject) => Promise.resolve({ data: null, error: offlineError }).then(resolve, reject);
+        if (property === 'single') return async () => ({ data: null, error: offlineError });
         return () => builder;
       }});
-      return { from:()=>builder, auth:{
-        getSession:async()=>({data:{session:null},error:null}),
-        onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),
-        signInWithPassword:async()=>({error:offlineError}), signOut:async()=>({error:offlineError})
-      }};
+      return {
+        from: () => builder,
+        auth: {
+          getSession: async () => ({ data: { session: null }, error: null }),
+          onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
+          signInWithPassword: async () => ({ error: offlineError }),
+          signOut: async () => ({ error: offlineError })
+        }
+      };
     }
-    let supabaseIsOfflineStub=true, supabaseClient=createOfflineSupabaseClient();
-    let supabaseScriptLoading=null, authListenerClient=null;
+    let supabaseIsOfflineStub = true;
+    let supabaseClient = createOfflineSupabaseClient();
+    let supabaseScriptLoading = null;
+    let authListenerClient = null;
     function createSupabaseClientFromLibrary() {
-      supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
-      supabaseIsOfflineStub=false; registerSupabaseAuthListeners(); return supabaseClient;
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+      });
+      supabaseIsOfflineStub = false;
+      registerSupabaseAuthListeners();
+      return supabaseClient;
     }
     async function ensureSupabaseConnection() {
-      if(!navigator.onLine)return false;
-      if(!supabaseIsOfflineStub&&window.supabase&&window.supabase.createClient)return true;
-      if(!supabaseScriptLoading){
-        supabaseScriptLoading=new Promise(resolve=>{
-          const script=document.createElement('script'); script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'; script.async=true;
-          script.onload=()=>resolve(!!(window.supabase&&window.supabase.createClient));
-          script.onerror=()=>{script.remove();resolve(false);}; document.head.appendChild(script);
-        }).then(ok=>{if(!ok)supabaseScriptLoading=null;return ok;});
+      if (!navigator.onLine) return false;
+      if (!supabaseIsOfflineStub && window.supabase && window.supabase.createClient) return true;
+      if (!supabaseScriptLoading) {
+        supabaseScriptLoading = new Promise(resolve => {
+          const script = document.createElement('script');
+          script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+          script.async = true;
+          script.onload = () => resolve(!!(window.supabase && window.supabase.createClient));
+          script.onerror = () => { script.remove(); resolve(false); };
+          document.head.appendChild(script);
+        }).then(loaded => { if (!loaded) supabaseScriptLoading = null; return loaded; });
       }
-      const loaded=await supabaseScriptLoading;
-      if(!loaded||!window.supabase||!window.supabase.createClient)return false;
-      createSupabaseClientFromLibrary(); return true;
+      const loaded = await supabaseScriptLoading;
+      if (!loaded || !window.supabase || !window.supabase.createClient) return false;
+      createSupabaseClientFromLibrary();
+      return true;
     }
-    function updateOfflineConnectionStatus(){
-      const el=document.getElementById('offlineConnectionStatus'); if(!el)return;
-      if(!navigator.onLine){el.textContent='Sin conexión · guardado local activo';el.className='text-[10px] text-amber-300';}
-      else if(supabaseIsOfflineStub){el.textContent='Internet disponible · conectando Supabase…';el.className='text-[10px] text-amber-200';}
-      else{el.textContent='Conectado · Supabase disponible';el.className='text-[10px] text-emerald-300';}
+    function updateOfflineConnectionStatus() {
+      const el = document.getElementById('offlineConnectionStatus');
+      if (!el) return;
+      if (!navigator.onLine) {
+        el.textContent = 'Sin conexión · guardado local activo';
+        el.className = 'text-[10px] text-amber-300';
+      } else if (supabaseIsOfflineStub) {
+        el.textContent = 'Internet disponible · conectando Supabase…';
+        el.className = 'text-[10px] text-amber-200';
+      } else {
+        el.textContent = 'Conectado · Supabase disponible';
+        el.className = 'text-[10px] text-emerald-300';
+      }
     }
-    function registerSupabaseAuthListeners(){
-      if(!supabaseClient||!supabaseClient.auth||authListenerClient===supabaseClient)return;
-      authListenerClient=supabaseClient;
-      supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
-        currentUser=session?.user||null; await updateAuthUI(); renderDictionaryList(); updateOnlineDraftUI();
-        if(isAdminUser())await loadOnlineDrafts();
+    function registerSupabaseAuthListeners() {
+      if (!supabaseClient || !supabaseClient.auth || authListenerClient === supabaseClient) return;
+      authListenerClient = supabaseClient;
+      supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+        currentUser = session?.user || null;
+        await updateAuthUI();
+        renderDictionaryList();
+        updateOnlineDraftUI();
+        if (isAdminUser()) await loadOnlineDrafts();
       });
-      supabaseClient.auth.onAuthStateChange(()=>setTimeout(()=>{renderAutocorrectEntries();updateAutocorrectAdminUI();},0));
+      supabaseClient.auth.onAuthStateChange(() => {
+        setTimeout(() => { renderAutocorrectEntries(); updateAutocorrectAdminUI(); }, 0);
+      });
     }
 
     let dictionary = [];
@@ -1139,21 +1187,43 @@
 
     async function reconnectSupabaseAndRefresh() {
       updateOfflineConnectionStatus();
-      const connected=await ensureSupabaseConnection(); updateOfflineConnectionStatus();
-      if(!connected){setOnlineDraftStatus('Internet no disponible para Supabase. El trabajo sigue guardándose localmente.');return;}
-      registerSupabaseAuthListeners(); await loadDictionary(); await loadAnglicismList(); await loadAutocorrectTerms();
-      await updateAuthUI(); updateOnlineDraftUI(); if(isAdminUser())await loadOnlineDrafts(); processText(); scheduleAutoSave();
+      const connected = await ensureSupabaseConnection();
+      updateOfflineConnectionStatus();
+      if (!connected) {
+        setOnlineDraftStatus('Internet no disponible para Supabase. El trabajo sigue guardándose localmente.');
+        return;
+      }
+      registerSupabaseAuthListeners();
+      await loadDictionary();
+      await loadAnglicismList();
+      await loadAutocorrectTerms();
+      await updateAuthUI();
+      updateOnlineDraftUI();
+      if (isAdminUser()) await loadOnlineDrafts();
+      processText();
+      scheduleAutoSave();
     }
-    window.addEventListener('online',reconnectSupabaseAndRefresh);
-    window.addEventListener('offline',()=>{
+    window.addEventListener('online', reconnectSupabaseAndRefresh);
+    window.addEventListener('offline', () => {
       updateOfflineConnectionStatus();
       setOnlineDraftStatus('Sin conexión. El trabajo se guarda en este equipo; podrás sincronizarlo al volver internet.');
     });
-    window.addEventListener('DOMContentLoaded',async()=>{
-      restoreSavedDraftIfRequested(); setupLocalDraftUI(); setupOnlineDraftLibrary(); setupEventListeners(); setupAutocorrectorUI();
-      await ensureSupabaseConnection(); registerSupabaseAuthListeners(); updateOfflineConnectionStatus();
-      await loadDictionary(); await loadAnglicismList(); await loadAutocorrectTerms(); await updateAuthUI(); updateOnlineDraftUI();
-      processText(); scheduleAutoSave();
+    window.addEventListener('DOMContentLoaded', async () => {
+      restoreSavedDraftIfRequested();
+      setupLocalDraftUI();
+      setupOnlineDraftLibrary();
+      setupEventListeners();
+      setupAutocorrectorUI();
+      await ensureSupabaseConnection();
+      registerSupabaseAuthListeners();
+      updateOfflineConnectionStatus();
+      await loadDictionary();
+      await loadAnglicismList();
+      await loadAutocorrectTerms();
+      await updateAuthUI();
+      updateOnlineDraftUI();
+      processText();
+      scheduleAutoSave();
     });
 
     function generateEndTopicUrl(term) {
@@ -1266,16 +1336,23 @@
 
       if (error) {
         console.error('Error cargando diccionario central:', error);
-        const cached=readOfflineCache(OFFLINE_DICTIONARY_CACHE_KEY);
-        dictionary=cached&&cached.length?cached:[...DEFAULT_DICTIONARY];
-        dictionaryFromSupabase=false; setDictionaryConnectionStatus('error'); updateDictBadge(); return;
+        const cached = readOfflineCache(OFFLINE_DICTIONARY_CACHE_KEY);
+        dictionary = cached && cached.length ? cached : [...DEFAULT_DICTIONARY];
+        dictionaryFromSupabase = false;
+        setDictionaryConnectionStatus('error');
+        updateDictBadge();
+        return;
       }
       if (Array.isArray(data) && data.length > 0) {
-        dictionary=data.filter(item=>item.keyword&&item.url).map(item=>({id:item.id,keyword:item.keyword,url:item.url}));
-        dictionaryFromSupabase=true; writeOfflineCache(OFFLINE_DICTIONARY_CACHE_KEY,dictionary); setDictionaryConnectionStatus('connected');
+        dictionary = data.filter(item => item.keyword && item.url).map(item => ({ id: item.id, keyword: item.keyword, url: item.url }));
+        dictionaryFromSupabase = true;
+        writeOfflineCache(OFFLINE_DICTIONARY_CACHE_KEY, dictionary);
+        setDictionaryConnectionStatus('connected');
       } else {
-        dictionary=[...DEFAULT_DICTIONARY]; dictionaryFromSupabase=false;
-        writeOfflineCache(OFFLINE_DICTIONARY_CACHE_KEY,dictionary); setDictionaryConnectionStatus('empty');
+        dictionary = [...DEFAULT_DICTIONARY];
+        dictionaryFromSupabase = false;
+        writeOfflineCache(OFFLINE_DICTIONARY_CACHE_KEY, dictionary);
+        setDictionaryConnectionStatus('empty');
       }
 
       sortDictionaryForProcessing();
@@ -1383,16 +1460,19 @@
         .order('term', { ascending: true });
 
       if (error) {
-        console.error('Error cargando Lista Anglicismos:',error);
-        const cached=readOfflineCache(OFFLINE_ANGLICISM_CACHE_KEY);
-        anglicismTerms=cached&&cached.length?cached:getDefaultAnglicismTerms(); anglicismsFromSupabase=false;
-      } else if (Array.isArray(data)&&data.length>0) {
-        anglicismTerms=data.filter(item=>item.term&&item.pattern&&item.term.trim().toLocaleLowerCase('es')!=='par')
-          .map(item=>({id:item.id,term:item.term.trim(),pattern:item.pattern}));
-        anglicismsFromSupabase=true; writeOfflineCache(OFFLINE_ANGLICISM_CACHE_KEY,anglicismTerms);
+        console.error('Error cargando Lista Anglicismos:', error);
+        const cached = readOfflineCache(OFFLINE_ANGLICISM_CACHE_KEY);
+        anglicismTerms = cached && cached.length ? cached : getDefaultAnglicismTerms();
+        anglicismsFromSupabase = false;
+      } else if (Array.isArray(data) && data.length > 0) {
+        anglicismTerms = data.filter(item => item.term && item.pattern && item.term.trim().toLocaleLowerCase('es') !== 'par')
+          .map(item => ({ id: item.id, term: item.term.trim(), pattern: item.pattern }));
+        anglicismsFromSupabase = true;
+        writeOfflineCache(OFFLINE_ANGLICISM_CACHE_KEY, anglicismTerms);
       } else {
-        anglicismTerms=getDefaultAnglicismTerms(); anglicismsFromSupabase=false;
-        writeOfflineCache(OFFLINE_ANGLICISM_CACHE_KEY,anglicismTerms);
+        anglicismTerms = getDefaultAnglicismTerms();
+        anglicismsFromSupabase = false;
+        writeOfflineCache(OFFLINE_ANGLICISM_CACHE_KEY, anglicismTerms);
       }
 
       document.getElementById('anglicismCountBadge').textContent = anglicismTerms.length;
@@ -1911,15 +1991,22 @@
         .order('incorrect', { ascending: true });
 
       if (error) {
-        console.error('Error cargando diccionario autocorrector:',error);
-        const cached=readOfflineCache(OFFLINE_AUTOCORRECT_CACHE_KEY);
-        autocorrectTerms=cached&&cached.length?cached:[]; autocorrectFromSupabase=false;
-        if(status)status.textContent=autocorrectTerms.length?'Sin conexión: usando la última copia local del autocorrector.':'Sin conexión: todavía no hay una copia local del autocorrector.';
+        console.error('Error cargando diccionario autocorrector:', error);
+        const cached = readOfflineCache(OFFLINE_AUTOCORRECT_CACHE_KEY);
+        autocorrectTerms = cached && cached.length ? cached : [];
+        autocorrectFromSupabase = false;
+        if (status) status.textContent = autocorrectTerms.length
+          ? 'Sin conexión: usando la última copia local del autocorrector.'
+          : 'Sin conexión: todavía no hay una copia local del autocorrector.';
       } else {
-        autocorrectTerms=(Array.isArray(data)?data:[]).filter(item=>typeof item.incorrect==='string'&&item.incorrect.trim()&&typeof item.correction==='string'&&item.correction.trim())
-          .map(item=>({id:item.id,incorrect:item.incorrect.trim(),correction:item.correction.trim()})).sort((a,b)=>b.incorrect.length-a.incorrect.length);
-        autocorrectFromSupabase=true; writeOfflineCache(OFFLINE_AUTOCORRECT_CACHE_KEY,autocorrectTerms);
-        if(status)status.textContent='Diccionario conectado. Las correcciones se aplican automáticamente al texto del panel derecho.';
+        autocorrectTerms = (Array.isArray(data) ? data : [])
+          .filter(item => typeof item.incorrect === 'string' && item.incorrect.trim() &&
+                          typeof item.correction === 'string' && item.correction.trim())
+          .map(item => ({ id: item.id, incorrect: item.incorrect.trim(), correction: item.correction.trim() }))
+          .sort((a, b) => b.incorrect.length - a.incorrect.length);
+        autocorrectFromSupabase = true;
+        writeOfflineCache(OFFLINE_AUTOCORRECT_CACHE_KEY, autocorrectTerms);
+        if (status) status.textContent = 'Diccionario conectado. Las correcciones se aplican automáticamente al texto del panel derecho.';
       }
 
       const badge = document.getElementById('autocorrectCountBadge');
@@ -2038,6 +2125,7 @@
           document.getElementById('autocorrectCorrection').value
         );
       });
+      registerSupabaseAuthListeners();
       updateAutocorrectAdminUI();
     }
 
@@ -2537,9 +2625,13 @@
       document.getElementById('btnSyncLocalDraft').addEventListener('click', async () => {
         if (!navigator.onLine || !(await ensureSupabaseConnection())) {
           setOnlineDraftStatus('No hay conexión con Supabase. El borrador permanece guardado localmente.', true);
-          updateOfflineConnectionStatus(); return;
+          updateOfflineConnectionStatus();
+          return;
         }
-        if (!isAdminUser()) { setOnlineDraftStatus('Inicia sesión como administrador para sincronizar con Supabase.', true); return; }
+        if (!isAdminUser()) {
+          setOnlineDraftStatus('Inicia sesión como administrador para sincronizar con Supabase.', true);
+          return;
+        }
         await saveOnlineDraft(false);
       });
       document.getElementById('btnNewOnlineDraft').addEventListener('click', () => {
